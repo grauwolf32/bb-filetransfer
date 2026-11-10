@@ -1,0 +1,223 @@
+{
+  "reviewDate": "2026-11-10",
+  "sources": [
+    {
+      "id": 1,
+      "title": "Haystack hybrid",
+      "url": "https://docs.haystack.deepset.ai/docs/elasticsearchhybridretriever",
+      "use": "BM25+dense retrieval; библиотечный result fusion. Документированный пример ES8; пример с отключённой auth не является production-конфигурацией."
+    },
+    {
+      "id": 2,
+      "title": "Haystack adapter code",
+      "url": "https://github.com/deepset-ai/haystack-core-integrations/blob/584fa6b9c976d7c1984aee4ba85ba72a295dfd77/integrations/elasticsearch/src/haystack_integrations/components/retrievers/elasticsearch/elasticsearch_hybrid_retriever.py",
+      "use": "Проверены параметры filters, их mapping на обе ветки, DocumentJoiner и pipeline wiring."
+    },
+    {
+      "id": 3,
+      "title": "Haystack filter policy",
+      "url": "https://github.com/deepset-ai/haystack/blob/v3.4.1/haystack/document_stores/types/filter_policy.py",
+      "use": "REPLACE и MERGE — политики retrieval-фильтров, не механизм авторизации."
+    },
+    {
+      "id": 4,
+      "title": "Haystack SECURITY",
+      "url": "https://github.com/deepset-ai/haystack/blob/d768bb8fa815f0bb1ed39056327835c952cdedf8/SECURITY.md",
+      "use": "Граница доверия executable pipelines/snapshots; application-owned validation, SSRF и prompt handling."
+    },
+    {
+      "id": 5,
+      "title": "Haystack historical RCE",
+      "url": "https://github.com/deepset-ai/haystack/security/advisories/GHSA-hx9v-6r9f-w677",
+      "use": "CVE-2024-41950: <=2.3.0; исправление >=2.3.1. Не доказательство уязвимости текущего release."
+    },
+    {
+      "id": 6,
+      "title": "Haystack license",
+      "url": "https://github.com/deepset-ai/haystack/blob/v3.4.1/LICENSE",
+      "use": "Apache-2.0 для framework; модели и отдельные dependencies проверяются отдельно."
+    },
+    {
+      "id": 7,
+      "title": "Haystack releases",
+      "url": "https://github.com/deepset-ai/haystack/releases",
+      "use": "Наблюдавшийся stable v3.4.1; не фиксирует автоматически версии integrations."
+    },
+    {
+      "id": 8,
+      "title": "Haystack telemetry",
+      "url": "https://docs.haystack.deepset.ai/docs/telemetry",
+      "use": "Опция HAYSTACK_TELEMETRY_ENABLED=False."
+    },
+    {
+      "id": 9,
+      "title": "Haystack OpenSearch",
+      "url": "https://docs.haystack.deepset.ai/docs/opensearchhybridretriever",
+      "use": "Отдельная интеграция opensearch-haystack и hybrid retriever."
+    },
+    {
+      "id": 10,
+      "title": "LlamaIndex feature support",
+      "url": "https://developers.llamaindex.ai/python/framework/module_guides/storing/vector_stores/",
+      "use": "Elasticsearch/OpenSearch: metadata filters, hybrid, delete, stored text и async."
+    },
+    {
+      "id": 11,
+      "title": "LlamaIndex ES code",
+      "url": "https://github.com/run-llama/llama_index/blob/5f95c79fc38ba6f0e301ff29803449ce7ecb094b/llama-index-integrations/vector_stores/llama-index-vector-stores-elasticsearch/llama_index/vector_stores/elasticsearch/base.py",
+      "use": "Проверены retrieval_strategy, query mode, precedence query.filters/es_filter и вызов search."
+    },
+    {
+      "id": 12,
+      "title": "LlamaIndex license",
+      "url": "https://github.com/run-llama/llama_index/blob/5f95c79fc38ba6f0e301ff29803449ce7ecb094b/LICENSE",
+      "use": "MIT для core repository; внешние providers/модели отдельно."
+    },
+    {
+      "id": 13,
+      "title": "LlamaIndex historical safe_eval issue",
+      "url": "https://github.com/run-llama/llama_index/issues/10439",
+      "use": "Maintainer issue отмечает исправление и CVE-2024-3271; не blanket-оценка установленной версии."
+    },
+    {
+      "id": 14,
+      "title": "Elasticsearch vector storage",
+      "url": "https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector",
+      "use": "dense_vector, ANN и version-specific quantization; память в отчёте не benchmark."
+    },
+    {
+      "id": 15,
+      "title": "Elastic licensing announcement",
+      "url": "https://ir.elastic.co/News--Events/news/news-details/2024/Elastic-Announces-Open-Source-License-for-Elasticsearch-and-Kibana-Source-Code/default.aspx",
+      "use": "AGPLv3 добавлена для свободной части исходников; это не автоматическая лицензия любого бинарного дистрибутива."
+    },
+    {
+      "id": 16,
+      "title": "Elastic distribution",
+      "url": "https://www.elastic.co/downloads/elasticsearch",
+      "use": "Default binary distribution governed by Elastic License; выбранный artifact проверяется отдельно."
+    },
+    {
+      "id": 17,
+      "title": "Elastic feature tiers",
+      "url": "https://www.elastic.co/pricing/faq",
+      "use": "Server-side RRF и DLS относятся к перечисленным расширенным возможностям; доступность проверять на целевом release/license."
+    },
+    {
+      "id": 18,
+      "title": "OpenSearch license",
+      "url": "https://opensearch.org/faq/",
+      "use": "Apache-2.0 для проекта."
+    },
+    {
+      "id": 19,
+      "title": "OpenSearch hybrid",
+      "url": "https://docs.opensearch.org/latest/vector-search/ai-search/hybrid-search/",
+      "use": "Hybrid pipelines и варианты объединения результатов."
+    },
+    {
+      "id": 20,
+      "title": "OpenSearch RRF",
+      "url": "https://docs.opensearch.org/latest/vector-search/ai-search/hybrid-search/rrf/",
+      "use": "Rank-based fusion; введён с 2.19. Query depth и shards влияют на результат."
+    },
+    {
+      "id": 21,
+      "title": "OpenSearch DLS",
+      "url": "https://docs.opensearch.org/latest/security/access-control/document-level-security/",
+      "use": "Дополнительная cluster-side граница; identity mapping и совместимость query paths нужно тестировать."
+    },
+    {
+      "id": 22,
+      "title": "Kotaemon overview",
+      "url": "https://github.com/Cinnamon/kotaemon",
+      "use": "UI, full-text/vector stores и reasoning capabilities."
+    },
+    {
+      "id": 23,
+      "title": "Kotaemon settings",
+      "url": "https://github.com/Cinnamon/kotaemon/blob/9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9/flowsettings.py",
+      "use": "Проверены split stores, dev/default credentials, agents/GraphRAG settings."
+    },
+    {
+      "id": 24,
+      "title": "Kotaemon ES docstore",
+      "url": "https://github.com/Cinnamon/kotaemon/blob/9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9/libs/kotaemon/kotaemon/storages/docstores/elasticsearch.py",
+      "use": "BM25 docstore mapping/query; dense_vector в этом adapter не реализован."
+    },
+    {
+      "id": 25,
+      "title": "Kotaemon license",
+      "url": "https://github.com/Cinnamon/kotaemon/blob/9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9/LICENSE.txt",
+      "use": "Apache-2.0."
+    },
+    {
+      "id": 26,
+      "title": "AnythingLLM overview",
+      "url": "https://github.com/Mintplex-Labs/anything-llm/blob/master/README.md",
+      "use": "MIT; LanceDB default; опубликованный список vector backends не содержит Elasticsearch."
+    },
+    {
+      "id": 27,
+      "title": "AnythingLLM Compose",
+      "url": "https://github.com/Mintplex-Labs/anything-llm/blob/ace9dad3348b4d8a237b09978517ced2bd18e198/docker/docker-compose.yml",
+      "use": "Один app service в этом Compose; SYS_ADMIN и host gateway требуют review."
+    },
+    {
+      "id": 28,
+      "title": "Onyx Compose",
+      "url": "https://github.com/onyx-dot-app/onyx/blob/0fea4807af582072cd0cd775d262ca2e26845e32/deployment/docker_compose/docker-compose.yml",
+      "use": "Актуальный main использует OpenSearch; множество application/state/optional execution services."
+    },
+    {
+      "id": 29,
+      "title": "Onyx license",
+      "url": "https://github.com/onyx-dot-app/onyx/blob/0fea4807af582072cd0cd775d262ca2e26845e32/LICENSE",
+      "use": "MIT вне ee; ee под Onyx Enterprise License."
+    },
+    {
+      "id": 30,
+      "title": "Docling license",
+      "url": "https://github.com/docling-project/docling",
+      "use": "MIT code; model licenses отдельно."
+    },
+    {
+      "id": 31,
+      "title": "Docling controls",
+      "url": "https://docling-project.github.io/docling/reference/pipeline_options/",
+      "use": "enable_remote_services, allow_external_plugins, document_timeout и artifacts_path."
+    },
+    {
+      "id": 32,
+      "title": "Docling offline",
+      "url": "https://docling-project.github.io/docling/usage/advanced_options/",
+      "use": "Выключение outbound processing не предотвращает отдельную загрузку weights; нужен offline cache/egress."
+    },
+    {
+      "id": 33,
+      "title": "TEI",
+      "url": "https://github.com/huggingface/text-embeddings-inference",
+      "use": "Embedding serving; поддержка Qwen3-Embedding-0.6B в примере; архитектуру/CPU/GPU проверять на выбранном image."
+    },
+    {
+      "id": 34,
+      "title": "Open WebUI license",
+      "url": "https://docs.openwebui.com/license/",
+      "use": "Текущая лицензия содержит branding terms; не считать её просто прежним BSD."
+    },
+    {
+      "id": 35,
+      "title": "RAGFlow advisories",
+      "url": "https://github.com/infiniflow/ragflow/security/advisories",
+      "use": "Исторические RCE оцениваются по версии, runtime и достижимому пути, без рейтинга по числу CVE."
+    }
+  ],
+  "snapshots": {
+    "deepset-ai/haystack": "d768bb8fa815f0bb1ed39056327835c952cdedf8",
+    "deepset-ai/haystack-core-integrations": "584fa6b9c976d7c1984aee4ba85ba72a295dfd77",
+    "run-llama/llama_index": "5f95c79fc38ba6f0e301ff29803449ce7ecb094b",
+    "Cinnamon/kotaemon": "9ad3e4e49aa35b8acddd235918a5d9753c1cfdf9",
+    "onyx-dot-app/onyx": "0fea4807af582072cd0cd775d262ca2e26845e32",
+    "Mintplex-Labs/anything-llm": "ace9dad3348b4d8a237b09978517ced2bd18e198"
+  }
+}

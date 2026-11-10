@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-10",
+  "artifactChecks": {
+    "htmlSections": 10,
+    "desktopWidth": 1440,
+    "desktopDocumentWidth": 1440,
+    "mobileWidth": 390,
+    "mobileDocumentWidth": 390,
+    "duplicateIds": 0,
+    "missingInternalAnchors": 0,
+    "pageErrors": [],
+    "decisionSelector": "Verified ES/Haystack, OSS/OpenSearch, ready-UI pilot; stricter OSS+UI branch clarified after review.",
+    "vectorCalculator1Million1024": "4.096 GB / 3.815 GiB",
+    "printToPdf": "Succeeded; PDF is disposable QA only.",
+    "screenshots": "Desktop/code table/mobile visually inspected."
+  },
+  "limitations": [
+    "No comparative product installation/execution.",
+    "No performance benchmark, image/SBOM scan or exhaustive security audit."
+  ]
+}

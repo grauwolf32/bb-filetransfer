@@ -1,0 +1,183 @@
+{
+  "reviewDate": "2026-11-10",
+  "scope": "Documents only: lexical/BM25 search, embeddings, retrieval; optional generation, no agents/tools/code execution.",
+  "recommended": "haystack-es",
+  "newPermissiveStack": "haystack-os",
+  "candidates": [
+    {
+      "id": "haystack-es",
+      "name": "Haystack + Elasticsearch",
+      "kind": "Библиотека / свой API",
+      "license": "Apache-2.0 framework; ES artifact/license отдельно",
+      "fts": "Да: ES BM25",
+      "dense": "Да: ES dense_vector",
+      "hybrid": "Две retrieval-ветки + DocumentJoiner; client-side RRF",
+      "ui": "Нужно написать/подключить",
+      "footprint": "App + ES + embedder; parser batch/worker",
+      "verdict": "Мой основной выбор при сохранении ES",
+      "refs": [
+        1,
+        2,
+        6
+      ]
+    },
+    {
+      "id": "thin",
+      "name": "Тонкий API + официальный ES/OpenSearch client",
+      "kind": "Свой retrieval-сервис",
+      "license": "Ваш код + лицензии выбранного client/engine",
+      "fts": "Да",
+      "dense": "Да",
+      "hybrid": "BM25 + ANN; RRF в своём коде или supported engine API",
+      "ui": "Нужно написать/подключить",
+      "footprint": "Минимальная зависимость framework; lifecycle целиком ваш",
+      "verdict": "Самый узкий вариант при готовности сопровождать код",
+      "refs": [
+        14,
+        19
+      ]
+    },
+    {
+      "id": "haystack-os",
+      "name": "Haystack + OpenSearch",
+      "kind": "Библиотека / свой API",
+      "license": "Apache-2.0 framework + engine",
+      "fts": "Да: BM25",
+      "dense": "Да: knn_vector",
+      "hybrid": "Haystack joiner или OpenSearch search pipeline/RRF",
+      "ui": "Нужно написать/подключить",
+      "footprint": "Аналогично ES; не обещание меньшей RAM",
+      "verdict": "Предпочту для нового permissive-OSS стека",
+      "refs": [
+        9,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "id": "llama",
+      "name": "LlamaIndex + Elasticsearch",
+      "kind": "Библиотека / свой API",
+      "license": "MIT framework; ES отдельно",
+      "fts": "Да, при явной стратегии",
+      "dense": "Да",
+      "hybrid": "Поддерживается; mode/strategy и engine features надо согласовать",
+      "ui": "Нужно написать/подключить",
+      "footprint": "Core + только нужные adapters; не meta-package со всем",
+      "verdict": "Хорошо, если команда уже использует LlamaIndex",
+      "refs": [
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "id": "kotaemon",
+      "name": "Kotaemon",
+      "kind": "Готовый document-QA UI",
+      "license": "Apache-2.0",
+      "fts": "Elasticsearch docstore поддерживается",
+      "dense": "Отдельный vectorstore в проверенной архитектуре",
+      "hybrid": "Да; split stores добавляют lifecycle/sync задачи",
+      "ui": "Gradio, citations и preview",
+      "footprint": "SQLite/files + docstore + vectorstore; extras по выбору",
+      "verdict": "Пилот, если UI нужен сразу; не первый production-выбор",
+      "refs": [
+        22,
+        23,
+        24,
+        25
+      ]
+    },
+    {
+      "id": "anything",
+      "name": "AnythingLLM",
+      "kind": "Готовое приложение",
+      "license": "MIT core",
+      "fts": "Требование Elastic/BM25 не подтверждено published backend list",
+      "dense": "Да, LanceDB default и другие backends",
+      "hybrid": "Не засчитываю как готовый ES hybrid без доработки",
+      "ui": "Готовый document chat",
+      "footprint": "Один app container может содержать несколько процессов/подсистем",
+      "verdict": "Только если ES/лексический поиск необязателен",
+      "refs": [
+        26,
+        27
+      ]
+    },
+    {
+      "id": "onyx",
+      "name": "Onyx",
+      "kind": "Полноценная enterprise-search/chat платформа",
+      "license": "MIT core; отдельная EE license",
+      "fts": "OpenSearch в текущем main",
+      "dense": "Model/indexing services + search backend",
+      "hybrid": "Платформенный retrieval; exact policy требует отдельного review",
+      "ui": "Готовый",
+      "footprint": "API/background/web/model servers + PG/cache/search/object store и optional services",
+      "verdict": "Не соответствует цели убрать лишнюю платформу",
+      "refs": [
+        28,
+        29
+      ]
+    }
+  ],
+  "acceptanceGates": [
+    [
+      "Функциональная точность",
+      "Номера договоров, версии, идентификаторы/CVE, короткие фразы, русские формы слов, англоязычные термины, семантические перефразы.",
+      "BM25 остаётся отдельным режимом; hybrid не ухудшает критичные exact-match запросы без объяснения."
+    ],
+    [
+      "Retrieval quality",
+      "Размеченные реальные вопросы и релевантные chunks; сравнить BM25, dense, RRF и RRF+reranker на одном corpus.",
+      "Recall@k, nDCG@k/MRR и разбор ошибок; критерий качества согласовать до сравнения, не по рекламному benchmark."
+    ],
+    [
+      "ACL",
+      "Два пользователя/группы, закрытые документы и одинаковые ключевые слова; проверить обе ветки, snippets, counts, facets, reranker и download.",
+      "Ноль чужих chunks/metadata в ответах, logs/traces и prompt downstream. Ошибка identity/ACL — fail closed."
+    ],
+    [
+      "Отзыв и удаление",
+      "Revoke group/source ACL, заменить документ, удалить оригинал; повторить query во всех режимах.",
+      "Старые chunks/embeddings/кэш не возвращаются после заявленного окна консистентности."
+    ],
+    [
+      "Parser isolation",
+      "Синтетические большие/сложные PDF/OCR/Office/архивы; таймаут, падение worker, переполнение.",
+      "Ограничены time/pages/decompressed size/RAM/CPU/PIDs; query API и другие users продолжают работать."
+    ],
+    [
+      "LLM boundary",
+      "Запрос retrieval без генерации; затем optional answer endpoint с malicious document instructions.",
+      "Retrieval не вызывает chat model/tools. Optional generation не добавляет прав и не получает чужой контекст."
+    ],
+    [
+      "Egress и supply chain",
+      "Нет user URLs/pipeline imports, pinned packages/images/model revisions, model cache заранее, проверка CA/hostname.",
+      "Нет обращения к metadata/internal destinations; пакеты/модели не скачиваются из user-controlled source во время query."
+    ],
+    [
+      "Стоимость",
+      "Idle RSS и peak RSS по процессам, CPU, ingestion docs/min/pages/min, embed tokens/s, disk/chunk, warm/cold p50/p95/p99, concurrency.",
+      "Результаты измерены на одинаковом corpus/hardware/model/quality target. До этого не обещать числовую экономию."
+    ],
+    [
+      "Lifecycle",
+      "Повторная ingestion того же документа, partial failure/retry, rebuild index, backup/restore, upgrade mapping/model.",
+      "Нет дубликатов/зависших half-indexed versions; восстановление проверено. Model change требует нового embedding version/index."
+    ],
+    [
+      "Браузер/UI",
+      "Если нужен UI: IdP/session/token revoke, роли, default credentials, file serving, Markdown/HTML/SVG preview.",
+      "Закрыты произвольные файлы/active content; прямой backend недоступен в обход gateway."
+    ]
+  ],
+  "limitations": [
+    "No product execution or benchmark.",
+    "Source spot-checks are not exhaustive security audit.",
+    "Review main snapshots are not recommended installation releases."
+  ]
+}
