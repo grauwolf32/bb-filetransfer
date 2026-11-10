@@ -1,0 +1,518 @@
+{
+  "as_of": "2026-11-10",
+  "assessment_type": "documentation_based_not_hands_on",
+  "matrix_columns": [
+    "Injection",
+    "PII / DLP",
+    "Grounding",
+    "Tools / agent",
+    "Central policy",
+    "Local runtime"
+  ],
+  "solutions": [
+    {
+      "id": "nemo",
+      "name": "NVIDIA NeMo Guardrails",
+      "kind": "oss",
+      "role": "Runtime / orchestration",
+      "license": "Apache-2.0 для библиотеки; модели отдельно",
+      "status": "Релиз 0.24.1; анализ по документации этой версии",
+      "cells": [
+        "Rails",
+        "Rails",
+        "Rails",
+        "Rails",
+        "Своя обвязка",
+        "Да*"
+      ],
+      "sources": [
+        "R01",
+        "R02"
+      ],
+      "native": "Input/output, dialog, retrieval, execution и tool rails; встроенные safety-flows и подключение проверяющих моделей.",
+      "wiring": "Python runtime/сервер; интегратор задаёт модели, flows и поведение при отказе. LLMRails покрывает все типы rails; IORails оптимизирован для I/O и tools.",
+      "limit": "IORails не выполняет dialog/retrieval/custom execution. check/check_async у обоих движков проверяет I/O, но не tool rails.",
+      "ops": "Профилировать выбранный engine и фактические flows. Поддержка streaming имеет ограничения по metadata и параллельности; pin версии и явная проверка fallback.",
+      "verdict": "Сильная основа своей платформы с командой, которая владеет конфигурацией и эксплуатацией.",
+      "probe": "Подать опасный tool call именно через production-путь; убедиться, что выбранный метод действительно запускает tool rail.",
+      "burden": "Высокая: runtime, модели, политики, масштабирование и регрессия."
+    },
+    {
+      "id": "guardrails",
+      "name": "Guardrails AI",
+      "kind": "oss",
+      "role": "Валидаторы / контракты ответа",
+      "license": "Apache-2.0 core; validators и модели проверяются отдельно",
+      "status": "Миграция поставки validators; cutoff 25.08.2026",
+      "cells": [
+        "Validator",
+        "Validator",
+        "Validator",
+        "Своя обвязка",
+        "Своя обвязка",
+        "Да*"
+      ],
+      "sources": [
+        "R03",
+        "R04"
+      ],
+      "native": "Композиция I/O validators, Pydantic/structured outputs, действия при ошибке и standalone REST-сервер.",
+      "wiring": "Выбрать конкретные validators и зафиксировать версии. Hosted inference заменяется локальным исполнением или собственным endpoint.",
+      "limit": "Текущий maintainer notice прекращает старые Hub install/private registry и hosted inference. Старые quick-start могут содержать уже неработающий путь установки.",
+      "ops": "Контроль зависимостей и моделей каждого validator; оценивать стоимость исправления/retry и результат после нескольких проверок.",
+      "verdict": "Подходит для прикладных контрактов и точных правил ответа при самостоятельном serving.",
+      "probe": "Повторить установку в чистой среде и закрытом CI; проверить, что ни один validator не обращается к прежнему hosted endpoint.",
+      "burden": "Средняя/высокая: определяется составом validators."
+    },
+    {
+      "id": "llmguard",
+      "name": "Protect AI LLM Guard",
+      "kind": "oss",
+      "role": "Legacy scanner pipeline",
+      "license": "MIT",
+      "status": "Архивирован 09.07.2026; сопровождение прекращено",
+      "cells": [
+        "Архив",
+        "Архив",
+        "Архив",
+        "Не фокус",
+        "Своя обвязка",
+        "Да*"
+      ],
+      "sources": [
+        "R05"
+      ],
+      "native": "Сохранились input/output scanners: injection, secrets, anonymization, toxicity, JSON/relevance и другие проверки.",
+      "wiring": "Python pipeline или API; библиотека остаётся доступной, но upstream и связанные модели больше не сопровождаются.",
+      "limit": "Наличие installable package и длинного списка scanners не означает актуальные сигнатуры, исправления зависимостей и поддерживаемый production-путь.",
+      "ops": "Для существующего использования нужны владелец риска, свои исправления и план замены; для форка — реальный бюджет сопровождения.",
+      "verdict": "Не включать в новый production-shortlist по умолчанию. Рассматривать как legacy или материал для контролируемого форка.",
+      "probe": "Составить inventory зависимостей и моделей; проверить, кто выпускает и принимает security updates.",
+      "burden": "Высокая и растущая при отсутствии upstream."
+    },
+    {
+      "id": "llamafirewall",
+      "name": "Meta LlamaFirewall",
+      "kind": "oss",
+      "role": "Набор scanners для агентов",
+      "license": "MIT для кода; Prompt Guard/Llama Guard — отдельные условия Llama",
+      "status": "Модульный framework; совместимость зависит от trace",
+      "cells": [
+        "Scanner",
+        "Своя обвязка",
+        "Не фокус",
+        "Trace-check",
+        "Своя обвязка",
+        "Да*"
+      ],
+      "sources": [
+        "R06",
+        "R07",
+        "R08",
+        "R20",
+        "R23"
+      ],
+      "native": "PromptGuard для jailbreak, AlignmentCheck для отклонения от цели, CodeShield для рисков сгенерированного кода, custom scanners.",
+      "wiring": "Встроить сканирование в orchestration; AlignmentCheck получает trace/планы/действия и контекст цели.",
+      "limit": "Обычный jailbreak classifier не покрывает все бизнес-специфичные goal hijacks. Нельзя рассчитывать на недоступный внутренний reasoning закрытой модели; оценивать реально доступный trace.",
+      "ops": "Отдельно измерять classifier и LLM-based auditor. Авторизация tools и sandbox остаются на стороне системы.",
+      "verdict": "Полезен как набор компонентов агентной защиты; для платформы нужны enforcement, логирование и эксплуатационная обвязка.",
+      "probe": "Проверить цепочку, где каждое сообщение выглядит безобидно, но действие уводит агента от исходной задачи.",
+      "burden": "Высокая: интеграция trace и несколько типов scanners."
+    },
+    {
+      "id": "presidio",
+      "name": "Presidio",
+      "kind": "oss",
+      "role": "PII / de-identification",
+      "license": "MIT; NLP-модели отдельно",
+      "status": "Текущий репозиторий data-privacy-stack/presidio",
+      "cells": [
+        "Не фокус",
+        "Встроено",
+        "Не фокус",
+        "Не фокус",
+        "Своя обвязка",
+        "Да*"
+      ],
+      "sources": [
+        "R09",
+        "R10"
+      ],
+      "native": "Recognizer pipeline: NER, regex, контекст и проверки формата; masking/redaction/anonymization для чувствительных данных.",
+      "wiring": "Подключить нужные NLP-модели и recognizers; применять до отправки внешнему провайдеру и перед выдачей ответа.",
+      "limit": "Поддержка языка складывается из NER-модели, language config и локальных сущностей. Скрытие PII не подтверждает полномочия пользователя на документ.",
+      "ops": "Для русского отдельно оценить ФИО, адреса, ИНН/СНИЛС и корпоративные идентификаторы; проверить смысл ответа после замены.",
+      "verdict": "Практичный локальный DLP-компонент в составе более широкого контура.",
+      "probe": "Смешать латиницу/кириллицу, склонения и нестандартные разделители; измерить recall и ложные удаления на бизнес-данных.",
+      "burden": "Средняя: custom recognizers и языковые модели."
+    },
+    {
+      "id": "litellm",
+      "name": "LiteLLM Proxy",
+      "kind": "oss",
+      "role": "Gateway / применение проверок",
+      "license": "MIT core; enterprise/ — отдельная лицензия",
+      "status": "Политики Beta; часть управления требует Enterprise",
+      "cells": [
+        "Интеграция",
+        "Интеграция",
+        "Интеграция",
+        "По маршруту",
+        "Core + EE",
+        "Да*"
+      ],
+      "sources": [
+        "R11",
+        "R12",
+        "R13"
+      ],
+      "native": "Общий proxy и hooks pre_call/post_call/during_call/logging_only; множество подключаемых detectors, включая Presidio и облачные сервисы.",
+      "wiring": "Выбрать detector, hook и scope; закрыть прямой путь к провайдерам. Team/key policy attachment в описанной системе требует Enterprise.",
+      "limit": "during_call запускает проверку параллельно inference: для запрета передачи PII провайдеру нужен pre_call. logging_only регистрирует результат и не блокирует.",
+      "ops": "Матрица endpoints и adapters важнее числа интеграций. Отдельно проверять streaming, passthrough, batch, tool data и errors.",
+      "verdict": "Удобная точка сборки общей политики; качество обнаружения определяется подключёнными проверками.",
+      "probe": "Передать чувствительный input через каждый реально используемый endpoint и проверить, достиг ли он upstream до verdict.",
+      "burden": "Средняя/высокая: gateway и lifecycle внешних detectors."
+    },
+    {
+      "id": "arthur",
+      "name": "Arthur Engine",
+      "kind": "oss",
+      "role": "Guardrails + evaluations",
+      "license": "MIT engine; enterprise-платформа отдельно",
+      "status": "Engine доступен; коммерческие расширения выделены",
+      "cells": [
+        "Встроено",
+        "Встроено",
+        "Judge",
+        "Своя обвязка",
+        "Engine + EE",
+        "Да*"
+      ],
+      "sources": [
+        "R14",
+        "R15",
+        "R16",
+        "R17"
+      ],
+      "native": "Локальные injection/toxicity classifiers, PII recognizers, keyword/regex; hallucination и sensitive-data rules через LLM evaluator.",
+      "wiring": "Validation API до/после LLM. Приложение обязано обработать verdict и остановить небезопасный путь.",
+      "limit": "Self-hosted engine не делает judge-вызовы локальными автоматически. Репозиторий относит air-gapped capabilities и расширенную платформу к Enterprise.",
+      "ops": "Разделять локальные и model-based rules: у них разная цена, задержка и граница данных. Engine keys не заменяют права бизнес-пользователя.",
+      "verdict": "Подходит, когда качество ответа и guardrails нужно оценивать вместе, при контролируемом подключении judge.",
+      "probe": "Отключить внешнюю сеть и проверить каждый включённый rule; подтвердить enforcement при negative verdict.",
+      "burden": "Средняя/высокая: engine, rules и evaluator endpoints."
+    },
+    {
+      "id": "openguardrails",
+      "name": "OpenGuardrails",
+      "kind": "oss",
+      "role": "Local agent runtime / sandbox",
+      "license": "Apache-2.0 CLI; AIRS enterprise отдельно",
+      "status": "Ранний стек; model API в README ещё не публичный",
+      "cells": [
+        "Ограничено",
+        "Redaction",
+        "Не фокус",
+        "Rules + model",
+        "Своя обвязка",
+        "Частично"
+      ],
+      "sources": [
+        "R18",
+        "R19"
+      ],
+      "native": "Локальные правила действий, redaction, gateway, sandbox/firewall; неоднозначные действия предлагается оценивать специальной моделью.",
+      "wiring": "Зависит от совместимого agent harness, protocol и sandbox runtime. Источник прямо ограничивает объём реальных end-to-end тестов.",
+      "limit": "Без подключённой модели или при исчерпанной quota неоднозначные действия проходят как unjudged; это нужно явно принять или закрыть своей политикой.",
+      "ops": "Проверять отказ модели, quota, restart placeholders и поддержку конкретного API; наличие sandbox wrapper требует проверки своей ОС.",
+      "verdict": "Исследовательский пилот для локальных агентов; прежде production нужно доказать полноту пути и допустимость fallback.",
+      "probe": "Запустить действие вне local allowlist без доступной judging model и проверить фактический режим разрешения.",
+      "burden": "Высокая: ранняя стадия и harness-specific поведение."
+    },
+    {
+      "id": "aws",
+      "name": "Amazon Bedrock Guardrails",
+      "kind": "paid",
+      "role": "Managed filters / formal policy checks",
+      "license": "Коммерческий облачный сервис",
+      "status": "Зрелый managed-путь; отдельные режимы имеют ограничения",
+      "cells": [
+        "Встроено",
+        "Встроено",
+        "Встроено",
+        "Своя обвязка",
+        "Встроено",
+        "Нет"
+      ],
+      "sources": [
+        "R27",
+        "R28",
+        "R29",
+        "R30",
+        "R31"
+      ],
+      "native": "Content/topics/PII и grounding; Automated Reasoning валидирует правила формальной политики. Есть account/org enforcement для Bedrock.",
+      "wiring": "Native inference integration либо отдельные API; проверять effective org policy и обязательность на всех используемых Bedrock-вызовах.",
+      "limit": "Async streaming может выдать фрагменты до verdict и не поддерживает masking. Automated Reasoning: English US, без streaming; не входит в enforcement-конфигурацию.",
+      "ops": "Pin guardrail version и регрессия при обновлении фильтров. VALID относится к покрытым переменным политики, а не ко всем утверждениям ответа.",
+      "verdict": "Сильный старт для Bedrock при необходимости централизованного применения фильтров.",
+      "probe": "Проверить обход application-level guardrail, async выдачу секрета и реальное наследование политики аккаунтом.",
+      "price": "Основная таблица: $0.15/1000 text units content, $0.10 PII; API InvokeGuardrailChecks имеет другую сетку."
+    },
+    {
+      "id": "microsoft",
+      "name": "Microsoft Foundry / Content Safety",
+      "kind": "paid",
+      "role": "Model и agent controls",
+      "license": "Коммерческий облачный сервис",
+      "status": "Agent controls / Task Adherence — Preview",
+      "cells": [
+        "Встроено",
+        "Preview",
+        "Model only",
+        "Preview",
+        "Встроено",
+        "Нет"
+      ],
+      "sources": [
+        "R32",
+        "R33",
+        "R34"
+      ],
+      "native": "Prompt Shields для user/document attacks; четыре intervention points, включая tool calls/responses для agents; Task Adherence signal.",
+      "wiring": "Foundry policy может блокировать; standalone API возвращает сигнал. Document attack control надо включить явно.",
+      "limit": "Groundedness и Spotlighting не действуют на agents в текущей матрице; custom agent policy может изменить наследование model policy.",
+      "ops": "Сверять policy по risk × intervention × model/agent, а не только по имени. Русский оценивать отдельно: Prompt Shields в основном trained/evaluated на English.",
+      "verdict": "Подходит стеку Azure при явном учёте Preview и матрицы применимости.",
+      "probe": "Назначить custom policy агенту и убедиться, что нужный tool-response control всё ещё выполняется.",
+      "price": "Запрашивать расчёт для конкретных Content Safety/Foundry API и регионов; общей сопоставимой ставки в изученных материалах нет."
+    },
+    {
+      "id": "google",
+      "name": "Google Cloud Model Armor",
+      "kind": "paid",
+      "role": "Managed content / data protection",
+      "license": "Коммерческий облачный сервис",
+      "status": "Функции зависят от API, региона, modalities и filter version",
+      "cells": [
+        "Встроено",
+        "Встроено",
+        "Не фокус",
+        "Контент",
+        "Templates",
+        "Нет"
+      ],
+      "sources": [
+        "R35",
+        "R36",
+        "R37",
+        "R38",
+        "R39"
+      ],
+      "native": "Injection/jailbreak, safety, URLs, SDP; текст, поддерживаемые документы и изображения. В текущих docs описаны real-time/buffered streaming APIs.",
+      "wiring": "Regional endpoints и templates; обработать executionState каждого фильтра. Сканирование tool текста не заменяет авторизацию действия.",
+      "limit": "Файл/изображение свыше 4 MB даёт EXECUTION_SKIPPED. Streaming не поддерживает SDP de-identification; image/file coverage зависит от интеграции.",
+      "ops": "Проверять язык, bytes/tokens, filter versions и data residency в нужном регионе. Актуальные release notes важнее старого feature summary.",
+      "verdict": "Убедительный кандидат для DLP и документных потоков при строгой обработке skipped/partial результатов.",
+      "probe": "Отправить oversized документ и длинный русский текст; убедиться, что skipped не трактуется как safe.",
+      "price": "Standalone: 2M tokens/месяц бесплатно, далее $0.10/M; SDP в Model Armor без отдельной платы."
+    },
+    {
+      "id": "palo",
+      "name": "Palo Alto Networks Prisma AIRS",
+      "kind": "paid",
+      "role": "Security platform + AI Gateway",
+      "license": "Коммерческие модули/SKU",
+      "status": "Gateway: Americas в таблице доступности",
+      "cells": [
+        "Встроено",
+        "Встроено",
+        "Уточнить",
+        "Модуль",
+        "Встроено",
+        "Hybrid*"
+      ],
+      "sources": [
+        "R40",
+        "R41",
+        "R42"
+      ],
+      "native": "AI Gateway: workspace policies, virtual keys, budgets и inline controls; отдельные agent/runtime/model/red-team модули платформы.",
+      "wiring": "Gateway SaaS или Kubernetes Hybrid; управление в Strata Cloud Manager. Полный путь к tools и detector размещение сверять отдельно.",
+      "limit": "Hybrid Gateway подтверждает границу его data plane; из этого не следует air-gap всей платформы или всех функций проверки.",
+      "ops": "Фиксировать модуль, регион, rollout и API coverage; проверять контракт на payload, metadata, incidents и обновления политик.",
+      "verdict": "Рассматривать для централизованной security-платформы и многих AI-команд.",
+      "probe": "В Hybrid проверить маршруты каждой проверки и telemetry при недоступном management plane.",
+      "price": "Публичная универсальная цена в изученной документации не найдена; нужен quote с составом SKU и лимитами."
+    },
+    {
+      "id": "cisco",
+      "name": "Cisco AI Defense",
+      "kind": "paid",
+      "role": "Inventory / red team / runtime / MCP",
+      "license": "Коммерческий продукт",
+      "status": "Документация API + vendor data sheet",
+      "cells": [
+        "Встроено",
+        "Встроено",
+        "Уточнить",
+        "Встроено",
+        "Встроено",
+        "VPC/POD*"
+      ],
+      "sources": [
+        "R43",
+        "R44"
+      ],
+      "native": "Inventory, model/MCP scanning, red teaming, runtime security/privacy/safety; tool allow/deny и MCP enforcement.",
+      "wiring": "Варианты SaaS, VPC и AI POD; Inspection API для runtime. У data sheet локальный inference traffic в VPC/POD отделён от management metadata.",
+      "limit": "Перечень функций всей платформы не гарантирует их наличие в выбранной лицензии и deployment. Детальность данных — преимущественно официальная спецификация поставщика.",
+      "ops": "Проверить размер data plane, отказоустойчивость, интеграции и границу management metadata. Red-team и runtime должны защищать один и тот же workflow.",
+      "verdict": "Кандидат для команды, которой нужен общий контур оценки, inventory и runtime контроля.",
+      "probe": "Проверить реальный blocked tool call через MCP и совпадение policy с результатом validation.",
+      "price": "Quote: отдельно запросить runtime, validation/red-team и локальный data plane."
+    },
+    {
+      "id": "checkpoint",
+      "name": "Check Point AI Guardrails (Lakera)",
+      "kind": "paid",
+      "role": "Specialized detector / agent protection",
+      "license": "Коммерческий SaaS/self-hosted",
+      "status": "Custom guardrails Beta; audio Early Access",
+      "cells": [
+        "Встроено",
+        "Встроено",
+        "Уточнить",
+        "Встроено",
+        "Platform API",
+        "Да*"
+      ],
+      "sources": [
+        "R45",
+        "R46"
+      ],
+      "native": "Prompt attacks, data leakage, safety, URL policy, Dangerous Deviation и tool allow/deny; анализ tool calls/responses/descriptions.",
+      "wiring": "Guard API вызывается на каждом нужном шаге; gateway/приложение выполняет действие по verdict. Discovery в portal не включает native runtime сам по себе.",
+      "limit": "Native platform runtime integrations обозначены roadmap. Нельзя переносить text coverage на изображения; audio имеет отдельный launch stage.",
+      "ops": "SaaS и self-hosted различаются обновлениями, scaling и observability. Русский заявлен поставщиком, но качество нужно подтвердить своим набором.",
+      "verdict": "Сильный кандидат на внешний или локальный detector при сохранении своего enforcement.",
+      "probe": "После подключения discovery проверить, вызывается ли Guard API перед каждым опасным tool action.",
+      "price": "Quote: отдельно SaaS volumes, self-hosted, updates и расширенный agent tier."
+    },
+    {
+      "id": "sentinelone",
+      "name": "SentinelOne Prompt Security",
+      "kind": "paid",
+      "role": "Enterprise AI / agent security",
+      "license": "Коммерческая платформа",
+      "status": "Для ряда деталей доступна только продуктовая страница",
+      "cells": [
+        "Заявлено",
+        "Заявлено",
+        "Уточнить",
+        "Заявлено",
+        "Заявлено",
+        "Уточнить"
+      ],
+      "sources": [
+        "R47"
+      ],
+      "native": "Текущая страница заявляет AI inventory/governance, DLP, pre-production testing, runtime enforcement и контроль действий агентов.",
+      "wiring": "Нужно получить актуальную API/SDK-матрицу, схему deployment и список поддерживаемых agent platforms; прежние URL перенаправляются.",
+      "limit": "Публичное product positioning даёт меньше инженерных доказательств, чем API docs других кандидатов. В обзоре это снижает уверенность, а не доказывает отсутствие функции.",
+      "ops": "Запросить demonstration точного production-пути, обработку streaming/errors, data retention и серверное применение политик.",
+      "verdict": "Кандидат при интересе к общему enterprise AI security, но технический допуск должен опираться на PoC и спецификацию.",
+      "probe": "Воспроизвести блокировку конкретного cross-tool сценария, а не принимать inventory dashboard за доказательство runtime защиты.",
+      "price": "Quote; запросить измеряемые единицы, minimum commit и состав agent/runtime модулей."
+    },
+    {
+      "id": "cloudflare",
+      "name": "Cloudflare AI Gateway",
+      "kind": "paid",
+      "role": "Managed gateway + moderation / DLP",
+      "license": "Коммерческая платформа с free core/DLP",
+      "status": "Guardrails и DLP обозначены Beta",
+      "cells": [
+        "Уточнить",
+        "Встроено",
+        "Не фокус",
+        "Контент",
+        "Gateway",
+        "Нет"
+      ],
+      "sources": [
+        "R48",
+        "R49",
+        "R50"
+      ],
+      "native": "Guardrails moderation плюс отдельный DLP для request/response; инструменты проверяются как текст, если присутствуют в payload.",
+      "wiring": "Gateway-level DLP policy, flag либо block. Ответ SSE при response DLP сначала полностью буферизуется.",
+      "limit": "DLP не декодирует base64 и файлы. Cache hits не пересканируются; смена DLP policy не меняет уже закэшированный ответ до TTL.",
+      "ops": "Учитывать cache invalidation и time-to-first-token. Для разных tenant policies документация рекомендует отдельные gateways.",
+      "verdict": "Полезен для общей moderation/DLP на уже принятом gateway; полноту injection/agent authorization доказывать отдельно.",
+      "probe": "Сохранить ответ в кэше, усилить DLP policy и проверить поведение до истечения TTL.",
+      "price": "Core и DLP scanning free по текущим условиям; custom profiles, logging, export и иные функции могут иметь отдельную стоимость."
+    },
+    {
+      "id": "yandex",
+      "name": "Yandex AI Studio Guardrails",
+      "kind": "paid",
+      "role": "Managed moderation",
+      "license": "Облачный сервис; условия Preview",
+      "status": "Preview",
+      "cells": [
+        "Уточнить",
+        "Уточнить",
+        "Не фокус",
+        "Не фокус",
+        "В AI Studio",
+        "Нет"
+      ],
+      "sources": [
+        "R51"
+      ],
+      "native": "Проверки запросов/ответов через classifier и dictionaries; system/custom policies, blocking message и audit events.",
+      "wiring": "Привязка guardrail к model instance. Собственные classifier/dictionaries нужно подготовить и проверить на ваших данных.",
+      "limit": "Custom guardrail отключает system guardrail; у open-source моделей system guardrail по умолчанию выключен.",
+      "ops": "Для replacement policy явно восстановить необходимые базовые категории. Наличие moderation не подтверждает готовую injection/DLP/agent protection.",
+      "verdict": "Кандидат для AI Studio и русского контента в пределах подтверждённого scope.",
+      "probe": "Сравнить system и custom конфигурации на одном наборе, включая базовые safety-категории.",
+      "price": "Подтвердить тарификацию, лимиты, SLA и применимость Preview перед production."
+    }
+  ],
+  "models": [
+    {
+      "name": "Prompt Guard 2 86M",
+      "scope": "Классификатор explicit/universal jailbreak в пользовательском и недоверенном тексте.",
+      "limits": "Простой jailbreak score не является проверкой пользовательского намерения, ACL, PII или допустимости tool action.",
+      "license": "Open weights по Llama 4 Community License; это не MIT-лицензия LlamaFirewall.",
+      "sources": [
+        "R20",
+        "R23"
+      ],
+      "fit": "Быстрый первый classifier; длинный контекст, язык и windowing проверяются отдельно."
+    },
+    {
+      "name": "Llama Guard 4 12B",
+      "scope": "Image-text safety model для классификации рисков контента.",
+      "limits": "Не считать универсальным injection detector или policy engine. Ресурсная стоимость serving модели отличается от небольшого classifier.",
+      "license": "Llama 4 Community License; публичная страница модели подтверждает тип и лицензию, полный gated payload не скачивался.",
+      "sources": [
+        "R21"
+      ],
+      "fit": "Модерация текста/изображений, когда такие modalities реально доходят до проверки."
+    },
+    {
+      "name": "Granite Guardian 4.1 8B",
+      "scope": "Safety, groundedness/RAG, function-call risks и Bring Your Own Criteria; thinking/non-thinking scoring.",
+      "limits": "Model-based judge вероятностен. Формат/тип аргумента лучше дополнительно проверять детерминированно; adversarial оценка самого judge обязательна.",
+      "license": "Apache-2.0 по model card.",
+      "sources": [
+        "R22"
+      ],
+      "fit": "Локальный judge для предметных правил и качества; оценить p95 и цену на реальном контексте."
+    }
+  ]
+}

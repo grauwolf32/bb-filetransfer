@@ -1,0 +1,289 @@
+{
+  "accessed": "2026-11-10",
+  "method": "Web search, чтение официальной документации, engineering-публикаций и репозиториев. Notes — собственные краткие пересказы, не копии страниц.",
+  "tests_performed_on_products": false,
+  "source_notes": [
+    {
+      "source_id": "S01",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices",
+      "kind": "Стандарт / руководство",
+      "notes": "Token passthrough, confused deputy, SSRF, границы доверия"
+    },
+    {
+      "source_id": "S02",
+      "url": "https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization",
+      "kind": "Стандарт",
+      "notes": "Авторизация HTTP, metadata discovery и audience"
+    },
+    {
+      "source_id": "S03",
+      "url": "https://modelcontextprotocol.io/specification/2026-07-28/basic/transports",
+      "kind": "Стандарт",
+      "notes": "stdio и Streamable HTTP; отделение транспорта от семантики"
+    },
+    {
+      "source_id": "S04",
+      "url": "https://www.uber.com/be/en/blog/designing-mcp-gateway/",
+      "kind": "Внутреннее внедрение",
+      "notes": "800+ серверов, 5000+ tools; ownership, enablement, tool-level policy, redaction"
+    },
+    {
+      "source_id": "S05",
+      "url": "https://blog.cloudflare.com/enterprise-mcp/",
+      "kind": "Внутреннее внедрение / поставщик",
+      "notes": "Внутренние remote MCP, Access, portals, DLP и обнаружение обхода"
+    },
+    {
+      "source_id": "S06",
+      "url": "https://www.bloomberg.co.jp/company/stories/closing-the-agentic-ai-productionization-gap-bloomberg-embraces-mcp/",
+      "kind": "Внутреннее внедрение",
+      "notes": "Remote multi-tenant MCP, identity exchange, SSO proxy, registry"
+    },
+    {
+      "source_id": "S07",
+      "url": "https://dev.to/goose_oss/mcp-in-the-enterprise-real-world-adoption-at-block-ci5",
+      "kind": "Публикация команды внедрения",
+      "notes": "Кураторский набор собственных MCP, OAuth, keychain и ограничения моделей"
+    },
+    {
+      "source_id": "S08",
+      "url": "https://www.prnewswire.com/news-releases/bloomberg-launches-enterprise-mcp-to-seamlessly-connect-bloomberg-data-with-clients-enterprise-ai-applications-302891331.html",
+      "kind": "Анонс продукта",
+      "notes": "Entitlements, audit и tool-level limits; это внешний продукт"
+    },
+    {
+      "source_id": "S09",
+      "url": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway.html",
+      "kind": "Документация",
+      "notes": "Managed gateway, API/Lambda translation, credential injection и semantic selection"
+    },
+    {
+      "source_id": "S10",
+      "url": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/use-gateway-with-policy.html",
+      "kind": "Документация",
+      "notes": "Policy охватывает MCP tools; prompts/resources не проходят эту оценку; list и call проверяются отдельно"
+    },
+    {
+      "source_id": "S11",
+      "url": "https://docs.aws.amazon.com/bedrock-agentcore-control/latest/APIReference/API_CreatePolicy.html",
+      "kind": "Документация",
+      "notes": "Детерминированные Cedar/Dogwood policy, условия по входным параметрам и OAuth claims"
+    },
+    {
+      "source_id": "S12",
+      "url": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-target-MCPservers.html",
+      "kind": "Документация",
+      "notes": "Версии протокола, DEFAULT/DYNAMIC listing; ограничения semantic search и 3LO"
+    },
+    {
+      "source_id": "S13",
+      "url": "https://aws.amazon.com/bedrock/agentcore/pricing/",
+      "kind": "Прайс / примеры",
+      "notes": "Consumption pricing; примеры InvokeTool, Search и отдельной Policy evaluation"
+    },
+    {
+      "source_id": "S14",
+      "url": "https://learn.microsoft.com/en-us/azure/api-management/mcp-server-overview",
+      "kind": "Документация",
+      "notes": "REST-to-MCP, proxy, auth, Azure Monitor, self-hosted; tools only и scope policies"
+    },
+    {
+      "source_id": "S15",
+      "url": "https://developers.cloudflare.com/changelog/post/2026-09-24-mcp-portals-ga/",
+      "kind": "Changelog",
+      "notes": "GA, service tokens, DLP routing, Logpush, Code Mode policies"
+    },
+    {
+      "source_id": "S16",
+      "url": "https://developers.cloudflare.com/cloudflare-one/access-controls/ai-controls/mcp-portals/",
+      "kind": "Документация",
+      "notes": "Portal configuration; DLP request/response; legacy SSE не работает через Gateway routing"
+    },
+    {
+      "source_id": "S17",
+      "url": "https://developer.konghq.com/ai-gateway/entities/ai-mcp-server/",
+      "kind": "Документация",
+      "notes": "Per-tool ACL, CEL и версии data plane; AI Policies, OTEL"
+    },
+    {
+      "source_id": "S18",
+      "url": "https://developer.konghq.com/cookbooks/secure-internal-mcp-gateway/",
+      "kind": "Документация",
+      "notes": "Корпоративный IdP, conversion-only MCP и per-tool ACL"
+    },
+    {
+      "source_id": "S19",
+      "url": "https://www.solo.io/blog/introducing-solo-enterprise-for-agentgateway",
+      "kind": "Анонс продукта",
+      "notes": "Enterprise lifecycle, fingerprinting, versioning, poisoning/rug-pull protection"
+    },
+    {
+      "source_id": "S20",
+      "url": "https://docs.solo.io/agentgateway/standalone/latest/documentation/configuration/security/backend-authn/",
+      "kind": "Документация",
+      "notes": "Enterprise STS token exchange работает отдельным компонентом"
+    },
+    {
+      "source_id": "S21",
+      "url": "https://github.com/agentgateway/agentgateway",
+      "kind": "Код / README",
+      "notes": "Apache-2.0, MCP federation, OAuth, CEL, OTEL, guardrail integrations"
+    },
+    {
+      "source_id": "S22",
+      "url": "https://www.gravitee.io/blog/mcp-gateway",
+      "kind": "Описание поставщика",
+      "notes": "Protocol-aware MCP Proxy и общий governance с LLM/A2A"
+    },
+    {
+      "source_id": "S23",
+      "url": "https://documentation.gravitee.io/apim/4.10/agent-mesh/secure-mcp-proxy-with-oauth2",
+      "kind": "Документация",
+      "notes": "Связка APIM OAuth2 plan и Access Management authorization server"
+    },
+    {
+      "source_id": "S24",
+      "url": "https://doc.traefik.io/traefik-hub/mcp-gateway/mcp",
+      "kind": "Документация",
+      "notes": "OAuth resource server, JWT и TBAC task/tool/transaction"
+    },
+    {
+      "source_id": "S25",
+      "url": "https://doc.traefik.io/traefik-hub/mcp-gateway/guides/mcp-gateway-best-practices",
+      "kind": "Документация",
+      "notes": "OBO exchange выполняет MCP server; gateway передаёт или удаляет auth context"
+    },
+    {
+      "source_id": "S26",
+      "url": "https://github.com/IBM/mcp-context-forge",
+      "kind": "Код / README",
+      "notes": "Apache-2.0, registry/federation, auth/RBAC, plugins, OTEL, Kubernetes"
+    },
+    {
+      "source_id": "S27",
+      "url": "https://www.ibm.com/support/pages/node/7285723",
+      "kind": "Бюллетень безопасности",
+      "notes": "Уязвимы <=1.0.5; исправление 1.0.6; пример риска самого gateway"
+    },
+    {
+      "source_id": "S28",
+      "url": "https://docs.docker.com/ai/mcp-catalog-and-toolkit/mcp-gateway/",
+      "kind": "Документация",
+      "notes": "Контейнерная изоляция, lifecycle, credentials injection, logs/tracing"
+    },
+    {
+      "source_id": "S29",
+      "url": "https://docs.stacklok.com/toolhive",
+      "kind": "Документация",
+      "notes": "Apache-2.0 core, Operator, vMCP aggregation, registry, secret management и OTEL"
+    },
+    {
+      "source_id": "S30",
+      "url": "https://docs.stacklok.com/connector-gateway",
+      "kind": "Документация",
+      "notes": "Enterprise connector-level policy, user identity и credential brokering; отличие от vMCP"
+    },
+    {
+      "source_id": "S31",
+      "url": "https://www.mintmcp.com/mcp-gateway",
+      "kind": "Описание поставщика",
+      "notes": "Единый endpoint, hosted STDIO, credential management; US/EU, VPC/self-host on request"
+    },
+    {
+      "source_id": "S32",
+      "url": "https://www.mintmcp.com/for-security",
+      "kind": "Описание поставщика",
+      "notes": "Audit, outbound reverse proxy, managed detection policy"
+    },
+    {
+      "source_id": "S33",
+      "url": "https://github.com/lasso-security/mcp-gateway",
+      "kind": "Код / README",
+      "notes": "MIT, plugin-based gateway, scanner; advanced guardrails вызывают Lasso API"
+    },
+    {
+      "source_id": "S34",
+      "url": "https://docs.aembit.io/user-guide/deploy-install/mcp-identity-gateway/concepts-mcp-gateway/",
+      "kind": "Документация",
+      "notes": "Две identity и два policy leg, managed/self-host Linux, content providers"
+    },
+    {
+      "source_id": "S35",
+      "url": "https://aembit.io/pricing/",
+      "kind": "Прайс",
+      "notes": "3 agents free; Teams $20/agent/month с началом от 10; retention; Enterprise custom"
+    },
+    {
+      "source_id": "S36",
+      "url": "https://portkey.ai/features/mcp",
+      "kind": "Описание поставщика",
+      "notes": "Текущее имя Prisma AIRS AI Gateway; MCP auth/RBAC, runtime policy, SaaS/private deployment"
+    },
+    {
+      "source_id": "S37",
+      "url": "https://www.paloaltonetworks.com/company/press/2026/palo-alto-networks-completes-acquisition-of-portkey-to-secure-ai-agents",
+      "kind": "Пресс-релиз",
+      "notes": "Приобретение завершено 29 мая 2026"
+    },
+    {
+      "source_id": "S38",
+      "url": "https://docs.getbifrost.ai/mcp/overview",
+      "kind": "Документация",
+      "notes": "MCP client/server, virtual MCPs, execution, Code Mode, resources/prompts"
+    },
+    {
+      "source_id": "S39",
+      "url": "https://www.getmaxim.ai/topics/mcp-gateway/mcp-authentication",
+      "kind": "Техническая статья поставщика",
+      "notes": "Inbound OAuth/keys, per-user outbound auth; token_exchange Enterprise"
+    },
+    {
+      "source_id": "S40",
+      "url": "https://github.com/maximhq/bifrost",
+      "kind": "Код / README",
+      "notes": "Apache-2.0, AI gateway; private enterprise deployments"
+    },
+    {
+      "source_id": "S41",
+      "url": "https://www.truefoundry.com/blog/introducing-truefoundry-mcp-gateway",
+      "kind": "Техническая статья поставщика",
+      "notes": "Registry, groups, PAT/VAT, per-user OAuth, virtual MCP servers"
+    },
+    {
+      "source_id": "S42",
+      "url": "https://www.truefoundry.com/blog/mcp-server-hosting",
+      "kind": "Техническая статья поставщика",
+      "notes": "Kubernetes, VPC/on-prem/air-gap; OTEL; tool-level control"
+    },
+    {
+      "source_id": "S43",
+      "url": "https://www.truefoundry.com/blog/enterprise-mcp-governance-control-audit-secure-mcp-server-access",
+      "kind": "Техническая статья поставщика",
+      "notes": "Inbound identity vs outbound 3LO; lifecycle credentials и IdP integration"
+    },
+    {
+      "source_id": "S44",
+      "url": "https://github.com/microsoft/mcp-gateway",
+      "kind": "Код / README",
+      "notes": "Отдельный от Azure APIM проект; требует revision 2026-07-28 без protocol downgrade"
+    },
+    {
+      "source_id": "S45",
+      "url": "https://github.com/OWASP/MCP-Security-Testing-Guide/blob/main/03.%20MCP%20Threats%20and%20Attack%20Patterns/3.16-gateway-egress.md",
+      "kind": "Руководство проекта",
+      "notes": "Trust zones и gateway enforcement по identity/client/server/tool/action/data; evolving guide"
+    }
+  ],
+  "selection_decisions": [
+    "Независимые рекламные рейтинги и Reddit не использованы как доказательства возможностей и внедрений.",
+    "Uber и Cloudflare: прямые публикации о внутреннем gateway / portal.",
+    "Bloomberg: внутреннее identity middleware отделено от внешнего Enterprise MCP продукта.",
+    "Block: исторический контекст governance; gateway adoption не подтверждён.",
+    "Английский Bloomberg URL вернул HTTP 403; использована официальная японская версия.",
+    "Azure APIM отделён от microsoft/mcp-gateway.",
+    "Portkey актуализирован с учётом закрытой сделки Palo Alto Networks от 29.05.2026.",
+    "Не назначены численные рейтинги продуктов; статусы относятся к публичному описанию, а не efficacy.",
+    "Argument-level policy Kong и agentgateway требует подтверждения для выбранного режима/редакции: общего упоминания CEL недостаточно.",
+    "Полные страницы и дословные длинные выдержки не сохранялись в пользовательский комплект."
+  ]
+}

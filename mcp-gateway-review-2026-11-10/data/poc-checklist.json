@@ -1,0 +1,74 @@
+[
+  {
+    "id": "G01",
+    "control": "Identity isolation",
+    "test": "Подменить issuer/audience, смешать user/tenant и повторить запрос после отзыва доступа.",
+    "acceptance": "Ни один неверный token не исполняет backend call; измерено время отзыва."
+  },
+  {
+    "id": "G02",
+    "control": "Discovery ≠ authorization",
+    "test": "Убрать tool из tools/list и вызвать его напрямую по известному имени.",
+    "acceptance": "Deny на invocation, без выполнения backend."
+  },
+  {
+    "id": "G03",
+    "control": "Arguments / object permissions",
+    "test": "Разрешить read в dev, затем заменить env, tenant, object ID и объём выдачи.",
+    "acceptance": "Проверка каждого параметра и backend ACL, включая границу tenant."
+  },
+  {
+    "id": "G04",
+    "control": "Все MCP primitives",
+    "test": "Проверить tools/call, resources/read, prompts/get и применяемые extensions.",
+    "acceptance": "Нет необъявленных путей доступа; неподдержанные capabilities отключены."
+  },
+  {
+    "id": "G05",
+    "control": "Credentials и egress",
+    "test": "Проверить traces/errors, auth overrides, OAuth metadata, redirect и upstream URL registration.",
+    "acceptance": "Нет секретов в логах; SSRF не достигает запрещённых адресов."
+  },
+  {
+    "id": "G06",
+    "control": "Изменения и poisoning",
+    "test": "Обновить description/schema/образ после initial approval; добавить malicious metadata.",
+    "acceptance": "Работают diff/review/rollback; stale catalog не открывает новый tool."
+  },
+  {
+    "id": "G07",
+    "control": "DLP и injection",
+    "test": "Canary PII/secrets в arguments и responses, а также вредоносные инструкции в metadata/output.",
+    "acceptance": "Считать пропуски и false positives; authorization остаётся действенной при пропуске scanner."
+  },
+  {
+    "id": "G08",
+    "control": "Approval integrity",
+    "test": "После одобрения сменить target/amount, затем повторить согласованный вызов.",
+    "acceptance": "Повторное согласование при изменении; replay отклоняется."
+  },
+  {
+    "id": "G09",
+    "control": "Bypass и runtime",
+    "test": "Прямое подключение к MCP/backend; локальный stdio; попытка чтения host file/секрета.",
+    "acceptance": "Подтверждено фактическое покрытие endpoint/network/runtime controls."
+  },
+  {
+    "id": "G10",
+    "control": "Отказы и повторная запись",
+    "test": "Отключить IdP/policy/scanner/upstream; оборвать ответ после записи.",
+    "acceptance": "Заранее определён fail-closed для привилегированных действий; нет double write."
+  },
+  {
+    "id": "G11",
+    "control": "Audit и privacy",
+    "test": "Собрать цепочку user → agent → gateway → backend по одному trace.",
+    "acceptance": "Есть policy version/decision и раздельные identities; tokens и лишний payload отсутствуют."
+  },
+  {
+    "id": "G12",
+    "control": "Нагрузка и совместимость",
+    "test": "Реальные клиенты, revisions, pagination, reconnect; замер с policy и inspection.",
+    "acceptance": "Согласованный SLO по p95/p99, error rate, throughput и стоимости; результаты воспроизводимы."
+  }
+]

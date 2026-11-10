@@ -1,0 +1,1264 @@
+{
+  "documentType": "codex-security.findings",
+  "findings": [
+    {
+      "attackPath": {
+        "controls": [
+          "Normal resource permission checks execute, but against the owner. Ordinary protected routes do not accept beta tokens. No exploit executed."
+        ],
+        "dataflow": {
+          "summary": "Embed UI exposes auth=beta \u2192 BetaAuthMiddleware \u2192 ResolveBetaAPIToken \u2192 owner principal \u2192 HandleMCP \u2192 owner-scoped dataset list/retrieval."
+        },
+        "evidenceRefs": [
+          "share-beta-mcp-e5"
+        ],
+        "limitations": [
+          "Conditional deployment prerequisites remain explicit."
+        ],
+        "reachability": {
+          "summary": "Anyone holding a valid shared-link beta credential; API MCP must be reachable. RAGFLOW_MCP_ENABLED=false disables only the optional listener, not /api/v1/mcp. Local lab Nginx blocks this route."
+        },
+        "summary": "Anyone holding a valid shared-link beta credential; API MCP must be reachable. RAGFLOW_MCP_ENABLED=false disables only the optional listener, not /api/v1/mcp. Local lab Nginx blocks this route."
+      },
+      "codeEvidence": [
+        {
+          "code": "  const { data: tokenList, fetchSystemTokenList } =\n    useFetchManualSystemTokenList();\n\n  let token = '',\n    beta = '';\n\n  if (Array.isArray(tokenList) && tokenList.length > 0) {\n    token = tokenList[0].token;\n    beta = tokenList[0].beta;",
+          "endLine": 52,
+          "explanation": "Embed UI exposes auth=beta \u2192 BetaAuthMiddleware \u2192 ResolveBetaAPIToken \u2192 owner principal \u2192 HandleMCP \u2192 owner-scoped dataset list/retrieval. This source segment establishes the web/src/components/embed-dialog/use-show-embed-dialog.ts transition.",
+          "id": "share-beta-mcp-e0",
+          "label": "Trace: web/src/components/embed-dialog/use-show-embed-dialog.ts",
+          "language": "typescript",
+          "path": "web/src/components/embed-dialog/use-show-embed-dialog.ts",
+          "role": "entrypoint",
+          "startLine": 44
+        },
+        {
+          "code": "    const src = new URL(`${location.origin}${baseRoute}`);\n    src.searchParams.append('shared_id', token);\n    src.searchParams.append('from', from);\n    src.searchParams.append('auth', beta);",
+          "endLine": 187,
+          "explanation": "Embed UI exposes auth=beta \u2192 BetaAuthMiddleware \u2192 ResolveBetaAPIToken \u2192 owner principal \u2192 HandleMCP \u2192 owner-scoped dataset list/retrieval. This source segment establishes the web/src/components/embed-dialog/index.tsx transition.",
+          "id": "share-beta-mcp-e1",
+          "label": "Trace: web/src/components/embed-dialog/index.tsx",
+          "language": "typescript",
+          "path": "web/src/components/embed-dialog/index.tsx",
+          "role": "propagation",
+          "startLine": 184
+        },
+        {
+          "code": "\t// Generate key and beta values\n\t// key: \"ragflow-\" + secrets.token_urlsafe(32)\n\tAPIToken := common.GenerateAPIToken()\n\t// beta: generate_confirmation_token().replace(\"ragflow-\", \"\")[:32]\n\tbetaAPIKey := common.GenerateBetaAPIToken()\n\n\tAPIKeyData := &entity.APIToken{\n\t\tTenantID: tenantID,\n\t\tUserID:   &userID,\n\t\tToken:    APIToken,\n\t\tBeta:     &betaAPIKey,\n\t}",
+          "endLine": 107,
+          "explanation": "Embed UI exposes auth=beta \u2192 BetaAuthMiddleware \u2192 ResolveBetaAPIToken \u2192 owner principal \u2192 HandleMCP \u2192 owner-scoped dataset list/retrieval. This source segment establishes the internal/service/api_token.go transition.",
+          "id": "share-beta-mcp-e2",
+          "label": "Trace: internal/service/api_token.go",
+          "language": "go",
+          "path": "internal/service/api_token.go",
+          "role": "propagation",
+          "startLine": 96
+        },
+        {
+          "code": "\t\tif identity, code, err := h.userService.ResolveBetaAPIToken(ctx, auth); err == nil && code == common.CodeSuccess {\n\t\t\tif !billingAllowsAPIToken(ctx, identity.TenantID) {\n\t\t\t\tcommon.RespondError(c, common.CodePermissionError, \"API key requires a Starter or Pro plan\")\n\t\t\t\tc.Abort()\n\t\t\t\treturn\n\t\t\t}\n\t\t\tsetAuthIdentity(c, identity)\n\t\t\tc.Set(\"auth_via_beta_token\", true)\n\t\t\tif identity.APIToken != nil && identity.APIToken.DialogID != nil {\n\t\t\t\tc.Set(\"agent_id\", *identity.APIToken.DialogID)\n\t\t\t}\n\t\t\tc.Next()",
+          "endLine": 149,
+          "explanation": "Embed UI exposes auth=beta \u2192 BetaAuthMiddleware \u2192 ResolveBetaAPIToken \u2192 owner principal \u2192 HandleMCP \u2192 owner-scoped dataset list/retrieval. This source segment establishes the internal/handler/auth.go transition.",
+          "id": "share-beta-mcp-e3",
+          "label": "Trace: internal/handler/auth.go",
+          "language": "go",
+          "path": "internal/handler/auth.go",
+          "role": "propagation",
+          "startLine": 138
+        },
+        {
+          "code": "\t\t// MCP server endpoint \u2014 exposes RAGFlow capabilities as MCP tools.\n\t\t// Uses BetaAuthMiddleware to resolve the user from the\n\t\t// Authorization header.\n\t\tapiBetaAuth.POST(\"/mcp\", r.mcpServerHandler.HandleMCP)",
+          "endLine": 222,
+          "explanation": "Embed UI exposes auth=beta \u2192 BetaAuthMiddleware \u2192 ResolveBetaAPIToken \u2192 owner principal \u2192 HandleMCP \u2192 owner-scoped dataset list/retrieval. This source segment establishes the internal/router/router.go transition.",
+          "id": "share-beta-mcp-e4",
+          "label": "Trace: internal/router/router.go",
+          "language": "go",
+          "path": "internal/router/router.go",
+          "role": "propagation",
+          "startLine": 219
+        },
+        {
+          "code": "func (h *MCPServerHandler) HandleMCP(c *gin.Context) {\n\tuser, errorCode, errorMessage := GetUser(c)\n\tif errorCode != common.CodeSuccess {\n\t\tcommon.RespondError(c, errorCode, errorMessage)\n\t\treturn\n\t}\n\n\thdl := h.newTransport(func(context.Context, string) (string, error) { return user.ID, nil }, mcp.Options{StreamableHTTP: true, JSONResponse: true})",
+          "endLine": 106,
+          "explanation": "Beta authentication loses the capability's intended sharing scope and installs the owner identity; MCP accepts it without constraining tools or resources.",
+          "id": "share-beta-mcp-e5",
+          "label": "Broken control: internal/handler/mcp_server.go",
+          "language": "go",
+          "path": "internal/handler/mcp_server.go",
+          "role": "root_control",
+          "startLine": 99
+        },
+        {
+          "code": "func (h *MCPServerHandler) NewStandalone(ctx context.Context, auth *AuthHandler, cfg config.MCPConfig) (*mcp.Handler, error) {\n\tresolveUser := func(ctx context.Context, authorization string) (string, error) {\n\t\tif cfg.LaunchMode == \"self-host\" {\n\t\t\tauthorization = cfg.HostAPIKey\n\t\t}\n\t\tuser, err := auth.ResolveMCPUser(ctx, authorization)\n\t\tif err != nil {\n\t\t\treturn \"\", err\n\t\t}\n\t\treturn user.ID, nil",
+          "endLine": 76,
+          "explanation": "Embed UI exposes auth=beta \u2192 BetaAuthMiddleware \u2192 ResolveBetaAPIToken \u2192 owner principal \u2192 HandleMCP \u2192 owner-scoped dataset list/retrieval. This source segment establishes the internal/handler/mcp_server.go transition.",
+          "id": "share-beta-mcp-e6",
+          "label": "Trace: internal/handler/mcp_server.go",
+          "language": "go",
+          "path": "internal/handler/mcp_server.go",
+          "role": "propagation",
+          "startLine": 67
+        },
+        {
+          "code": "\t// Resolve dataset IDs: if none provided, fetch ALL accessible datasets\n\t// across all pages (matching Python _fetch_all_datasets behaviour).\n\tdatasetIDs := req.DatasetIDs\n\tif len(datasetIDs) == 0 {\n\t\tconst maxPageSize = 100\n\t\tids, err := fetchAllDatasetIDs(func(page, pageSize int) ([]map[string]interface{}, int64, error) {\n\t\t\tdata, total, _, err := ds.ListDatasets(ctx,\n\t\t\t\t\"\", \"\", page, pageSize, []dao.OrderTerm{{Column: \"create_time\", Desc: true}},\n\t\t\t\t\"\", nil, \"\", nil, \"\",\n\t\t\t)\n\t\t\treturn data, total, err\n\t\t}, maxPageSize)\n\t\tif err != nil {\n\t\t\treturn \"\", fmt.Errorf(\"cannot resolve accessible datasets: %w\", err)\n\t\t}\n\t\tif len(ids) == 0 {\n\t\t\treturn \"\", fmt.Errorf(\"No accessible datasets found.\")\n\t\t}\n\t\tdatasetIDs = ids",
+          "endLine": 80,
+          "explanation": "Embed UI exposes auth=beta \u2192 BetaAuthMiddleware \u2192 ResolveBetaAPIToken \u2192 owner principal \u2192 HandleMCP \u2192 owner-scoped dataset list/retrieval. This source segment establishes the internal/handler/mcp_retrieval.go transition.",
+          "id": "share-beta-mcp-e7",
+          "label": "Trace: internal/handler/mcp_retrieval.go",
+          "language": "go",
+          "path": "internal/handler/mcp_retrieval.go",
+          "role": "propagation",
+          "startLine": 62
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Current source shows the complete relevant control path; parent reviewed input, state transition, consumer and counterevidence. Runtime reproduction and image equivalence were not tested."
+      },
+      "findingId": "csf_6289269d9463ebe61c638547",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:f29a1ef6d0ba9ed394ed49fb1fe42c8b2424b810c639ea6f6068b9cb9f3d35e6"
+      },
+      "identity": {
+        "anchor": "share-beta-mcp",
+        "instance": "share-beta-mcp"
+      },
+      "locations": [
+        {
+          "endLine": 52,
+          "path": "web/src/components/embed-dialog/use-show-embed-dialog.ts",
+          "role": "supporting",
+          "startLine": 44
+        },
+        {
+          "endLine": 187,
+          "path": "web/src/components/embed-dialog/index.tsx",
+          "role": "supporting",
+          "startLine": 184
+        },
+        {
+          "endLine": 107,
+          "path": "internal/service/api_token.go",
+          "role": "supporting",
+          "startLine": 96
+        },
+        {
+          "endLine": 149,
+          "path": "internal/handler/auth.go",
+          "role": "supporting",
+          "startLine": 138
+        },
+        {
+          "endLine": 222,
+          "path": "internal/router/router.go",
+          "role": "supporting",
+          "startLine": 219
+        },
+        {
+          "endLine": 106,
+          "path": "internal/handler/mcp_server.go",
+          "role": "root_control",
+          "startLine": 99
+        },
+        {
+          "endLine": 76,
+          "path": "internal/handler/mcp_server.go",
+          "role": "supporting",
+          "startLine": 67
+        },
+        {
+          "endLine": 80,
+          "path": "internal/handler/mcp_retrieval.go",
+          "role": "supporting",
+          "startLine": 62
+        }
+      ],
+      "occurrenceId": "occ_f042cf93879c77258adcdfcc",
+      "provenance": {
+        "candidateId": "candidate-beta-mcp",
+        "originalCandidates": [
+          {
+            "confidence": "high",
+            "counterevidence": "Permission checks run with owner identity; ordinary protected routes reject beta; local lab blocks /api/v1/mcp at Nginx.",
+            "cwe": "CWE-863",
+            "dataflow": "Embed UI publishes auth=beta; beta credential carries owner identity; API /mcp accepts BetaAuthMiddleware and creates owner connector; list/retrieval operate across owner datasets.",
+            "locations": [
+              "web/src/components/embed-dialog/index.tsx:184-187",
+              "internal/service/api_token.go:89-107",
+              "internal/handler/auth.go:138-149",
+              "internal/router/router.go:219-222",
+              "internal/handler/mcp_server.go:99-106",
+              "internal/handler/mcp_retrieval.go:62-80"
+            ],
+            "remediation": "Reject beta credentials at MCP; issue app-scoped share capabilities and enforce final resource scope.",
+            "severity": "high",
+            "title": "Public share beta token gains owner's MCP retrieval scope"
+          },
+          {
+            "confidence": "high",
+            "counterevidence": "Permission checks run with owner identity; ordinary protected routes reject beta; local lab blocks /api/v1/mcp at Nginx.",
+            "cwe": "CWE-863",
+            "dataflow": "Embed UI publishes auth=beta; beta credential carries owner identity; API /mcp accepts BetaAuthMiddleware and creates owner connector; list/retrieval operate across owner datasets.",
+            "locations": [
+              "web/src/components/embed-dialog/index.tsx:184-187",
+              "internal/service/api_token.go:89-107",
+              "internal/handler/auth.go:138-149",
+              "internal/router/router.go:219-222",
+              "internal/handler/mcp_server.go:99-106",
+              "internal/handler/mcp_retrieval.go:62-80"
+            ],
+            "remediation": "Reject beta credentials at MCP; issue app-scoped share capabilities and enforce final resource scope.",
+            "severity": "high",
+            "title": "Public share beta token gains owner's MCP retrieval scope"
+          }
+        ],
+        "source": "local_plugin"
+      },
+      "remediation": "Reject beta credentials at API and standalone MCP; mint separate expiring share capabilities bound to application, resource scope and operations. Verify every beta-enabled route.",
+      "remediationTests": [
+        "Use two synthetic datasets: shared application A and private dataset B. A beta credential must fail MCP initialize/tool calls and never list/retrieve B; owner API key should retain authorized access."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "share-beta-mcp-e0",
+          "share-beta-mcp-e1",
+          "share-beta-mcp-e2",
+          "share-beta-mcp-e3",
+          "share-beta-mcp-e4",
+          "share-beta-mcp-e5",
+          "share-beta-mcp-e6",
+          "share-beta-mcp-e7"
+        ],
+        "summary": "Embed UI exposes auth=beta \u2192 BetaAuthMiddleware \u2192 ResolveBetaAPIToken \u2192 owner principal \u2192 HandleMCP \u2192 owner-scoped dataset list/retrieval. Beta authentication loses the capability's intended sharing scope and installs the owner identity; MCP accepts it without constraining tools or resources."
+      },
+      "ruleId": "improper-authorization",
+      "severity": {
+        "changeConditions": "Actual deployment restrictions can reduce reachability; additional confirmed exposure or runtime mitigation would change the rating.",
+        "level": "high",
+        "rationale": "Direct credential-boundary failure permits private data access through an ordinarily distributed or formerly authorized credential. Anyone holding a valid shared-link beta credential; API MCP must be reachable. RAGFLOW_MCP_ENABLED=false disables only the optional listener, not /api/v1/mcp. Local lab Nginx blocks this route."
+      },
+      "summary": "A recipient of a public chat/agent link can reuse its auth beta credential at POST /api/v1/mcp. The middleware resolves the owner's user identity and MCP lists/retrieves datasets outside the shared application.",
+      "taxonomy": {
+        "category": "Authorization scope escalation",
+        "cwe": [
+          "CWE-863"
+        ]
+      },
+      "title": "Public share beta tokens gain the owner's MCP retrieval scope",
+      "validation": {
+        "counterEvidence": [
+          "Normal resource permission checks execute, but against the owner. Ordinary protected routes do not accept beta tokens. No exploit executed."
+        ],
+        "evidenceRefs": [
+          "share-beta-mcp-e0",
+          "share-beta-mcp-e1",
+          "share-beta-mcp-e2",
+          "share-beta-mcp-e3",
+          "share-beta-mcp-e4",
+          "share-beta-mcp-e5",
+          "share-beta-mcp-e6",
+          "share-beta-mcp-e7"
+        ],
+        "limitations": [
+          "No application/exploit execution or actual image verification."
+        ],
+        "method": "Read-only static source inspection; independent investigator results checked against current source by parent.",
+        "summary": "A recipient of a public chat/agent link can reuse its auth beta credential at POST /api/v1/mcp. The middleware resolves the owner's user identity and MCP lists/retrieves datasets outside the shared application. Beta authentication loses the capability's intended sharing scope and installs the owner identity; MCP accepts it without constraining tools or resources."
+      }
+    },
+    {
+      "attackPath": {
+        "controls": [
+          "New password login checks IsActive and existing session tokens are invalidated. This is not an arbitrary cross-tenant bypass. OSS tenant resolver does not add an active-user check."
+        ],
+        "dataflow": {
+          "summary": "Admin disables user \u2192 IsActive=0, AccessToken=INVALID_random \u2192 API token lookup \u2192 user lookup \u2192 nonempty AccessToken passes \u2192 resource permissions accept former identity."
+        },
+        "evidenceRefs": [
+          "disabled-api-keys-e2"
+        ],
+        "limitations": [
+          "Conditional deployment prerequisites remain explicit."
+        ],
+        "reachability": {
+          "summary": "Former user or holder of a previously issued key, with API connectivity. Access is confined to the identity's existing resource permissions."
+        },
+        "summary": "Former user or holder of a previously issued key, with API connectivity. Access is confined to the identity's existing resource permissions."
+      },
+      "codeEvidence": [
+        {
+          "code": "\tif user.IsActive == targetStatus {\n\t\treturn nil\n\t}\n\n\tuser.IsActive = targetStatus\n\tif !isActive {\n\t\tinvalidToken := \"INVALID_\" + common.GenerateToken()\n\t\tuser.AccessToken = &invalidToken\n\t}\n\n\tif err = s.userDAO.Update(ctx, dao.DB, user); err != nil {\n\t\treturn fmt.Errorf(\"failed to update user: %w\", err)",
+          "endLine": 467,
+          "explanation": "Admin disables user \u2192 IsActive=0, AccessToken=INVALID_random \u2192 API token lookup \u2192 user lookup \u2192 nonempty AccessToken passes \u2192 resource permissions accept former identity. This source segment establishes the internal/admin/service.go transition.",
+          "id": "disabled-api-keys-e0",
+          "label": "Trace: internal/admin/service.go",
+          "language": "go",
+          "path": "internal/admin/service.go",
+          "role": "entrypoint",
+          "startLine": 456
+        },
+        {
+          "code": "\tvar apiToken entity.APIToken\n\ttx := db.WithContext(ctx).Where(\"token = ?\", token).Find(&apiToken)\n\tif tx.Error != nil {\n\t\treturn nil, tx.Error\n\t}\n\tif tx.RowsAffected == 0 {\n\t\treturn nil, nil\n\t}\n\treturn &apiToken, nil\n}\n\n// GetByBeta gets API tokens by beta key (SDK/bot authorization token).\n// Mirrors Python's APIToken.query(beta=token), which returns a list.\nfunc (dao *APITokenDAO) GetByBeta(ctx context.Context, db *gorm.DB, beta string) ([]*entity.APIToken, error) {\n\tvar tokens []*entity.APIToken\n\terr := db.WithContext(ctx).Where(\"beta = ?\", beta).Find(&tokens).Error\n\treturn tokens, err\n}\n\n// DeleteByDialogIDs deletes API tokens by dialog IDs (hard delete)\nfunc (dao *APITokenDAO) DeleteByDialogIDs(ctx context.Context, db *gorm.DB, dialogIDs []string) (int64, error) {\n\tif len(dialogIDs) == 0 {\n\t\treturn 0, nil\n\t}\n\tresult := db.WithContext(ctx).Where(\"dialog_id IN ?\", dialogIDs).Delete(&entity.APIToken{})\n\treturn result.RowsAffected, result.Error\n}",
+          "endLine": 74,
+          "explanation": "Admin disables user \u2192 IsActive=0, AccessToken=INVALID_random \u2192 API token lookup \u2192 user lookup \u2192 nonempty AccessToken passes \u2192 resource permissions accept former identity. This source segment establishes the internal/dao/api_token.go transition.",
+          "id": "disabled-api-keys-e1",
+          "label": "Trace: internal/dao/api_token.go",
+          "language": "go",
+          "path": "internal/dao/api_token.go",
+          "role": "propagation",
+          "startLine": 48
+        },
+        {
+          "code": "func (s *UserService) resolveAPITokenIdentity(ctx context.Context, apiToken *entity.APIToken) (*AuthIdentity, common.ErrorCode, error) {\n\tif apiToken.UserID == nil || *apiToken.UserID == \"\" {\n\t\treturn nil, common.CodeUnauthorized, fmt.Errorf(\"API token is missing user identity\")\n\t}\n\n\tuser, err := s.userDAO.GetByID(ctx, dao.DB, *apiToken.UserID)\n\tif err != nil {\n\t\treturn nil, common.CodeUnauthorized, fmt.Errorf(\"user not found for API token\")\n\t}\n\tif user.AccessToken == nil || *user.AccessToken == \"\" {\n\t\treturn nil, common.CodeUnauthorized, fmt.Errorf(\"user has empty access_token in database\")\n\t}\n\ttenantID, err := resolveUserAuthTenant(ctx, user, apiToken.TenantID)\n\tif err != nil {\n\t\treturn nil, common.CodeUnauthorized, err\n\t}\n\n\tapiTokenMetadata := *apiToken\n\tapiTokenMetadata.TenantID = tenantID\n\treturn &AuthIdentity{User: user, TenantID: tenantID, APIToken: &apiTokenMetadata}, common.CodeSuccess, nil",
+          "endLine": 795,
+          "explanation": "Deactivation revokes the stored session identifier but keeps API/beta rows; API identity resolution only requires the session identifier to be nonempty.",
+          "id": "disabled-api-keys-e2",
+          "label": "Broken control: internal/service/user.go",
+          "language": "go",
+          "path": "internal/service/user.go",
+          "role": "root_control",
+          "startLine": 776
+        },
+        {
+          "code": "\treturn \"\", false, nil\n}\n\n// resolveUserAuthTenant discards tenant context because community credentials identify only a user.\nfunc resolveUserAuthTenant(_ context.Context, _ *entity.User, _ string) (string, error) {\n\treturn \"\", nil\n}\n",
+          "endLine": 81,
+          "explanation": "Admin disables user \u2192 IsActive=0, AccessToken=INVALID_random \u2192 API token lookup \u2192 user lookup \u2192 nonempty AccessToken passes \u2192 resource permissions accept former identity. This source segment establishes the internal/service/stub.go transition.",
+          "id": "disabled-api-keys-e3",
+          "label": "Trace: internal/service/stub.go",
+          "language": "go",
+          "path": "internal/service/stub.go",
+          "role": "propagation",
+          "startLine": 74
+        },
+        {
+          "code": "\t\tidentity, code, err := h.userService.ResolveAccessToken(ctx, token)\n\t\tif err != nil {\n\t\t\tidentity, code, err = h.userService.ResolveAPIToken(ctx, token)\n\t\t\tif err != nil {\n\t\t\t\tcommon.Respond(c, http.StatusUnauthorized, code, nil, \"Invalid access token\")\n\t\t\t\tc.Abort()\n\t\t\t\treturn\n\t\t\t}\n\t\t\tauthViaAPIToken = true",
+          "endLine": 180,
+          "explanation": "Admin disables user \u2192 IsActive=0, AccessToken=INVALID_random \u2192 API token lookup \u2192 user lookup \u2192 nonempty AccessToken passes \u2192 resource permissions accept former identity. This source segment establishes the internal/handler/auth.go transition.",
+          "id": "disabled-api-keys-e4",
+          "label": "Trace: internal/handler/auth.go",
+          "language": "go",
+          "path": "internal/handler/auth.go",
+          "role": "propagation",
+          "startLine": 172
+        },
+        {
+          "code": "func GetUser(c *gin.Context) (*entity.User, common.ErrorCode, string) {\n\tuserAny, exist := c.Get(\"user\")\n\tif !exist {\n\t\treturn nil, common.CodeUnauthorized, \"User not found\"\n\t}\n\n\tuser, ok := userAny.(*entity.User)\n\tif !ok {\n\t\treturn nil, common.CodeUnauthorized, \"User not found\"\n\t}\n\treturn user, common.CodeSuccess, \"\"\n}",
+          "endLine": 90,
+          "explanation": "Admin disables user \u2192 IsActive=0, AccessToken=INVALID_random \u2192 API token lookup \u2192 user lookup \u2192 nonempty AccessToken passes \u2192 resource permissions accept former identity. This source segment establishes the internal/handler/common.go transition.",
+          "id": "disabled-api-keys-e5",
+          "label": "Trace: internal/handler/common.go",
+          "language": "go",
+          "path": "internal/handler/common.go",
+          "role": "propagation",
+          "startLine": 79
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Current source shows the complete relevant control path; parent reviewed input, state transition, consumer and counterevidence. Runtime reproduction and image equivalence were not tested."
+      },
+      "findingId": "csf_cd26c70477ef1e6bc4484caf",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:af36c83217a004d382c705cd3d3843c5ad7e7319dfbfe621e99b3ae3ded5ba71"
+      },
+      "identity": {
+        "anchor": "disabled-api-keys",
+        "instance": "disabled-api-keys"
+      },
+      "locations": [
+        {
+          "endLine": 467,
+          "path": "internal/admin/service.go",
+          "role": "supporting",
+          "startLine": 456
+        },
+        {
+          "endLine": 74,
+          "path": "internal/dao/api_token.go",
+          "role": "supporting",
+          "startLine": 48
+        },
+        {
+          "endLine": 795,
+          "path": "internal/service/user.go",
+          "role": "root_control",
+          "startLine": 776
+        },
+        {
+          "endLine": 81,
+          "path": "internal/service/stub.go",
+          "role": "supporting",
+          "startLine": 74
+        },
+        {
+          "endLine": 180,
+          "path": "internal/handler/auth.go",
+          "role": "supporting",
+          "startLine": 172
+        },
+        {
+          "endLine": 90,
+          "path": "internal/handler/common.go",
+          "role": "supporting",
+          "startLine": 79
+        }
+      ],
+      "occurrenceId": "occ_df6b99949d3a8c4a2b0bda35",
+      "provenance": {
+        "candidateId": "candidate-disabled-api-keys",
+        "originalCandidates": [
+          {
+            "attacker": "Former user with previously issued API/beta key.",
+            "confidence": "high",
+            "counterevidence": "Session rotation and fresh password login deactivation checks work; access remains within user's existing resource permissions. Static validation only.",
+            "cwe": "CWE-863",
+            "dataflow": "Admin sets IsActive=0 and nonempty INVALID_ session token; api_token records remain; resolveAPITokenIdentity checks only nonempty AccessToken, returning owner identity; OSS resolver and membership do not check IsActive.",
+            "locations": [
+              "internal/admin/service.go:460",
+              "internal/service/user.go:776-795",
+              "internal/dao/api_token.go:48-74",
+              "internal/handler/auth.go:126-149",
+              "internal/permission/database_source.go:46-74"
+            ],
+            "remediation": "Validate account state centrally in all credential resolvers and revoke appropriate keys.",
+            "severity": "high",
+            "title": "Existing API and beta keys remain usable after account deactivation"
+          },
+          {
+            "attacker": "Former user with previously issued API/beta key.",
+            "confidence": "high",
+            "counterevidence": "Session rotation and fresh password login deactivation checks work; access remains within user's existing resource permissions. Static validation only.",
+            "cwe": "CWE-863",
+            "dataflow": "Admin sets IsActive=0 and nonempty INVALID_ session token; api_token records remain; resolveAPITokenIdentity checks only nonempty AccessToken, returning owner identity; OSS resolver and membership do not check IsActive.",
+            "locations": [
+              "internal/admin/service.go:460",
+              "internal/service/user.go:776-795",
+              "internal/dao/api_token.go:48-74",
+              "internal/handler/auth.go:126-149",
+              "internal/permission/database_source.go:46-74"
+            ],
+            "remediation": "Validate account state centrally in all credential resolvers and revoke appropriate keys.",
+            "severity": "high",
+            "title": "Existing API and beta keys remain usable after account deactivation"
+          }
+        ],
+        "source": "local_plugin"
+      },
+      "remediation": "Apply a shared active/deleted-account check to all credential resolvers; revoke API and beta credentials on deactivation according to policy. Fail closed before resource access.",
+      "remediationTests": [
+        "Issue session/API/beta credentials, deactivate user, assert all credential classes and standalone MCP fail; test reactivation and intentional reissuance."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "disabled-api-keys-e0",
+          "disabled-api-keys-e1",
+          "disabled-api-keys-e2",
+          "disabled-api-keys-e3",
+          "disabled-api-keys-e4",
+          "disabled-api-keys-e5"
+        ],
+        "summary": "Admin disables user \u2192 IsActive=0, AccessToken=INVALID_random \u2192 API token lookup \u2192 user lookup \u2192 nonempty AccessToken passes \u2192 resource permissions accept former identity. Deactivation revokes the stored session identifier but keeps API/beta rows; API identity resolution only requires the session identifier to be nonempty."
+      },
+      "ruleId": "improper-authorization",
+      "severity": {
+        "changeConditions": "Actual deployment restrictions can reduce reachability; additional confirmed exposure or runtime mitigation would change the rating.",
+        "level": "high",
+        "rationale": "Direct credential-boundary failure permits private data access through an ordinarily distributed or formerly authorized credential. Former user or holder of a previously issued key, with API connectivity. Access is confined to the identity's existing resource permissions."
+      },
+      "summary": "An administratively deactivated user can continue authenticating with previously issued API/beta keys because account state is not checked by their identity resolver.",
+      "taxonomy": {
+        "category": "Account deactivation bypass",
+        "cwe": [
+          "CWE-863"
+        ]
+      },
+      "title": "API and beta keys survive account deactivation",
+      "validation": {
+        "counterEvidence": [
+          "New password login checks IsActive and existing session tokens are invalidated. This is not an arbitrary cross-tenant bypass. OSS tenant resolver does not add an active-user check."
+        ],
+        "evidenceRefs": [
+          "disabled-api-keys-e0",
+          "disabled-api-keys-e1",
+          "disabled-api-keys-e2",
+          "disabled-api-keys-e3",
+          "disabled-api-keys-e4",
+          "disabled-api-keys-e5"
+        ],
+        "limitations": [
+          "No application/exploit execution or actual image verification."
+        ],
+        "method": "Read-only static source inspection; independent investigator results checked against current source by parent.",
+        "summary": "An administratively deactivated user can continue authenticating with previously issued API/beta keys because account state is not checked by their identity resolver. Deactivation revokes the stored session identifier but keeps API/beta rows; API identity resolution only requires the session identifier to be nonempty."
+      }
+    },
+    {
+      "attackPath": {
+        "controls": [
+          "The setting defaults false. Password verification and disabled-user rejection still work; externally enforced gateway restrictions can mitigate reachability."
+        ],
+        "dataflow": {
+          "summary": "Public login route \u2192 UserHandler.LoginByEmail \u2192 UserService.LoginByEmail \u2192 password verification and new access token; config getter is only surfaced in system config."
+        },
+        "evidenceRefs": [
+          "password-login-flag-e4"
+        ],
+        "limitations": [
+          "Conditional deployment prerequisites remain explicit."
+        ],
+        "reachability": {
+          "summary": "Caller with a valid password when operator intends to disable this method; no credential-free login is claimed. OSS has no built-in OAuth login implementation."
+        },
+        "summary": "Caller with a valid password when operator intends to disable this method; no credential-free login is claimed. OSS has no built-in OAuth login implementation."
+      },
+      "codeEvidence": [
+        {
+          "code": "func (c *Config) parseAuthenticationConfig(v *viper.Viper) {\n\tapiServerConfig := &c.apiServer\n\tapiServerConfig.Authentication.DisablePasswordLogin = false\n\tapiServerConfig.Authentication.EnableRegister = true\n\n\tif !v.IsSet(\"authentication\") {\n\t\treturn\n\t}\n\tsub := v.Sub(\"authentication\")\n\tif sub == nil {\n\t\treturn\n\t}\n\n\tif sub.IsSet(\"disable_password_login\") {\n\t\tapiServerConfig.Authentication.DisablePasswordLogin = sub.GetBool(\"disable_password_login\")\n\t}\n\n\tif sub.IsSet(\"enable_register\") {\n\t\tapiServerConfig.Authentication.EnableRegister = sub.GetBool(\"enable_register\")\n\t}\n}\n\nfunc (c *Config) DisablePasswordLogin() bool {\n\tif c.environments.DisablePasswordLogin != nil {\n\t\treturn *c.environments.DisablePasswordLogin\n\t}\n\treturn c.apiServer.Authentication.DisablePasswordLogin",
+          "endLine": 121,
+          "explanation": "Public login route \u2192 UserHandler.LoginByEmail \u2192 UserService.LoginByEmail \u2192 password verification and new access token; config getter is only surfaced in system config. This source segment establishes the internal/server/config/api_server_config.go transition.",
+          "id": "password-login-flag-e0",
+          "label": "Trace: internal/server/config/api_server_config.go",
+          "language": "go",
+          "path": "internal/server/config/api_server_config.go",
+          "role": "entrypoint",
+          "startLine": 95
+        },
+        {
+          "code": "type ConfigResponse struct {\n\tEnableRegister       bool `json:\"registerEnabled\"`\n\tDisablePasswordLogin bool `json:\"disablePasswordLogin\"`\n}\n\n// GetConfig get system configuration\nfunc (s *SystemService) GetConfig() (*ConfigResponse, error) {\n\tcfg := server.GetConfig()\n\treturn &ConfigResponse{\n\t\tEnableRegister:       cfg.EnableRegister(),\n\t\tDisablePasswordLogin: cfg.DisablePasswordLogin(),\n\t}, nil",
+          "endLine": 54,
+          "explanation": "Public login route \u2192 UserHandler.LoginByEmail \u2192 UserService.LoginByEmail \u2192 password verification and new access token; config getter is only surfaced in system config. This source segment establishes the internal/service/system.go transition.",
+          "id": "password-login-flag-e1",
+          "label": "Trace: internal/service/system.go",
+          "language": "go",
+          "path": "internal/service/system.go",
+          "role": "propagation",
+          "startLine": 43
+        },
+        {
+          "code": "\t\t// User login by email endpoint\n\t\tapiNoAuth.POST(\"/auth/login\", r.userHandler.LoginByEmail)\n\n\t\t// Register\n\t\tapiNoAuth.POST(\"/users\", r.userHandler.Register)",
+          "endLine": 171,
+          "explanation": "Public login route \u2192 UserHandler.LoginByEmail \u2192 UserService.LoginByEmail \u2192 password verification and new access token; config getter is only surfaced in system config. This source segment establishes the internal/router/router.go transition.",
+          "id": "password-login-flag-e2",
+          "label": "Trace: internal/router/router.go",
+          "language": "go",
+          "path": "internal/router/router.go",
+          "role": "propagation",
+          "startLine": 167
+        },
+        {
+          "code": "\tif !local.IsAdminAvailable() {\n\t\tadminStatus := local.GetAdminStatus()\n\t\tcommon.RespondError(c, common.CodeAuthenticationError, adminStatus.Reason)\n\t\toperationLog.Code = int(common.CodeAuthenticationError)\n\t\toperationLog.Error = errors.New(adminStatus.Reason)\n\t\treturn\n\t}\n\n\tuser, code, err := h.userService.LoginByEmail(ctx, &req)\n\tif err != nil {",
+          "endLine": 245,
+          "explanation": "Public login route \u2192 UserHandler.LoginByEmail \u2192 UserService.LoginByEmail \u2192 password verification and new access token; config getter is only surfaced in system config. This source segment establishes the internal/handler/user.go transition.",
+          "id": "password-login-flag-e3",
+          "label": "Trace: internal/handler/user.go",
+          "language": "go",
+          "path": "internal/handler/user.go",
+          "role": "propagation",
+          "startLine": 236
+        },
+        {
+          "code": "func (s *UserService) LoginByEmail(ctx context.Context, req *EmailLoginRequest) (*entity.User, common.ErrorCode, error) {\n\tuser, err := s.userDAO.GetByEmail(ctx, dao.DB, req.Email)\n\tif err != nil {\n\t\tcommon.Error(\"user not found by email\", err)\n\t\treturn nil, common.CodeAuthenticationError, fmt.Errorf(\"email: %s is not registered\", req.Email)\n\t}\n\n\tdecryptedPassword, err := common.DecryptPassword(req.Password)\n\tif err != nil {\n\t\treturn nil, common.CodeServerError, fmt.Errorf(\"fail to crypt password\")\n\t}\n\n\tif user.Password == nil || !s.VerifyPassword(*user.Password, decryptedPassword) {\n\t\treturn nil, common.CodeAuthenticationError, fmt.Errorf(\"email and password do not match\")\n\t}\n\n\tif user.IsActive == \"0\" {\n\t\treturn nil, common.CodeForbidden, fmt.Errorf(\"this account has been disabled, please contact the administrator\")\n\t}\n\n\t// Generate new access token\n\ttoken := common.GenerateToken()\n\tuser.AccessToken = &token\n\tnow := time.Now().Truncate(time.Second)\n\tuser.LastLoginTime = &now\n\n\tif err = s.userDAO.Update(ctx, dao.DB, user); err != nil {\n\t\treturn nil, common.CodeServerError, fmt.Errorf(\"failed to update user: %w\", err)\n\t}\n\tif billingService := billing.Get(); billingService != nil && billingService.Enabled() {\n\t\tbillingService.SyncLoginTokenRateLimit(ctx, user.ID, token)\n\t}\n\n\treturn user, common.CodeSuccess, nil",
+          "endLine": 341,
+          "explanation": "The password login entrypoint never checks the parsed DisablePasswordLogin policy.",
+          "id": "password-login-flag-e4",
+          "label": "Broken control: internal/service/user.go",
+          "language": "go",
+          "path": "internal/service/user.go",
+          "role": "root_control",
+          "startLine": 308
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Current source shows the complete relevant control path; parent reviewed input, state transition, consumer and counterevidence. Runtime reproduction and image equivalence were not tested."
+      },
+      "findingId": "csf_c7ad6404106aca07ddd69ca0",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:52e8469be8992265e0deda62518ab078156b0cf19c2266d93402d980e95e7e46"
+      },
+      "identity": {
+        "anchor": "password-login-flag",
+        "instance": "password-login-flag"
+      },
+      "locations": [
+        {
+          "endLine": 121,
+          "path": "internal/server/config/api_server_config.go",
+          "role": "supporting",
+          "startLine": 95
+        },
+        {
+          "endLine": 54,
+          "path": "internal/service/system.go",
+          "role": "supporting",
+          "startLine": 43
+        },
+        {
+          "endLine": 171,
+          "path": "internal/router/router.go",
+          "role": "supporting",
+          "startLine": 167
+        },
+        {
+          "endLine": 245,
+          "path": "internal/handler/user.go",
+          "role": "supporting",
+          "startLine": 236
+        },
+        {
+          "endLine": 341,
+          "path": "internal/service/user.go",
+          "role": "root_control",
+          "startLine": 308
+        }
+      ],
+      "occurrenceId": "occ_2048f76bd3305877b7b4f823",
+      "provenance": {
+        "candidateId": "candidate-password-login-flag",
+        "source": "local_plugin"
+      },
+      "remediation": "Reject password authentication server-side before credential processing when disabled. Keep a separate documented admin break-glass policy and validate usable alternate identity flow.",
+      "remediationTests": [
+        "Set policy through YAML and env, submit valid password directly, require rejection; test normal allowed policy and explicit administrator recovery path."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "password-login-flag-e0",
+          "password-login-flag-e1",
+          "password-login-flag-e2",
+          "password-login-flag-e3",
+          "password-login-flag-e4"
+        ],
+        "summary": "Public login route \u2192 UserHandler.LoginByEmail \u2192 UserService.LoginByEmail \u2192 password verification and new access token; config getter is only surfaced in system config. The password login entrypoint never checks the parsed DisablePasswordLogin policy."
+      },
+      "ruleId": "authentication-policy-bypass",
+      "severity": {
+        "changeConditions": "Actual deployment restrictions can reduce reachability; additional confirmed exposure or runtime mitigation would change the rating.",
+        "level": "medium",
+        "rationale": "High confidentiality/authority impact is conditional on the stated configuration, existing credential or network position. Caller with a valid password when operator intends to disable this method; no credential-free login is claimed. OSS has no built-in OAuth login implementation."
+      },
+      "summary": "DISABLE_PASSWORD_LOGIN=true or authentication.disable_password_login=true changes exposed configuration, but direct POST /api/v1/auth/login still verifies a password and issues a session.",
+      "taxonomy": {
+        "category": "Authentication policy enforcement bypass",
+        "cwe": [
+          "CWE-863"
+        ]
+      },
+      "title": "Disabling password login does not block password authentication",
+      "validation": {
+        "counterEvidence": [
+          "The setting defaults false. Password verification and disabled-user rejection still work; externally enforced gateway restrictions can mitigate reachability."
+        ],
+        "evidenceRefs": [
+          "password-login-flag-e0",
+          "password-login-flag-e1",
+          "password-login-flag-e2",
+          "password-login-flag-e3",
+          "password-login-flag-e4"
+        ],
+        "limitations": [
+          "No application/exploit execution or actual image verification."
+        ],
+        "method": "Read-only static source inspection; independent investigator results checked against current source by parent.",
+        "summary": "DISABLE_PASSWORD_LOGIN=true or authentication.disable_password_login=true changes exposed configuration, but direct POST /api/v1/auth/login still verifies a password and issues a session. The password login entrypoint never checks the parsed DisablePasswordLogin policy."
+      }
+    },
+    {
+      "attackPath": {
+        "controls": [
+          "Self-service password updates rotate AccessToken; session signatures and 24-hour expiration still work. API key lifecycle is a separate policy."
+        ],
+        "dataflow": {
+          "summary": "Admin password reset \u2192 user.Password updated \u2192 user record saved with original AccessToken \u2192 ResolveAccessToken finds same identifier \u2192 old signed session accepted."
+        },
+        "evidenceRefs": [
+          "admin-reset-session-e0"
+        ],
+        "limitations": [
+          "Conditional deployment prerequisites remain explicit."
+        ],
+        "reachability": {
+          "summary": "Attacker already has a valid session when administrator resets the password; window is bounded by the session's 24-hour expiry, login/logout or explicit token rotation."
+        },
+        "summary": "Attacker already has a valid session when administrator resets the password; window is bounded by the session's 24-hour expiry, login/logout or explicit token rotation."
+      },
+      "codeEvidence": [
+        {
+          "code": "func (s *Service) ChangePassword(ctx context.Context, username, newPassword string) error {\n\tuserList, err := s.userDAO.ListByEmail(ctx, dao.DB, username)\n\tif err != nil || len(userList) == 0 {\n\t\treturn fmt.Errorf(\"user '%s' not found\", username)\n\t}\n\n\tif len(userList) > 1 {\n\t\treturn fmt.Errorf(\"exist more than 1 user: %s\", username)\n\t}\n\n\tuser := userList[0]\n\n\tdecryptedPassword, err := common.DecryptPassword(newPassword)\n\tif err != nil {\n\t\treturn fmt.Errorf(\"failed to decrypt password: %w\", err)\n\t}\n\n\tif user.Password != nil && common.CheckWerkzeugPassword(decryptedPassword, *user.Password) {\n\t\treturn nil\n\t}\n\n\thashedPassword, err := common.GenerateWerkzeugPasswordHash(decryptedPassword)\n\tif err != nil {\n\t\treturn fmt.Errorf(\"failed to hash password: %w\", err)\n\t}\n\n\tuser.Password = &hashedPassword\n\n\tif err = s.userDAO.Update(ctx, dao.DB, user); err != nil {\n\t\treturn fmt.Errorf(\"failed to update user: %w\", err)\n\t}\n\n\treturn nil",
+          "endLine": 429,
+          "explanation": "The administrative recovery path does not perform the session revocation applied by the user settings password-change path.",
+          "id": "admin-reset-session-e0",
+          "label": "Broken control: internal/admin/service.go",
+          "language": "go",
+          "path": "internal/admin/service.go",
+          "role": "root_control",
+          "startLine": 397
+        },
+        {
+          "code": "\ttokenContext, err := common.ExtractAccessTokenContext(authorization, secretKey)\n\tif err != nil {\n\t\treturn nil, common.CodeUnauthorized, fmt.Errorf(\"invalid authorization token: %w\", err)\n\t}\n\n\t// Validate token format (should be at least 32 chars, UUID format)\n\tif len(tokenContext.AccessToken) < 32 {\n\t\treturn nil, common.CodeUnauthorized, fmt.Errorf(\"invalid access token format\")\n\t}\n\n\t// Get user by access token\n\tuser, err := s.userDAO.GetByAccessToken(ctx, dao.DB, tokenContext.AccessToken)\n\tif err != nil {\n\t\treturn nil, common.CodeUnauthorized, err\n\t}\n\n\ttenantID, err := resolveUserAuthTenant(ctx, user, tokenContext.TenantID)\n\tif err != nil {\n\t\treturn nil, common.CodeUnauthorized, err\n\t}\n\n\treturn &AuthIdentity{User: user, TenantID: tenantID}, common.CodeSuccess, nil",
+          "endLine": 536,
+          "explanation": "Admin password reset \u2192 user.Password updated \u2192 user record saved with original AccessToken \u2192 ResolveAccessToken finds same identifier \u2192 old signed session accepted. This source segment establishes the internal/service/user.go transition.",
+          "id": "admin-reset-session-e1",
+          "label": "Trace: internal/service/user.go",
+          "language": "go",
+          "path": "internal/service/user.go",
+          "role": "propagation",
+          "startLine": 515
+        },
+        {
+          "code": "\t\t\t}\n\n\t\t\tvar hashedPassword string\n\t\t\thashedPassword, err = common.GenerateWerkzeugPasswordHash(string(newPasswordBytes))\n\t\t\tif err != nil {\n\t\t\t\treturn common.CodeExceptionError, err\n\t\t\t}\n\t\t\tuser.Password = &hashedPassword\n\t\t\tinvalidToken := \"INVALID_\" + common.GenerateToken()\n\t\t\tuser.AccessToken = &invalidToken\n\t\t}",
+          "endLine": 690,
+          "explanation": "Admin password reset \u2192 user.Password updated \u2192 user record saved with original AccessToken \u2192 ResolveAccessToken finds same identifier \u2192 old signed session accepted. This source segment establishes the internal/service/user.go transition.",
+          "id": "admin-reset-session-e2",
+          "label": "Trace: internal/service/user.go",
+          "language": "go",
+          "path": "internal/service/user.go",
+          "role": "propagation",
+          "startLine": 680
+        },
+        {
+          "code": "const accessTokenExpireSeconds = 86400\n\nconst accessTokenContextVersion = \"v2\"\n\n// AccessTokenContext is the identity and tenant context carried by a signed\n// user token. TenantID is empty in Community Edition and for system admins.\ntype AccessTokenContext struct {\n\tAccessToken string\n\tTenantID    string\n}\n\n// ExtractAccessTokenContext extracts the access token and tenant context from\n// an authorization header.\nfunc ExtractAccessTokenContext(authorization, secretKey string) (*AccessTokenContext, error) {\n\tif authorization == \"\" {",
+          "endLine": 48,
+          "explanation": "Admin password reset \u2192 user.Password updated \u2192 user record saved with original AccessToken \u2192 ResolveAccessToken finds same identifier \u2192 old signed session accepted. This source segment establishes the internal/common/token.go transition.",
+          "id": "admin-reset-session-e3",
+          "label": "Trace: internal/common/token.go",
+          "language": "go",
+          "path": "internal/common/token.go",
+          "role": "propagation",
+          "startLine": 34
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Current source shows the complete relevant control path; parent reviewed input, state transition, consumer and counterevidence. Runtime reproduction and image equivalence were not tested."
+      },
+      "findingId": "csf_b9185ef74f64f4db1c2a7192",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:cfc7230094ece20aff3b9d80a5d864d41656934fdf1e5d19a6657de344532186"
+      },
+      "identity": {
+        "anchor": "admin-reset-session",
+        "instance": "admin-reset-session"
+      },
+      "locations": [
+        {
+          "endLine": 429,
+          "path": "internal/admin/service.go",
+          "role": "root_control",
+          "startLine": 397
+        },
+        {
+          "endLine": 536,
+          "path": "internal/service/user.go",
+          "role": "supporting",
+          "startLine": 515
+        },
+        {
+          "endLine": 690,
+          "path": "internal/service/user.go",
+          "role": "supporting",
+          "startLine": 680
+        },
+        {
+          "endLine": 48,
+          "path": "internal/common/token.go",
+          "role": "supporting",
+          "startLine": 34
+        }
+      ],
+      "occurrenceId": "occ_09a1620c96cd97ae8eda7b4b",
+      "provenance": {
+        "candidateId": "candidate-admin-reset-session",
+        "source": "local_plugin"
+      },
+      "remediation": "Rotate AccessToken or increment an authentication epoch atomically with administrative password reset; invalidate corresponding sessions and define separate API-key recovery policy.",
+      "remediationTests": [
+        "Capture synthetic user session, reset through admin API, require old session failure; ensure fresh login with new password works."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "admin-reset-session-e0",
+          "admin-reset-session-e1",
+          "admin-reset-session-e2",
+          "admin-reset-session-e3"
+        ],
+        "summary": "Admin password reset \u2192 user.Password updated \u2192 user record saved with original AccessToken \u2192 ResolveAccessToken finds same identifier \u2192 old signed session accepted. The administrative recovery path does not perform the session revocation applied by the user settings password-change path."
+      },
+      "ruleId": "insufficient-session-expiration",
+      "severity": {
+        "changeConditions": "Actual deployment restrictions can reduce reachability; additional confirmed exposure or runtime mitigation would change the rating.",
+        "level": "medium",
+        "rationale": "High confidentiality/authority impact is conditional on the stated configuration, existing credential or network position. Attacker already has a valid session when administrator resets the password; window is bounded by the session's 24-hour expiry, login/logout or explicit token rotation."
+      },
+      "summary": "Admin ChangePassword updates the password hash without rotating the stored access-token identifier. A stolen existing session remains valid after the reset until normal expiry or another invalidation event.",
+      "taxonomy": {
+        "category": "Insufficient session invalidation",
+        "cwe": [
+          "CWE-613"
+        ]
+      },
+      "title": "Administrative password reset leaves existing sessions valid",
+      "validation": {
+        "counterEvidence": [
+          "Self-service password updates rotate AccessToken; session signatures and 24-hour expiration still work. API key lifecycle is a separate policy."
+        ],
+        "evidenceRefs": [
+          "admin-reset-session-e0",
+          "admin-reset-session-e1",
+          "admin-reset-session-e2",
+          "admin-reset-session-e3"
+        ],
+        "limitations": [
+          "No application/exploit execution or actual image verification."
+        ],
+        "method": "Read-only static source inspection; independent investigator results checked against current source by parent.",
+        "summary": "Admin ChangePassword updates the password hash without rotating the stored access-token identifier. A stolen existing session remains valid after the reset until normal expiry or another invalidation event. The administrative recovery path does not perform the session revocation applied by the user settings password-change path."
+      }
+    },
+    {
+      "attackPath": {
+        "controls": [
+          "Local lab publishes only 127.0.0.1:18080 and no raw 9380/9381 ports. Listener exposure does not itself bypass application authentication."
+        ],
+        "dataflow": {
+          "summary": "api.host/admin.host parsed \u2192 server config \u2192 fmt.Sprintf(:port) \u2192 net.Listen/ListenAndServe wildcard listener."
+        },
+        "evidenceRefs": [
+          "ignored-bind-host-e2"
+        ],
+        "limitations": [
+          "Conditional deployment prerequisites remain explicit."
+        ],
+        "reachability": {
+          "summary": "Network peer able to reach the host or shared container network, when operator relied on host binding for isolation. Host firewall, container port mappings and network policy remain effective."
+        },
+        "summary": "Network peer able to reach the host or shared container network, when operator relied on host binding for isolation. Host firewall, container port mappings and network policy remain effective."
+      },
+      "codeEvidence": [
+        {
+          "code": "\tc.apiServer.Host = \"localhost\"\n\tc.apiServer.HTTPPort = 9380\n\n\tif v.IsSet(\"api.host\") {\n\t\tc.apiServer.Host = v.GetString(\"api.host\")\n\t}\n\n\tif v.IsSet(\"api.http_port\") {\n\t\tc.apiServer.HTTPPort = v.GetInt(\"api.http_port\")",
+          "endLine": 79,
+          "explanation": "api.host/admin.host parsed \u2192 server config \u2192 fmt.Sprintf(:port) \u2192 net.Listen/ListenAndServe wildcard listener. This source segment establishes the internal/server/config/api_server_config.go transition.",
+          "id": "ignored-bind-host-e0",
+          "label": "Trace: internal/server/config/api_server_config.go",
+          "language": "go",
+          "path": "internal/server/config/api_server_config.go",
+          "role": "entrypoint",
+          "startLine": 71
+        },
+        {
+          "code": "\tc.admin.Host = \"localhost\"\n\tc.admin.HTTPPort = 9381\n\n\tif v.IsSet(\"admin.host\") {\n\t\tc.admin.Host = v.GetString(\"admin.host\")\n\t}\n\n\tif v.IsSet(\"admin.http_port\") {\n\t\tc.admin.HTTPPort = v.GetInt(\"admin.http_port\")",
+          "endLine": 46,
+          "explanation": "api.host/admin.host parsed \u2192 server config \u2192 fmt.Sprintf(:port) \u2192 net.Listen/ListenAndServe wildcard listener. This source segment establishes the internal/server/config/admin_config.go transition.",
+          "id": "ignored-bind-host-e1",
+          "label": "Trace: internal/server/config/admin_config.go",
+          "language": "go",
+          "path": "internal/server/config/admin_config.go",
+          "role": "propagation",
+          "startLine": 38
+        },
+        {
+          "code": "\tapiServerConfig := globalConfig.GetAPIServerConfig()\n\n\t// Create HTTP server with timeouts to prevent slow clients from blocking shutdown\n\taddr := fmt.Sprintf(\":%d\", apiServerConfig.HTTPPort)\n\tsrv := &http.Server{\n\t\tAddr:              addr,\n\t\tHandler:           ginEngine,\n\t\tBaseContext:       func(net.Listener) context.Context { return ctx },\n\t\tReadHeaderTimeout: 10 * time.Second,\n\t\tReadTimeout:       60 * time.Second,\n\t\t// WriteTimeout spans \"request header read \u2192 response written\", so it is a\n\t\t// ceiling on the WHOLE request, not on a slow client's reads. Measured\n\t\t// (2026-09-15, FRAMES 20q): three multi-hop questions take 150\u2013225s to reach\n\t\t// their response, and at 120s the server closed the connection with no\n\t\t// response at all \u2014 the client reports\n\t\t// `RemoteDisconnected('Remote end closed connection without response')` and\n\t\t// the benchmark re-runs the whole question (max_retries: 2), so one slow\n\t\t// question cost three full pipelines. 180s clears the measured distribution's\n\t\t// middle; questions whose composition alone runs past it still need streaming\n\t\t// or a larger budget.\n\t\tWriteTimeout: 180 * time.Second,\n\t\tIdleTimeout:  120 * time.Second,\n\t}\n\tapiListener, err := net.Listen(\"tcp\", addr)",
+          "endLine": 399,
+          "explanation": "Listener construction consumes HTTPPort while dropping the parsed Host field.",
+          "id": "ignored-bind-host-e2",
+          "label": "Broken control: internal/server/api/server.go",
+          "language": "go",
+          "path": "internal/server/api/server.go",
+          "role": "root_control",
+          "startLine": 376
+        },
+        {
+          "code": "\tadminConfig := globalConfig.GetAdminServerConfig()\n\taddr := fmt.Sprintf(\":%d\", adminConfig.HTTPPort)\n\tsrv := &http.Server{\n\t\tAddr:    addr,\n\t\tHandler: ginEngine,\n\t}",
+          "endLine": 90,
+          "explanation": "api.host/admin.host parsed \u2192 server config \u2192 fmt.Sprintf(:port) \u2192 net.Listen/ListenAndServe wildcard listener. This source segment establishes the internal/server/admin/server.go transition.",
+          "id": "ignored-bind-host-e3",
+          "label": "Trace: internal/server/admin/server.go",
+          "language": "go",
+          "path": "internal/server/admin/server.go",
+          "role": "propagation",
+          "startLine": 85
+        },
+        {
+          "code": "\t// Start HTTP server in a goroutine\n\tgo func() {\n\t\tcommon.Info(fmt.Sprintf(\"Starting RAGFlow admin HTTP server on port: %d\", adminConfig.HTTPPort))\n\t\tif err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {\n\t\t\tcommon.Fatal(\"Failed to start server\", zap.Error(err))",
+          "endLine": 113,
+          "explanation": "api.host/admin.host parsed \u2192 server config \u2192 fmt.Sprintf(:port) \u2192 net.Listen/ListenAndServe wildcard listener. This source segment establishes the internal/server/admin/server.go transition.",
+          "id": "ignored-bind-host-e4",
+          "label": "Trace: internal/server/admin/server.go",
+          "language": "go",
+          "path": "internal/server/admin/server.go",
+          "role": "propagation",
+          "startLine": 109
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Current source shows the complete relevant control path; parent reviewed input, state transition, consumer and counterevidence. Runtime reproduction and image equivalence were not tested."
+      },
+      "findingId": "csf_5ef6909686e040f567ee67e2",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:ea6b10144a8bee6b7ed1a86c9ba3f2231e4018afe745e11f46ef0ab88c70b74f"
+      },
+      "identity": {
+        "anchor": "ignored-bind-host",
+        "instance": "ignored-bind-host"
+      },
+      "locations": [
+        {
+          "endLine": 79,
+          "path": "internal/server/config/api_server_config.go",
+          "role": "supporting",
+          "startLine": 71
+        },
+        {
+          "endLine": 46,
+          "path": "internal/server/config/admin_config.go",
+          "role": "supporting",
+          "startLine": 38
+        },
+        {
+          "endLine": 399,
+          "path": "internal/server/api/server.go",
+          "role": "root_control",
+          "startLine": 376
+        },
+        {
+          "endLine": 90,
+          "path": "internal/server/admin/server.go",
+          "role": "supporting",
+          "startLine": 85
+        },
+        {
+          "endLine": 113,
+          "path": "internal/server/admin/server.go",
+          "role": "supporting",
+          "startLine": 109
+        }
+      ],
+      "occurrenceId": "occ_a0e0db9b24e0523287d99268",
+      "provenance": {
+        "candidateId": "candidate-ignored-bind-host",
+        "source": "local_plugin"
+      },
+      "remediation": "Build both addresses with net.JoinHostPort(config.Host, port); test IPv4/IPv6 loopback. Until fixed enforce host firewall, dedicated container networks and remove direct published API/Admin ports.",
+      "remediationTests": [
+        "Configure each service on loopback; inspect actual listeners and verify another host/container cannot connect while intended proxy can."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "ignored-bind-host-e0",
+          "ignored-bind-host-e1",
+          "ignored-bind-host-e2",
+          "ignored-bind-host-e3",
+          "ignored-bind-host-e4"
+        ],
+        "summary": "api.host/admin.host parsed \u2192 server config \u2192 fmt.Sprintf(:port) \u2192 net.Listen/ListenAndServe wildcard listener. Listener construction consumes HTTPPort while dropping the parsed Host field."
+      },
+      "ruleId": "incorrect-network-binding",
+      "severity": {
+        "changeConditions": "Actual deployment restrictions can reduce reachability; additional confirmed exposure or runtime mitigation would change the rating.",
+        "level": "medium",
+        "rationale": "High confidentiality/authority impact is conditional on the stated configuration, existing credential or network position. Network peer able to reach the host or shared container network, when operator relied on host binding for isolation. Host firewall, container port mappings and network policy remain effective."
+      },
+      "summary": "Setting api.host or admin.host to loopback does not restrict either listener: both build ':port' addresses and listen on available interfaces.",
+      "taxonomy": {
+        "category": "Unintended network exposure",
+        "cwe": [
+          "CWE-668"
+        ]
+      },
+      "title": "API and Admin listeners ignore configured bind hosts",
+      "validation": {
+        "counterEvidence": [
+          "Local lab publishes only 127.0.0.1:18080 and no raw 9380/9381 ports. Listener exposure does not itself bypass application authentication."
+        ],
+        "evidenceRefs": [
+          "ignored-bind-host-e0",
+          "ignored-bind-host-e1",
+          "ignored-bind-host-e2",
+          "ignored-bind-host-e3",
+          "ignored-bind-host-e4"
+        ],
+        "limitations": [
+          "No application/exploit execution or actual image verification."
+        ],
+        "method": "Read-only static source inspection; independent investigator results checked against current source by parent.",
+        "summary": "Setting api.host or admin.host to loopback does not restrict either listener: both build ':port' addresses and listen on available interfaces. Listener construction consumes HTTPPort while dropping the parsed Host field."
+      }
+    },
+    {
+      "attackPath": {
+        "controls": [
+          "This does not create remote access without network interception. No traffic was intercepted and default HTTP is a separate transport-security limitation."
+        ],
+        "dataflow": {
+          "summary": "Configured es.hosts and credentials \u2192 NewEngine \u2192 TLS transport with verification disabled \u2192 index/query requests and Basic credentials sent to impersonated endpoint."
+        },
+        "evidenceRefs": [
+          "es-tls-verification-e1"
+        ],
+        "limitations": [
+          "Conditional deployment prerequisites remain explicit."
+        ],
+        "reachability": {
+          "summary": "On-path or DNS/routing attacker against the Elasticsearch connection; HTTPS must be selected. Default lab connection is plain HTTP inside private network."
+        },
+        "summary": "On-path or DNS/routing attacker against the Elasticsearch connection; HTTPS must be selected. Default lab connection is plain HTTP inside private network."
+      },
+      "codeEvidence": [
+        {
+          "code": "// ElasticsearchConfig Elasticsearch configuration\ntype ElasticsearchConfig struct {\n\tHosts    string `mapstructure:\"hosts\"`\n\tUsername string `mapstructure:\"username\"`\n\tPassword string `mapstructure:\"password\"`\n}",
+          "endLine": 58,
+          "explanation": "Configured es.hosts and credentials \u2192 NewEngine \u2192 TLS transport with verification disabled \u2192 index/query requests and Basic credentials sent to impersonated endpoint. This source segment establishes the internal/server/config/doc_engine_config.go transition.",
+          "id": "es-tls-verification-e0",
+          "label": "Trace: internal/server/config/doc_engine_config.go",
+          "language": "go",
+          "path": "internal/server/config/doc_engine_config.go",
+          "role": "entrypoint",
+          "startLine": 53
+        },
+        {
+          "code": "func NewEngine(ctx context.Context, esConfig config.ElasticsearchConfig) (*Engine, error) {\n\t// Create ES client\n\tclient, err := elasticsearch.NewClient(elasticsearch.Config{\n\t\tAddresses: []string{esConfig.Hosts},\n\t\tUsername:  esConfig.Username,\n\t\tPassword:  esConfig.Password,\n\t\tTransport: &http.Transport{\n\t\t\tMaxIdleConns:          1000,\n\t\t\tMaxIdleConnsPerHost:   300,\n\t\t\tMaxConnsPerHost:       500,\n\t\t\tIdleConnTimeout:       60 * time.Second,\n\t\t\tResponseHeaderTimeout: 30 * time.Second,\n\t\t\tTLSClientConfig:       &tls.Config{InsecureSkipVerify: true},\n\t\t\tForceAttemptHTTP2:     true,\n\t\t},\n\t})",
+          "endLine": 58,
+          "explanation": "Certificate chain and hostname verification are disabled in the shared ES transport, with no verification/CA field in ElasticsearchConfig.",
+          "id": "es-tls-verification-e1",
+          "label": "Broken control: internal/engine/elasticsearch/client.go",
+          "language": "go",
+          "path": "internal/engine/elasticsearch/client.go",
+          "role": "root_control",
+          "startLine": 43
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Current source shows the complete relevant control path; parent reviewed input, state transition, consumer and counterevidence. Runtime reproduction and image equivalence were not tested."
+      },
+      "findingId": "csf_f544959dc40eff2e426cc475",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:bcdb455615014e637a7b134faa9469e3c73472cb4bff07c144a0212e7ef4f04d"
+      },
+      "identity": {
+        "anchor": "es-tls-verification",
+        "instance": "es-tls-verification"
+      },
+      "locations": [
+        {
+          "endLine": 58,
+          "path": "internal/server/config/doc_engine_config.go",
+          "role": "supporting",
+          "startLine": 53
+        },
+        {
+          "endLine": 58,
+          "path": "internal/engine/elasticsearch/client.go",
+          "role": "root_control",
+          "startLine": 43
+        }
+      ],
+      "occurrenceId": "occ_fbb5f9a5ca4640ce82804acd",
+      "provenance": {
+        "candidateId": "candidate-es-tls-verification",
+        "source": "local_plugin"
+      },
+      "remediation": "Enable certificate validation by default; support trusted CA configuration and hostname verification. Use a verified mTLS tunnel/sidecar plus network isolation until client support is corrected.",
+      "remediationTests": [
+        "Untrusted CA, expired and wrong-host certificates must fail; approved CA and hostname must succeed. Verify no hidden client uses insecure fallback."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "es-tls-verification-e0",
+          "es-tls-verification-e1"
+        ],
+        "summary": "Configured es.hosts and credentials \u2192 NewEngine \u2192 TLS transport with verification disabled \u2192 index/query requests and Basic credentials sent to impersonated endpoint. Certificate chain and hostname verification are disabled in the shared ES transport, with no verification/CA field in ElasticsearchConfig."
+      },
+      "ruleId": "improper-certificate-validation",
+      "severity": {
+        "changeConditions": "Actual deployment restrictions can reduce reachability; additional confirmed exposure or runtime mitigation would change the rating.",
+        "level": "medium",
+        "rationale": "High confidentiality/authority impact is conditional on the stated configuration, existing credential or network position. On-path or DNS/routing attacker against the Elasticsearch connection; HTTPS must be selected. Default lab connection is plain HTTP inside private network."
+      },
+      "summary": "When es.hosts uses HTTPS, the Go Elasticsearch transport unconditionally sets InsecureSkipVerify=true, accepting an untrusted or wrong-host certificate.",
+      "taxonomy": {
+        "category": "Improper certificate validation",
+        "cwe": [
+          "CWE-295"
+        ]
+      },
+      "title": "Elasticsearch HTTPS client skips certificate verification",
+      "validation": {
+        "counterEvidence": [
+          "This does not create remote access without network interception. No traffic was intercepted and default HTTP is a separate transport-security limitation."
+        ],
+        "evidenceRefs": [
+          "es-tls-verification-e0",
+          "es-tls-verification-e1"
+        ],
+        "limitations": [
+          "No application/exploit execution or actual image verification."
+        ],
+        "method": "Read-only static source inspection; independent investigator results checked against current source by parent.",
+        "summary": "When es.hosts uses HTTPS, the Go Elasticsearch transport unconditionally sets InsecureSkipVerify=true, accepting an untrusted or wrong-host certificate. Certificate chain and hostname verification are disabled in the shared ES transport, with no verification/CA field in ElasticsearchConfig."
+      }
+    },
+    {
+      "attackPath": {
+        "controls": [
+          "Explicit minio.verify:true enables verification and mitigates this issue. Default secure:false does not perform TLS at all."
+        ],
+        "dataflow": {
+          "summary": "minio.secure=true, verify omitted \u2192 parseMinioConfig Verify=false \u2192 newMinioTransport InsecureSkipVerify=true \u2192 object storage request trusts impersonated server."
+        },
+        "evidenceRefs": [
+          "minio-tls-default-e1"
+        ],
+        "limitations": [
+          "Conditional deployment prerequisites remain explicit."
+        ],
+        "reachability": {
+          "summary": "On-path attacker when HTTPS is enabled and verify omitted or false. The lab explicitly sets verify:true, so this unsafe default is not active there; its secure:false still means plaintext traffic."
+        },
+        "summary": "On-path attacker when HTTPS is enabled and verify omitted or false. The lab explicitly sets verify:true, so this unsafe default is not active there; its secure:false still means plaintext traffic."
+      },
+      "codeEvidence": [
+        {
+          "code": "  # optional: set to true for HTTPS (SSL/TLS). Used by MinIO client and health check.\n  # secure: ${MINIO_SECURE:-false}\n  # optional: set to false to allow self-signed certificates (e.g. in development).\n  # verify: ${MINIO_VERIFY:-true}",
+          "endLine": 48,
+          "explanation": "minio.secure=true, verify omitted \u2192 parseMinioConfig Verify=false \u2192 newMinioTransport InsecureSkipVerify=true \u2192 object storage request trusts impersonated server. This source segment establishes the docker/service_conf.yaml.template transition.",
+          "id": "minio-tls-default-e0",
+          "label": "Trace: docker/service_conf.yaml.template",
+          "language": "yaml",
+          "path": "docker/service_conf.yaml.template",
+          "role": "entrypoint",
+          "startLine": 45
+        },
+        {
+          "code": "func (c *Config) parseMinioConfig(v *viper.Viper) {\n\t// Default MinIO config\n\tc.storageEngine.Minio.Host = \"localhost:23817\"\n\tc.storageEngine.Minio.User = \"rag_flow\"\n\tc.storageEngine.Minio.Password = \"infini_rag_flow\"\n\tc.storageEngine.Minio.Bucket = \"\"\n\tc.storageEngine.Minio.PrefixPath = \"\"\n\tc.storageEngine.Minio.Secure = false\n\tc.storageEngine.Minio.Verify = false\n\tc.storageEngine.Minio.Region = \"\"",
+          "endLine": 86,
+          "explanation": "The parser initializes Verify=false; enabling TLS does not change that default, and the transport directly negates Verify.",
+          "id": "minio-tls-default-e1",
+          "label": "Broken control: internal/server/config/storage_engine_config.go",
+          "language": "go",
+          "path": "internal/server/config/storage_engine_config.go",
+          "role": "root_control",
+          "startLine": 77
+        },
+        {
+          "code": "\tif sub.IsSet(\"secure\") {\n\t\tc.storageEngine.Minio.Secure = sub.GetBool(\"secure\")\n\t}\n\n\tif sub.IsSet(\"verify\") {\n\t\tc.storageEngine.Minio.Verify = sub.GetBool(\"verify\")\n\t}",
+          "endLine": 122,
+          "explanation": "minio.secure=true, verify omitted \u2192 parseMinioConfig Verify=false \u2192 newMinioTransport InsecureSkipVerify=true \u2192 object storage request trusts impersonated server. This source segment establishes the internal/server/config/storage_engine_config.go transition.",
+          "id": "minio-tls-default-e2",
+          "label": "Trace: internal/server/config/storage_engine_config.go",
+          "language": "go",
+          "path": "internal/server/config/storage_engine_config.go",
+          "role": "propagation",
+          "startLine": 116
+        },
+        {
+          "code": "func newMinioTransport(cfg config.MinioConfig) (*http.Transport, error) {\n\ttransport, err := minio.DefaultTransport(cfg.Secure)\n\tif err != nil {\n\t\treturn nil, fmt.Errorf(\"failed to create default transport: %w\", err)\n\t}\n\n\tif cfg.Secure {\n\t\tif transport.TLSClientConfig == nil {\n\t\t\ttransport.TLSClientConfig = &tls.Config{}\n\t\t}\n\t\ttransport.TLSClientConfig.InsecureSkipVerify = !cfg.Verify\n\t}",
+          "endLine": 68,
+          "explanation": "minio.secure=true, verify omitted \u2192 parseMinioConfig Verify=false \u2192 newMinioTransport InsecureSkipVerify=true \u2192 object storage request trusts impersonated server. This source segment establishes the internal/storage/minio.go transition.",
+          "id": "minio-tls-default-e3",
+          "label": "Trace: internal/storage/minio.go",
+          "language": "go",
+          "path": "internal/storage/minio.go",
+          "role": "propagation",
+          "startLine": 57
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Current source shows the complete relevant control path; parent reviewed input, state transition, consumer and counterevidence. Runtime reproduction and image equivalence were not tested."
+      },
+      "findingId": "csf_e680414e20cb5608c534196c",
+      "fingerprints": {
+        "algorithm": "codex-security/v1",
+        "primary": "codex-security/v1:sha256:61b47884a83b37b630724f283d9f071cfbd9ebd811cd040a1e98f3d3217a4fb7"
+      },
+      "identity": {
+        "anchor": "minio-tls-default",
+        "instance": "minio-tls-default"
+      },
+      "locations": [
+        {
+          "endLine": 48,
+          "path": "docker/service_conf.yaml.template",
+          "role": "supporting",
+          "startLine": 45
+        },
+        {
+          "endLine": 86,
+          "path": "internal/server/config/storage_engine_config.go",
+          "role": "root_control",
+          "startLine": 77
+        },
+        {
+          "endLine": 122,
+          "path": "internal/server/config/storage_engine_config.go",
+          "role": "supporting",
+          "startLine": 116
+        },
+        {
+          "endLine": 68,
+          "path": "internal/storage/minio.go",
+          "role": "supporting",
+          "startLine": 57
+        }
+      ],
+      "occurrenceId": "occ_bc13ad8e1a2194b55af221b6",
+      "provenance": {
+        "candidateId": "candidate-minio-tls-default",
+        "source": "local_plugin"
+      },
+      "remediation": "Set minio.secure:true and minio.verify:true explicitly with trusted CA. Change parser default to true and test omitted verification, keeping insecure opt-out restricted to development.",
+      "remediationTests": [
+        "With secure=true and verify omitted reject self-signed/wrong-host certificates; explicit approved CA succeeds. Confirm lab/production effective config."
+      ],
+      "rootCause": {
+        "evidenceRefs": [
+          "minio-tls-default-e0",
+          "minio-tls-default-e1",
+          "minio-tls-default-e2",
+          "minio-tls-default-e3"
+        ],
+        "summary": "minio.secure=true, verify omitted \u2192 parseMinioConfig Verify=false \u2192 newMinioTransport InsecureSkipVerify=true \u2192 object storage request trusts impersonated server. The parser initializes Verify=false; enabling TLS does not change that default, and the transport directly negates Verify."
+      },
+      "ruleId": "improper-certificate-validation",
+      "severity": {
+        "changeConditions": "Actual deployment restrictions can reduce reachability; additional confirmed exposure or runtime mitigation would change the rating.",
+        "level": "medium",
+        "rationale": "High confidentiality/authority impact is conditional on the stated configuration, existing credential or network position. On-path attacker when HTTPS is enabled and verify omitted or false. The lab explicitly sets verify:true, so this unsafe default is not active there; its secure:false still means plaintext traffic."
+      },
+      "summary": "Setting minio.secure=true without an explicit minio.verify leaves Verify=false; the transport then sets InsecureSkipVerify=true, contrary to the template's documented verification default.",
+      "taxonomy": {
+        "category": "Unsafe TLS verification default",
+        "cwe": [
+          "CWE-295"
+        ]
+      },
+      "title": "MinIO HTTPS defaults to disabled certificate verification",
+      "validation": {
+        "counterEvidence": [
+          "Explicit minio.verify:true enables verification and mitigates this issue. Default secure:false does not perform TLS at all."
+        ],
+        "evidenceRefs": [
+          "minio-tls-default-e0",
+          "minio-tls-default-e1",
+          "minio-tls-default-e2",
+          "minio-tls-default-e3"
+        ],
+        "limitations": [
+          "No application/exploit execution or actual image verification."
+        ],
+        "method": "Read-only static source inspection; independent investigator results checked against current source by parent.",
+        "summary": "Setting minio.secure=true without an explicit minio.verify leaves Verify=false; the transport then sets InsecureSkipVerify=true, contrary to the template's documented verification default. The parser initializes Verify=false; enabling TLS does not change that default, and the transport directly negates Verify."
+      }
+    }
+  ],
+  "scanId": "b25a7472-7c3e-483f-bc74-7eebcb9723ea",
+  "schemaVersion": "1.0"
+}

@@ -1,0 +1,285 @@
+{
+  "as_of": "2026-11-10",
+  "scope": "Выборочный обзор, не рейтинг; возможности по публичной документации, без hands-on benchmark.",
+  "vendors": [
+    {
+      "id": "aws",
+      "name": "Amazon Bedrock Guardrails",
+      "category": "Облако",
+      "focus": "Управляемые проверки входа и выхода",
+      "features": "Контент, запрещённые темы, PII, grounding; отдельные Automated Reasoning checks.",
+      "deploy": "Managed AWS; интеграция Bedrock и standalone API.",
+      "limits": "Проверка формальной политики — только English (US), без streaming. Она не является универсальным доказательством истинности.",
+      "fit": "Основной стек на Bedrock; быстрый единый baseline.",
+      "cost": "Публичный usage-based тариф по активным фильтрам.",
+      "sources": [
+        "S08",
+        "S09",
+        "S10"
+      ],
+      "tags": [
+        "PII",
+        "Injection",
+        "Grounding"
+      ]
+    },
+    {
+      "id": "microsoft",
+      "name": "Microsoft Foundry / Azure AI Content Safety",
+      "category": "Облако",
+      "focus": "Prompt Shields и контентные политики",
+      "features": "Атаки в пользовательском вводе и внешних документах; управление блокировкой в Foundry.",
+      "deploy": "Azure service/API; интеграция в Foundry.",
+      "limits": "Standalone API сам не блокирует запрос. Spotlighting — preview; DLP и права доступа проектируются отдельно.",
+      "fit": "Приложения и агенты в Azure; единые корпоративные политики.",
+      "cost": "Зависит от сервиса, региона и схемы интеграции; запросить расчёт.",
+      "sources": [
+        "S11",
+        "S12"
+      ],
+      "tags": [
+        "Injection",
+        "Documents",
+        "Safety"
+      ]
+    },
+    {
+      "id": "google",
+      "name": "Google Cloud Model Armor",
+      "category": "Облако",
+      "focus": "Защита промптов, ответов и документов",
+      "features": "Injection/jailbreak, safety, sensitive data через SDP, вредоносные URL.",
+      "deploy": "Региональный API; применим и вне Google Cloud.",
+      "limits": "У документов есть лимиты размера. Для русского требуется собственная оценка качества; поддержка изображений имеет статус Preview.",
+      "fit": "Google Cloud, документные/RAG-потоки и существующий SDP.",
+      "cost": "Уточнять тариф Model Armor и дополнительные компоненты SDP.",
+      "sources": [
+        "S13",
+        "S14"
+      ],
+      "tags": [
+        "Injection",
+        "PII",
+        "Documents"
+      ]
+    },
+    {
+      "id": "palo",
+      "name": "Palo Alto Networks Prisma AIRS",
+      "category": "Платформа безопасности",
+      "focus": "Защита жизненного цикла AI и централизованный gateway",
+      "features": "Runtime, model security, agent security; AI Gateway на базе приобретённого Portkey.",
+      "deploy": "API/network intercept; Gateway SaaS или Hybrid.",
+      "limits": "Проверять каждый модуль, SKU и регион отдельно. Hybrid Gateway не означает, что все security-сервисы работают локально.",
+      "fit": "Крупная смешанная инфраструктура и централизованная SecOps-команда.",
+      "cost": "Коммерческий расчёт по составу решения.",
+      "sources": [
+        "S15",
+        "S16",
+        "S17",
+        "S18"
+      ],
+      "tags": [
+        "Injection",
+        "Agents",
+        "Gateway"
+      ]
+    },
+    {
+      "id": "cisco",
+      "name": "Cisco AI Defense",
+      "category": "Платформа безопасности",
+      "focus": "Discovery → validation → runtime",
+      "features": "Инвентаризация, model/MCP scanning, red teaming, runtime privacy/safety и контроль взаимодействий агентов.",
+      "deploy": "Облачные и customer-hosted data plane варианты; Inspection API.",
+      "limits": "Проверять комплект поставки и доступность MCP-функций. Management API не заменяет Inspection API.",
+      "fit": "Компании, которым нужен общий контур проверки и эксплуатации AI.",
+      "cost": "Коммерческий расчёт; лицензии и deployment нужно согласовать.",
+      "sources": [
+        "S19",
+        "S20"
+      ],
+      "tags": [
+        "Injection",
+        "Agents",
+        "Red team"
+      ]
+    },
+    {
+      "id": "checkpoint",
+      "name": "Check Point AI Guardrails (Lakera)",
+      "category": "Платформа безопасности",
+      "focus": "Специализированная runtime-проверка",
+      "features": "Prompt defense, утечки, moderation, malicious links, отклонения агента и allow/deny tools.",
+      "deploy": "Guard API, SaaS или self-hosted.",
+      "limits": "Native platform runtime integrations — roadmap; audio Early Access, image-защита ещё не эквивалентна text-защите. Блокировку привязать к API-результату.",
+      "fit": "Независимая от основной LLM проверка; важна возможность self-hosting.",
+      "cost": "Enterprise-условия и объёмы уточнять у поставщика.",
+      "sources": [
+        "S21",
+        "S22"
+      ],
+      "tags": [
+        "Injection",
+        "PII",
+        "Agents"
+      ]
+    },
+    {
+      "id": "prompt",
+      "name": "SentinelOne / Prompt Security",
+      "category": "Платформа безопасности",
+      "focus": "Защита собственных AI-приложений",
+      "features": "Injection/jailbreak, обфускация данных, moderation, логирование; отдельное red teaming.",
+      "deploy": "Gateway/API; заявлены cloud, VPC, on-premise.",
+      "limits": "Обещания защиты от RCE и Denial of Wallet требуют проверки конкретного пути исполнения; текстовый фильтр не заменяет sandbox и quotas.",
+      "fit": "Предприятия, совмещающие собственные AI-приложения и корпоративный AI security.",
+      "cost": "Коммерческий расчёт.",
+      "sources": [
+        "S23",
+        "S24",
+        "S35"
+      ],
+      "tags": [
+        "Injection",
+        "PII",
+        "Red team"
+      ]
+    },
+    {
+      "id": "nemo",
+      "name": "NVIDIA NeMo Guardrails",
+      "category": "Библиотека / движок",
+      "focus": "Программируемые проверки внутри приложения",
+      "features": "Input, retrieval, dialog, execution и output rails; возможность подключать собственные проверки.",
+      "deploy": "Библиотека в вашем runtime; модели-проверяющие выбираются отдельно.",
+      "limits": "Нужны интеграция, эксплуатация, тесты и политика отказа. Наличие execution rails само по себе не даёт IAM-авторизацию.",
+      "fit": "Собственная AI-платформа, гибкие workflows, локальное размещение.",
+      "cost": "Инженерные затраты, serving моделей и поддержка.",
+      "sources": [
+        "S25"
+      ],
+      "tags": [
+        "Custom",
+        "Agents",
+        "RAG"
+      ]
+    },
+    {
+      "id": "guardrailsai",
+      "name": "Guardrails AI",
+      "category": "Библиотека / движок",
+      "focus": "Валидация I/O и структуры ответа",
+      "features": "Композиция validators; проверки рисков и структурированных данных.",
+      "deploy": "Python framework; validators как пакеты PyPI.",
+      "limits": "Объявлен уход от hosted remote inferencing; не закладывать прежний SaaS в новую архитектуру. Состав и качество зависят от validators.",
+      "fit": "Контракты ответа, прикладные правила, программируемая валидация.",
+      "cost": "Hosting и эксплуатация validators; лицензии компонентов проверять отдельно.",
+      "sources": [
+        "S26"
+      ],
+      "tags": [
+        "Custom",
+        "Schema",
+        "Validation"
+      ]
+    },
+    {
+      "id": "meta",
+      "name": "Meta LlamaFirewall",
+      "category": "Библиотека / движок",
+      "focus": "Компоненты защиты AI-агентов",
+      "features": "PromptGuard 2, AlignmentCheck, CodeShield для разных классов риска.",
+      "deploy": "Самостоятельное развёртывание библиотеки и зависимостей.",
+      "limits": "AlignmentCheck описан как экспериментальный; применимость зависит от доступной трассы агента. Лицензии кода и моделей проверять раздельно.",
+      "fit": "Инженерная команда готова собирать и оценивать собственный стек.",
+      "cost": "Compute для проверок и инженерная поддержка.",
+      "sources": [
+        "S05",
+        "S27"
+      ],
+      "tags": [
+        "Injection",
+        "Agents",
+        "Code"
+      ]
+    },
+    {
+      "id": "litellm",
+      "name": "LiteLLM Proxy",
+      "category": "Шлюз",
+      "focus": "Общая точка подключения проверок",
+      "features": "Встроенные фильтры и интеграции с Presidio, Bedrock, Lakera и custom Guardrail API.",
+      "deploy": "Самостоятельно управляемый proxy; внешний detector может быть SaaS.",
+      "limits": "Качество определяется подключёнными детекторами. Проверять охват streaming, tools, batch и альтернативных API.",
+      "fit": "Много моделей/провайдеров; нужны общие настройки и маршрутизация.",
+      "cost": "Эксплуатация gateway + внешние проверки + нужные enterprise-функции.",
+      "sources": [
+        "S28"
+      ],
+      "tags": [
+        "Gateway",
+        "Integrations",
+        "PII"
+      ]
+    },
+    {
+      "id": "cloudflare",
+      "name": "Cloudflare AI Gateway Guardrails",
+      "category": "Шлюз",
+      "focus": "Общая moderation-политика в proxy",
+      "features": "Сканирование prompts/responses по категориям контента; flag/block и журналы.",
+      "deploy": "Cloudflare AI Gateway.",
+      "limits": "Guardrails обозначены Beta. Документированная moderation не доказывает полноту защиты от injection или злоупотребления tools.",
+      "fit": "AI-трафик уже идёт через Cloudflare; нужен базовый safety-слой.",
+      "cost": "Сверить Gateway и стоимость используемых проверок в выбранном плане.",
+      "sources": [
+        "S29"
+      ],
+      "tags": [
+        "Gateway",
+        "Safety",
+        "Beta"
+      ]
+    },
+    {
+      "id": "arthur",
+      "name": "Arthur GenAI Engine",
+      "category": "Библиотека / движок",
+      "focus": "Правила качества, безопасности и приватности",
+      "features": "Hallucinations, injection, toxicity, sensitive data/PII и custom rules.",
+      "deploy": "API-first engine, возможен запуск в собственной среде.",
+      "limits": "Прежний Arthur Shield включён в GenAI Engine. API возвращает verdict; enforcement выполняет приложение. Часть правил вызывает настроенную LLM.",
+      "fit": "Нужны совместные проверки grounding, безопасности и бизнес-правил.",
+      "cost": "Инфраструктура, вызовы judge-модели, выбранная поддержка.",
+      "sources": [
+        "S30"
+      ],
+      "tags": [
+        "Grounding",
+        "PII",
+        "Custom"
+      ]
+    },
+    {
+      "id": "yandex",
+      "name": "Yandex AI Studio Guardrails",
+      "category": "Облако",
+      "focus": "Модерация запросов и ответов",
+      "features": "Системные и custom classifier/dictionary-политики, блокирующее сообщение, audit events.",
+      "deploy": "Внутри AI Studio; функция Preview.",
+      "limits": "Custom guardrail отключает системный. Для open-source моделей системный guardrail по умолчанию выключен. Полнота injection/DLP/agent-защиты здесь не подтверждена.",
+      "fit": "Сценарии в Yandex Cloud; кандидат для локального пилота на русском.",
+      "cost": "Проверить условия Preview, тарификацию и поддерживаемые модели.",
+      "sources": [
+        "S31",
+        "S32"
+      ],
+      "tags": [
+        "Safety",
+        "Custom",
+        "Preview"
+      ]
+    }
+  ]
+}

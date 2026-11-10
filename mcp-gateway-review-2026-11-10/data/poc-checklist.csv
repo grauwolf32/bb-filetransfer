@@ -1,0 +1,13 @@
+﻿ID,Контроль,Проверка,Критерий приёмки,Результат,Ссылка на evidence
+G01,Identity isolation,"Подменить issuer/audience, смешать user/tenant и повторить запрос после отзыва доступа.",Ни один неверный token не исполняет backend call; измерено время отзыва.,,
+G02,Discovery ≠ authorization,Убрать tool из tools/list и вызвать его напрямую по известному имени.,"Deny на invocation, без выполнения backend.",,
+G03,Arguments / object permissions,"Разрешить read в dev, затем заменить env, tenant, object ID и объём выдачи.","Проверка каждого параметра и backend ACL, включая границу tenant.",,
+G04,Все MCP primitives,"Проверить tools/call, resources/read, prompts/get и применяемые extensions.",Нет необъявленных путей доступа; неподдержанные capabilities отключены.,,
+G05,Credentials и egress,"Проверить traces/errors, auth overrides, OAuth metadata, redirect и upstream URL registration.",Нет секретов в логах; SSRF не достигает запрещённых адресов.,,
+G06,Изменения и poisoning,Обновить description/schema/образ после initial approval; добавить malicious metadata.,Работают diff/review/rollback; stale catalog не открывает новый tool.,,
+G07,DLP и injection,"Canary PII/secrets в arguments и responses, а также вредоносные инструкции в metadata/output.",Считать пропуски и false positives; authorization остаётся действенной при пропуске scanner.,,
+G08,Approval integrity,"После одобрения сменить target/amount, затем повторить согласованный вызов.",Повторное согласование при изменении; replay отклоняется.,,
+G09,Bypass и runtime,Прямое подключение к MCP/backend; локальный stdio; попытка чтения host file/секрета.,Подтверждено фактическое покрытие endpoint/network/runtime controls.,,
+G10,Отказы и повторная запись,Отключить IdP/policy/scanner/upstream; оборвать ответ после записи.,Заранее определён fail-closed для привилегированных действий; нет double write.,,
+G11,Audit и privacy,Собрать цепочку user → agent → gateway → backend по одному trace.,Есть policy version/decision и раздельные identities; tokens и лишний payload отсутствуют.,,
+G12,Нагрузка и совместимость,"Реальные клиенты, revisions, pagination, reconnect; замер с policy и inspection.","Согласованный SLO по p95/p99, error rate, throughput и стоимости; результаты воспроизводимы.",,

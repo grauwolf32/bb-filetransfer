@@ -1,0 +1,429 @@
+[
+  {
+    "id": "aws",
+    "name": "Amazon Bedrock AgentCore Gateway",
+    "group": "Облачные платформы",
+    "deployment": [
+      "managed"
+    ],
+    "license": "Коммерческий managed service",
+    "summary": "Облачная точка подключения MCP, API и Lambda с управлением входной и исходящей аутентификацией.",
+    "strengths": "Credential injection, semantic tool selection; Policy in AgentCore задаёт условия по claims и параметрам вызова.",
+    "caveat": "Policy проверяет только tools: prompts и resources требуют отдельного контроля. DYNAMIC listing несовместим с semantic search и outbound 3LO.",
+    "fit": "AWS-first агенты и интеграция существующих сервисов.",
+    "pricing": "Оплата операций Gateway; Policy и поиск считаются отдельно. Инфраструктура, логи и backend добавляют расходы.",
+    "features": [
+      "doc",
+      "doc",
+      "doc",
+      "integration",
+      "verify"
+    ],
+    "sources": [
+      "S09",
+      "S10",
+      "S11",
+      "S12",
+      "S13"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "azure",
+    "name": "Azure API Management",
+    "group": "Облачные платформы",
+    "deployment": [
+      "managed",
+      "self"
+    ],
+    "license": "Коммерческие tiers APIM",
+    "summary": "Публикует REST APIs как MCP tools и проксирует существующие удалённые MCP-серверы.",
+    "strengths": "JWT/Entra ID, quotas, IP policies, Azure Monitor; discovery через отдельный Azure API Center.",
+    "caveat": "В текущем overview: только tools; prompts/resources и APIM workspaces не поддержаны. Policies по умолчанию охватывают все tools сервера: per-tool гранулярность нужно проектировать и проверять.",
+    "fit": "Организации с действующим Azure API Management и Entra ID.",
+    "pricing": "Стоимость tier/capacity APIM и сопутствующих Azure-сервисов; точный региональный расчёт нужен отдельно.",
+    "features": [
+      "doc",
+      "limited",
+      "verify",
+      "integration",
+      "verify"
+    ],
+    "sources": [
+      "S14"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "cloudflare",
+    "name": "Cloudflare MCP server portals",
+    "group": "Облачные платформы",
+    "deployment": [
+      "managed"
+    ],
+    "license": "Коммерческий Cloudflare One / Access stack",
+    "summary": "Единый endpoint к одобренным remote MCP-серверам с политиками доступа и аудитом.",
+    "strengths": "Portals GA с 24.09.2026; service tokens для M2M, Logpush; Gateway routing добавляет DLP запросов и ответов.",
+    "caveat": "DLP требует соответствующей настройки и entitlement Cloudflare. Legacy SSE не поддерживается через Gateway routing. Runtime произвольного MCP-кода — отдельная задача.",
+    "fit": "Корпоративные IDE и AI-клиенты в среде Cloudflare Zero Trust.",
+    "pricing": "Проверить стоимость Access, Gateway, DLP, логов и Workers, если серверы также размещаются у Cloudflare.",
+    "features": [
+      "doc",
+      "doc",
+      "verify",
+      "integration",
+      "verify"
+    ],
+    "sources": [
+      "S15",
+      "S16"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "kong",
+    "name": "Kong AI Gateway",
+    "group": "API management",
+    "deployment": [
+      "managed",
+      "self"
+    ],
+    "license": "Enterprise AI capabilities / коммерческие планы",
+    "summary": "MCP-governance внутри API/AI-платформы: публикация tools и proxy существующих серверов.",
+    "strengths": "Server/per-tool ACL, consumer identity, AI Policies и OTEL. CEL ACL требует data plane 3.16+.",
+    "caveat": "У per-tool ACL своя семантика override: исключение заменяет базовые списки. Проверить версию, режим MCP Server и лицензирование нужных plugins.",
+    "fit": "Компании с Kong/Konnect и командой API platform.",
+    "pricing": "Коммерческая конфигурация и capacity; цену обычного API gateway нельзя считать ценой MCP Enterprise.",
+    "features": [
+      "doc",
+      "doc",
+      "verify",
+      "integration",
+      "verify"
+    ],
+    "sources": [
+      "S17",
+      "S18"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "gravitee",
+    "name": "Gravitee MCP Proxy",
+    "group": "API management",
+    "deployment": [
+      "managed",
+      "self"
+    ],
+    "license": "Коммерческие возможности APIM/Agent Management",
+    "summary": "Protocol-aware MCP proxy рядом с управлением API, LLM и A2A.",
+    "strengths": "OAuth2 plan в APIM + Access Management; политики на уровне MCP methods и tools заявлены в описании продукта.",
+    "caveat": "Подтвердить tool/argument enforcement именно в выбранной версии и плане; OAuth-сценарий может требовать отдельный компонент AM.",
+    "fit": "Единая программа API, event и agent governance.",
+    "pricing": "Запросить коммерческую конфигурацию APIM, AM и agent/AI capabilities.",
+    "features": [
+      "doc",
+      "doc",
+      "verify",
+      "integration",
+      "verify"
+    ],
+    "sources": [
+      "S22",
+      "S23"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "traefik",
+    "name": "Traefik Hub MCP Gateway",
+    "group": "API management",
+    "deployment": [
+      "self"
+    ],
+    "license": "Коммерческий Traefik Hub",
+    "summary": "MCP middleware с OAuth resource metadata и Task-Based Access Control.",
+    "strengths": "TBAC ограничивает task, tool и transaction; правила используют JWT claims и параметры запроса.",
+    "caveat": "OBO token exchange реализует MCP-сервер, а gateway передаёт либо удаляет auth context. Это нужно включить в проект интеграции.",
+    "fit": "Kubernetes/Traefik platform с требованиями к параметрам транзакций.",
+    "pricing": "Лицензия Hub и эксплуатация собственной инфраструктуры; предложение поставщика.",
+    "features": [
+      "doc",
+      "doc",
+      "doc",
+      "integration",
+      "verify"
+    ],
+    "sources": [
+      "S24",
+      "S25"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "solo",
+    "name": "agentgateway / Solo Enterprise",
+    "group": "Открытая платформа",
+    "deployment": [
+      "self"
+    ],
+    "license": "Apache-2.0 OSS + коммерческий Solo Enterprise",
+    "summary": "MCP/LLM/A2A proxy с федерацией tools, OAuth, CEL policy и телеметрией.",
+    "strengths": "OSS покрывает базовые proxy/security controls. Enterprise добавляет lifecycle/fingerprinting и STS для backend token exchange.",
+    "caveat": "Разделять OSS и Enterprise в RFP. STS — отдельный сервис; coverage lifecycle-защит и отказоустойчивость проверять на конкретном релизе.",
+    "fit": "Собственная platform engineering команда и смешанная AI-инфраструктура.",
+    "pricing": "OSS без лицензионного платежа; compute, эксплуатация и Enterprise support оплачиваются отдельно.",
+    "features": [
+      "doc",
+      "doc",
+      "verify",
+      "integration",
+      "verify"
+    ],
+    "sources": [
+      "S19",
+      "S20",
+      "S21"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "ibm",
+    "name": "IBM ContextForge",
+    "group": "Открытая платформа",
+    "deployment": [
+      "self"
+    ],
+    "license": "Apache-2.0",
+    "summary": "Открытые registry, proxy и federation для MCP, A2A и REST/gRPC.",
+    "strengths": "Централизованный каталог, RBAC, plugins, OpenTelemetry и Kubernetes deployment.",
+    "caveat": "Команда отвечает за hardening, state stores и обновления. IBM публиковала CVE-2026-8355: OAuth registration SSRF до 1.0.5 включительно; фикс 1.0.6. Это не оценка текущего релиза.",
+    "fit": "Self-hosted платформа с кастомными политиками и интеграциями.",
+    "pricing": "Лицензия OSS; инфраструктура, разработка политик, мониторинг и сопровождение.",
+    "features": [
+      "doc",
+      "doc",
+      "verify",
+      "integration",
+      "verify"
+    ],
+    "sources": [
+      "S26",
+      "S27"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "stacklok",
+    "name": "ToolHive / Stacklok Enterprise",
+    "group": "Открытая платформа",
+    "deployment": [
+      "self",
+      "local"
+    ],
+    "license": "Apache-2.0 core + коммерческий Enterprise",
+    "summary": "Runtime, registry и gateway vMCP; Kubernetes Operator управляет парком MCP-серверов.",
+    "strengths": "Контейнеризация, secrets, network filtering и OTEL. Enterprise Connector Gateway связывает identity, connector policy и backend credentials.",
+    "caveat": "vMCP и Enterprise Connector Gateway — разные компоненты. Состав console, IdP integrations и support закрепить в выбранной редакции.",
+    "fit": "Организации, которым нужны и gateway, и управление исполнением MCP-кода.",
+    "pricing": "OSS + эксплуатация; Enterprise платформа и enterprise connectors по подписке / предложению.",
+    "features": [
+      "doc",
+      "doc",
+      "verify",
+      "integration",
+      "doc"
+    ],
+    "sources": [
+      "S29",
+      "S30"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "docker",
+    "name": "Docker MCP Gateway",
+    "group": "Локальная среда",
+    "deployment": [
+      "local"
+    ],
+    "license": "Docker ecosystem; условия Desktop и компонентов отдельно",
+    "summary": "Управляет локальными MCP-серверами в Docker-контейнерах и подключает к ним AI-клиентов.",
+    "strengths": "Lifecycle, credential injection, ограничения privileges/network/resources, logging и call tracing.",
+    "caveat": "Документированный локальный сценарий не подтверждает готовый корпоративный multi-tenant control plane. Изоляция контейнеров зависит от настройки хоста.",
+    "fit": "Контролируемая разработческая среда и локальные stdio tools.",
+    "pricing": "Учитывать подписку Docker Desktop организации и стоимость endpoint management.",
+    "features": [
+      "limited",
+      "verify",
+      "verify",
+      "verify",
+      "doc"
+    ],
+    "sources": [
+      "S28"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "portkey",
+    "name": "Prisma AIRS AI Gateway / Portkey",
+    "group": "Единая AI-платформа",
+    "deployment": [
+      "managed",
+      "self"
+    ],
+    "license": "Коммерческая платформа; состав OSS отдельно",
+    "summary": "Общий контур governance для моделей и MCP; Portkey входит в Palo Alto Networks с 29.05.2026.",
+    "strengths": "MCP registry, OAuth/JWT, server/tool RBAC, audit/traces и runtime policies заявлены на текущей странице продукта.",
+    "caveat": "Актуальные naming, SKU, private deployment и границы OSS закрепить в договоре: старые обзоры Portkey описывают более раннее состояние продукта.",
+    "fit": "Единая платформа AI governance и интеграция с security stack Palo Alto.",
+    "pricing": "Актуальное предложение Prisma AIRS; старые публичные тарифы Portkey не использованы.",
+    "features": [
+      "doc",
+      "doc",
+      "verify",
+      "doc",
+      "verify"
+    ],
+    "sources": [
+      "S36",
+      "S37"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "bifrost",
+    "name": "Bifrost · Maxim AI",
+    "group": "Единая AI-платформа",
+    "deployment": [
+      "self"
+    ],
+    "license": "Apache-2.0 core + Enterprise",
+    "summary": "Один deployment для LLM и MCP с virtual MCPs, фильтрацией tools и Code Mode.",
+    "strengths": "Inbound OAuth/keys, upstream per-user OAuth; token exchange в Enterprise. Есть общий контур identity и наблюдаемости.",
+    "caveat": "Заявления о микросекундах overhead не сопоставимы с полным security path. Code Mode требует проверки sandbox и авторизации каждого вложенного tool call.",
+    "fit": "Самостоятельно размещаемый gateway для моделей и tools.",
+    "pricing": "OSS + инфраструктура; Enterprise governance и support по предложению.",
+    "features": [
+      "doc",
+      "doc",
+      "verify",
+      "integration",
+      "verify"
+    ],
+    "sources": [
+      "S38",
+      "S39",
+      "S40"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "mint",
+    "name": "MintMCP",
+    "group": "Специализированный MCP",
+    "deployment": [
+      "managed",
+      "self"
+    ],
+    "license": "Коммерческий managed / private product",
+    "summary": "Готовый каталог и endpoint для корпоративных AI-клиентов с хранением credentials и аудитом.",
+    "strengths": "Hosting собственных, в том числе STDIO, серверов; единая policy при смене AI-клиента. Указаны managed US/EU.",
+    "caveat": "VPC/self-hosted доступны по запросу. Проверить гранулярность параметров, isolation, вывоз логов и условия private deployment.",
+    "fit": "Быстрое внедрение MCP для сотрудников без собственной gateway-команды.",
+    "pricing": "Коммерческое предложение; отдельно запросить hosting, users, retention и private networking.",
+    "features": [
+      "doc",
+      "doc",
+      "verify",
+      "integration",
+      "doc"
+    ],
+    "sources": [
+      "S31",
+      "S32"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "lasso",
+    "name": "Lasso MCP Gateway",
+    "group": "Специализированный MCP",
+    "deployment": [
+      "local",
+      "self"
+    ],
+    "license": "MIT gateway + коммерческие API/guardrails",
+    "summary": "Расширяемый gateway с plugins для inspection запросов/ответов и сканированием MCP перед загрузкой.",
+    "strengths": "Scanner проверяет репутацию и tool descriptions; Lasso plugin добавляет проверки prompt injection и утечки данных.",
+    "caveat": "Advanced guardrails обращаются к Lasso API: проверить передачу payload и режим отказа. README не доказывает полноту enterprise IAM/HA.",
+    "fit": "Security inspection существующих MCP workflows и расширение собственными plugins.",
+    "pricing": "MIT core; коммерческие Lasso services, инфраструктура и сопровождение.",
+    "features": [
+      "verify",
+      "verify",
+      "verify",
+      "integration",
+      "verify"
+    ],
+    "sources": [
+      "S33"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "aembit",
+    "name": "Aembit MCP Identity Gateway",
+    "group": "Специализированный MCP",
+    "deployment": [
+      "managed",
+      "self"
+    ],
+    "license": "Коммерческий IAM / gateway",
+    "summary": "Identity-aware proxy с учётом человека и AI-клиента и изоляцией downstream credentials.",
+    "strengths": "Client-to-gateway и gateway-to-server policies; managed или self-host Linux. Content Security подключается провайдером.",
+    "caveat": "Идентификатор зарегистрированного клиента / redirect URI не равен аппаратной аттестации процесса. Проверить детализацию tool/argument policy и threat model клиента.",
+    "fit": "Крупные организации, где основная проблема — delegation и non-human identity.",
+    "pricing": "Starter: 3 agents; Teams: $20/agent/мес., от 10 agents; Enterprise custom. Важно определить единицу agent и retention.",
+    "features": [
+      "doc",
+      "doc",
+      "verify",
+      "integration",
+      "verify"
+    ],
+    "sources": [
+      "S34",
+      "S35"
+    ],
+    "verified_at": "2026-11-10"
+  },
+  {
+    "id": "truefoundry",
+    "name": "TrueFoundry MCP Gateway",
+    "group": "Единая AI-платформа",
+    "deployment": [
+      "self"
+    ],
+    "license": "Коммерческая AI-платформа",
+    "summary": "MCP registry и virtual servers вместе с LLM/agent gateway в собственной инфраструктуре.",
+    "strengths": "PAT/VAT либо IdP token на входе, per-user OAuth на выходе, server groups, curated toolsets и OTEL.",
+    "caveat": "Проверить изоляцию virtual accounts, override custom headers, доступность granular policy в нужной редакции и outbound data paths.",
+    "fit": "Собственная Kubernetes/LLMOps среда, VPC/on-prem/air-gap требования.",
+    "pricing": "Коммерческая конфигурация; platform, compute и эксплуатация учитываются отдельно.",
+    "features": [
+      "doc",
+      "doc",
+      "verify",
+      "integration",
+      "verify"
+    ],
+    "sources": [
+      "S41",
+      "S42",
+      "S43"
+    ],
+    "verified_at": "2026-11-10"
+  }
+]

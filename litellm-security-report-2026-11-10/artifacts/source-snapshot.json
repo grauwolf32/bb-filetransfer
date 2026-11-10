@@ -1,0 +1,108 @@
+{
+  "analysis_date": "2026-11-10",
+  "timezone": "Europe/Moscow",
+  "repositories": [
+    {
+      "name": "litellm",
+      "url": "https://github.com/BerriAI/litellm",
+      "path": "/Users/ruslan/Documents/ChatGPT/Work/litellm-security-review-2026-11-10/litellm",
+      "revision": "d70855ca826d5aa1eeab7adfef56d8524ca40bb7",
+      "selected_checkout_clean": true,
+      "local_files": 4145,
+      "python_files": 3306,
+      "bytes_without_git": 82812778,
+      "sparse_patterns": [
+        "/litellm/",
+        "/enterprise/",
+        "/helm/",
+        "/docker/",
+        "/litellm_cli/",
+        "/litellm-proxy-extras/",
+        "/schema.prisma",
+        "/pyproject.toml",
+        "/Dockerfile",
+        "/AGENTS.md",
+        "/SECURITY.md",
+        "/README.md",
+        "/ARCHITECTURE.md",
+        "/cosign.pub",
+        "/docker-compose*.yml",
+        "/model_prices_and_context_window.json",
+        "!/litellm/proxy/_experimental/",
+        "!*.png",
+        "!*.jpg",
+        "!*.jpeg",
+        "!*.gif",
+        "!*.webp",
+        "!*.mp4",
+        "!*.tgz"
+      ],
+      "selected_file_digests": [
+        {
+          "path": "pyproject.toml",
+          "sha256": "6170561dd27a57486d430807698a8b9013fc7004b2ae6b8ef380f644a332d225"
+        },
+        {
+          "path": "SECURITY.md",
+          "sha256": "7e72eff22d8683513cd55d1b78dedf5621c5306bf274c3e0263af3d714bb1c8d"
+        },
+        {
+          "path": "Dockerfile",
+          "sha256": "1192707e3943bc96969f0fe066375065f5ce490a997cec222ba9f05097c9f1c7"
+        },
+        {
+          "path": "litellm/proxy/auth/auth_utils.py",
+          "sha256": "d8491aae5e8d8e77914b82317794ac4179601ae537130bb88b836d5bea692e7f"
+        },
+        {
+          "path": "litellm/proxy/proxy_server.py",
+          "sha256": "52bf31e85289051dc99648a26dc2c315252a5148fb11d75d38d1d68635faf653"
+        }
+      ]
+    },
+    {
+      "name": "litellm-docs",
+      "url": "https://github.com/BerriAI/litellm-docs",
+      "path": "/Users/ruslan/Documents/ChatGPT/Work/litellm-security-review-2026-11-10/litellm-docs",
+      "revision": "ca28051cfe774754d4a21d216c6163897e9c6c6d",
+      "selected_checkout_clean": true,
+      "local_files": 1652,
+      "python_files": 0,
+      "bytes_without_git": 18059189,
+      "sparse_patterns": [
+        "*.md",
+        "*.mdx",
+        "*.js",
+        "*.json",
+        "*.ts",
+        "*.tsx",
+        "*.yaml",
+        "*.yml",
+        "*.toml",
+        "*.txt",
+        "/Dockerfile",
+        "!/package-lock.json",
+        "!/docs-models-history.json"
+      ],
+      "selected_file_digests": [
+        {
+          "path": "docs/proxy/config_settings.md",
+          "sha256": "4226451a3fd190fdbfbaa91e8c25808fbcba8a40484546c608e492d155c6fee8"
+        },
+        {
+          "path": "docs/proxy/security_best_practices.md",
+          "sha256": "c19c0534a756357864e7128d1d2f4c71e6a263a3eef1c72767faab8e0f646226"
+        },
+        {
+          "path": "docs/proxy/outbound_requests.md",
+          "sha256": "481b59b478fa391048c0df5b96af5ca2812f6c7115d5ad9bb9d274fb6227a29e"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Sparse source checkout; no generated UI/media; focus Python Proxy, CLI, Enterprise and deployment files.",
+    "No runtime application, artifact signature or infrastructure test executed.",
+    "Scan launch index predates clone completion; Git revisions below are independently established source identity."
+  ]
+}

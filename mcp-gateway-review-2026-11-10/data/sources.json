@@ -1,0 +1,452 @@
+[
+  {
+    "id": "S01",
+    "title": "Security Best Practices",
+    "publisher": "MCP project",
+    "url": "https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices",
+    "kind": "Стандарт / руководство",
+    "supports": "Token passthrough, confused deputy, SSRF, границы доверия",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S02",
+    "title": "Authorization · revision 2026-07-28",
+    "publisher": "MCP project",
+    "url": "https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization",
+    "kind": "Стандарт",
+    "supports": "Авторизация HTTP, metadata discovery и audience",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S03",
+    "title": "Transports · revision 2026-07-28",
+    "publisher": "MCP project",
+    "url": "https://modelcontextprotocol.io/specification/2026-07-28/basic/transports",
+    "kind": "Стандарт",
+    "supports": "stdio и Streamable HTTP; отделение транспорта от семантики",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S04",
+    "title": "Designing MCP Gateway: Uber’s MCP Management Platform",
+    "publisher": "Uber Engineering",
+    "url": "https://www.uber.com/be/en/blog/designing-mcp-gateway/",
+    "kind": "Внутреннее внедрение",
+    "supports": "800+ серверов, 5000+ tools; ownership, enablement, tool-level policy, redaction",
+    "published": "2026-10-01",
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S05",
+    "title": "Scaling MCP adoption: our reference architecture",
+    "publisher": "Cloudflare",
+    "url": "https://blog.cloudflare.com/enterprise-mcp/",
+    "kind": "Внутреннее внедрение / поставщик",
+    "supports": "Внутренние remote MCP, Access, portals, DLP и обнаружение обхода",
+    "published": "2026-04-14",
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S06",
+    "title": "Closing the agentic AI productionization gap · японская версия",
+    "publisher": "Bloomberg",
+    "url": "https://www.bloomberg.co.jp/company/stories/closing-the-agentic-ai-productionization-gap-bloomberg-embraces-mcp/",
+    "kind": "Внутреннее внедрение",
+    "supports": "Remote multi-tenant MCP, identity exchange, SSO proxy, registry",
+    "published": "2026-01-06",
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S07",
+    "title": "MCP in the Enterprise: Real World Adoption at Block",
+    "publisher": "goose / Angie Jones",
+    "url": "https://dev.to/goose_oss/mcp-in-the-enterprise-real-world-adoption-at-block-ci5",
+    "kind": "Публикация команды внедрения",
+    "supports": "Кураторский набор собственных MCP, OAuth, keychain и ограничения моделей",
+    "published": "2025-04-22",
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S08",
+    "title": "Bloomberg launches Enterprise MCP",
+    "publisher": "Bloomberg via PRNewswire",
+    "url": "https://www.prnewswire.com/news-releases/bloomberg-launches-enterprise-mcp-to-seamlessly-connect-bloomberg-data-with-clients-enterprise-ai-applications-302891331.html",
+    "kind": "Анонс продукта",
+    "supports": "Entitlements, audit и tool-level limits; это внешний продукт",
+    "published": "2026-09-29",
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S09",
+    "title": "AgentCore Gateway overview",
+    "publisher": "AWS",
+    "url": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway.html",
+    "kind": "Документация",
+    "supports": "Managed gateway, API/Lambda translation, credential injection и semantic selection",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S10",
+    "title": "Use a Gateway with Policy in AgentCore",
+    "publisher": "AWS",
+    "url": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/use-gateway-with-policy.html",
+    "kind": "Документация",
+    "supports": "Policy охватывает MCP tools; prompts/resources не проходят эту оценку; list и call проверяются отдельно",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S11",
+    "title": "CreatePolicy API",
+    "publisher": "AWS",
+    "url": "https://docs.aws.amazon.com/bedrock-agentcore-control/latest/APIReference/API_CreatePolicy.html",
+    "kind": "Документация",
+    "supports": "Детерминированные Cedar/Dogwood policy, условия по входным параметрам и OAuth claims",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S12",
+    "title": "MCP server targets",
+    "publisher": "AWS",
+    "url": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-target-MCPservers.html",
+    "kind": "Документация",
+    "supports": "Версии протокола, DEFAULT/DYNAMIC listing; ограничения semantic search и 3LO",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S13",
+    "title": "Amazon Bedrock AgentCore pricing",
+    "publisher": "AWS",
+    "url": "https://aws.amazon.com/bedrock/agentcore/pricing/",
+    "kind": "Прайс / примеры",
+    "supports": "Consumption pricing; примеры InvokeTool, Search и отдельной Policy evaluation",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S14",
+    "title": "About MCP servers in Azure API Management",
+    "publisher": "Microsoft",
+    "url": "https://learn.microsoft.com/en-us/azure/api-management/mcp-server-overview",
+    "kind": "Документация",
+    "supports": "REST-to-MCP, proxy, auth, Azure Monitor, self-hosted; tools only и scope policies",
+    "published": "2026-09-11",
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S15",
+    "title": "MCP server portals are generally available",
+    "publisher": "Cloudflare",
+    "url": "https://developers.cloudflare.com/changelog/post/2026-09-24-mcp-portals-ga/",
+    "kind": "Changelog",
+    "supports": "GA, service tokens, DLP routing, Logpush, Code Mode policies",
+    "published": "2026-09-24",
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S16",
+    "title": "MCP server portals",
+    "publisher": "Cloudflare",
+    "url": "https://developers.cloudflare.com/cloudflare-one/access-controls/ai-controls/mcp-portals/",
+    "kind": "Документация",
+    "supports": "Portal configuration; DLP request/response; legacy SSE не работает через Gateway routing",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S17",
+    "title": "AI MCP Servers · ACL tool control",
+    "publisher": "Kong",
+    "url": "https://developer.konghq.com/ai-gateway/entities/ai-mcp-server/",
+    "kind": "Документация",
+    "supports": "Per-tool ACL, CEL и версии data plane; AI Policies, OTEL",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S18",
+    "title": "Secure internal MCP gateway",
+    "publisher": "Kong",
+    "url": "https://developer.konghq.com/cookbooks/secure-internal-mcp-gateway/",
+    "kind": "Документация",
+    "supports": "Корпоративный IdP, conversion-only MCP и per-tool ACL",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S19",
+    "title": "Introducing Solo Enterprise for agentgateway",
+    "publisher": "Solo.io",
+    "url": "https://www.solo.io/blog/introducing-solo-enterprise-for-agentgateway",
+    "kind": "Анонс продукта",
+    "supports": "Enterprise lifecycle, fingerprinting, versioning, poisoning/rug-pull protection",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S20",
+    "title": "Backend authentication",
+    "publisher": "Solo.io",
+    "url": "https://docs.solo.io/agentgateway/standalone/latest/documentation/configuration/security/backend-authn/",
+    "kind": "Документация",
+    "supports": "Enterprise STS token exchange работает отдельным компонентом",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S21",
+    "title": "agentgateway repository",
+    "publisher": "agentgateway project",
+    "url": "https://github.com/agentgateway/agentgateway",
+    "kind": "Код / README",
+    "supports": "Apache-2.0, MCP federation, OAuth, CEL, OTEL, guardrail integrations",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S22",
+    "title": "MCP Gateway: secure AI agent tool access",
+    "publisher": "Gravitee",
+    "url": "https://www.gravitee.io/blog/mcp-gateway",
+    "kind": "Описание поставщика",
+    "supports": "Protocol-aware MCP Proxy и общий governance с LLM/A2A",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S23",
+    "title": "Secure MCP Proxy with OAuth2 · APIM 4.10",
+    "publisher": "Gravitee",
+    "url": "https://documentation.gravitee.io/apim/4.10/agent-mesh/secure-mcp-proxy-with-oauth2",
+    "kind": "Документация",
+    "supports": "Связка APIM OAuth2 plan и Access Management authorization server",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S24",
+    "title": "Model Context Protocol middleware",
+    "publisher": "Traefik",
+    "url": "https://doc.traefik.io/traefik-hub/mcp-gateway/mcp",
+    "kind": "Документация",
+    "supports": "OAuth resource server, JWT и TBAC task/tool/transaction",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S25",
+    "title": "MCP Gateway best practices",
+    "publisher": "Traefik",
+    "url": "https://doc.traefik.io/traefik-hub/mcp-gateway/guides/mcp-gateway-best-practices",
+    "kind": "Документация",
+    "supports": "OBO exchange выполняет MCP server; gateway передаёт или удаляет auth context",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S26",
+    "title": "ContextForge repository",
+    "publisher": "IBM",
+    "url": "https://github.com/IBM/mcp-context-forge",
+    "kind": "Код / README",
+    "supports": "Apache-2.0, registry/federation, auth/RBAC, plugins, OTEL, Kubernetes",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S27",
+    "title": "ContextForge SSRF in OAuth gateway registration · CVE-2026-8355",
+    "publisher": "IBM",
+    "url": "https://www.ibm.com/support/pages/node/7285723",
+    "kind": "Бюллетень безопасности",
+    "supports": "Уязвимы <=1.0.5; исправление 1.0.6; пример риска самого gateway",
+    "published": "2026-08-31",
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S28",
+    "title": "MCP Gateway",
+    "publisher": "Docker",
+    "url": "https://docs.docker.com/ai/mcp-catalog-and-toolkit/mcp-gateway/",
+    "kind": "Документация",
+    "supports": "Контейнерная изоляция, lifecycle, credentials injection, logs/tracing",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S29",
+    "title": "What is ToolHive?",
+    "publisher": "Stacklok",
+    "url": "https://docs.stacklok.com/toolhive",
+    "kind": "Документация",
+    "supports": "Apache-2.0 core, Operator, vMCP aggregation, registry, secret management и OTEL",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S30",
+    "title": "Connector Gateway",
+    "publisher": "Stacklok",
+    "url": "https://docs.stacklok.com/connector-gateway",
+    "kind": "Документация",
+    "supports": "Enterprise connector-level policy, user identity и credential brokering; отличие от vMCP",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S31",
+    "title": "MCP Gateway",
+    "publisher": "MintMCP",
+    "url": "https://www.mintmcp.com/mcp-gateway",
+    "kind": "Описание поставщика",
+    "supports": "Единый endpoint, hosted STDIO, credential management; US/EU, VPC/self-host on request",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S32",
+    "title": "For Security",
+    "publisher": "MintMCP",
+    "url": "https://www.mintmcp.com/for-security",
+    "kind": "Описание поставщика",
+    "supports": "Audit, outbound reverse proxy, managed detection policy",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S33",
+    "title": "Lasso MCP Gateway repository",
+    "publisher": "Lasso Security",
+    "url": "https://github.com/lasso-security/mcp-gateway",
+    "kind": "Код / README",
+    "supports": "MIT, plugin-based gateway, scanner; advanced guardrails вызывают Lasso API",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S34",
+    "title": "MCP Identity Gateway concepts",
+    "publisher": "Aembit",
+    "url": "https://docs.aembit.io/user-guide/deploy-install/mcp-identity-gateway/concepts-mcp-gateway/",
+    "kind": "Документация",
+    "supports": "Две identity и два policy leg, managed/self-host Linux, content providers",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S35",
+    "title": "IAM for Agentic AI pricing",
+    "publisher": "Aembit",
+    "url": "https://aembit.io/pricing/",
+    "kind": "Прайс",
+    "supports": "3 agents free; Teams $20/agent/month с началом от 10; retention; Enterprise custom",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S36",
+    "title": "MCP Gateway features",
+    "publisher": "Portkey / Palo Alto Networks",
+    "url": "https://portkey.ai/features/mcp",
+    "kind": "Описание поставщика",
+    "supports": "Текущее имя Prisma AIRS AI Gateway; MCP auth/RBAC, runtime policy, SaaS/private deployment",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S37",
+    "title": "Palo Alto Networks completes acquisition of Portkey",
+    "publisher": "Palo Alto Networks",
+    "url": "https://www.paloaltonetworks.com/company/press/2026/palo-alto-networks-completes-acquisition-of-portkey-to-secure-ai-agents",
+    "kind": "Пресс-релиз",
+    "supports": "Приобретение завершено 29 мая 2026",
+    "published": "2026-05-29",
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S38",
+    "title": "MCP Gateway overview",
+    "publisher": "Maxim AI / Bifrost",
+    "url": "https://docs.getbifrost.ai/mcp/overview",
+    "kind": "Документация",
+    "supports": "MCP client/server, virtual MCPs, execution, Code Mode, resources/prompts",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S39",
+    "title": "MCP authentication with Bifrost",
+    "publisher": "Maxim AI",
+    "url": "https://www.getmaxim.ai/topics/mcp-gateway/mcp-authentication",
+    "kind": "Техническая статья поставщика",
+    "supports": "Inbound OAuth/keys, per-user outbound auth; token_exchange Enterprise",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S40",
+    "title": "Bifrost repository",
+    "publisher": "Maxim AI",
+    "url": "https://github.com/maximhq/bifrost",
+    "kind": "Код / README",
+    "supports": "Apache-2.0, AI gateway; private enterprise deployments",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S41",
+    "title": "Introducing the TrueFoundry MCP Gateway",
+    "publisher": "TrueFoundry",
+    "url": "https://www.truefoundry.com/blog/introducing-truefoundry-mcp-gateway",
+    "kind": "Техническая статья поставщика",
+    "supports": "Registry, groups, PAT/VAT, per-user OAuth, virtual MCP servers",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S42",
+    "title": "MCP server hosting",
+    "publisher": "TrueFoundry",
+    "url": "https://www.truefoundry.com/blog/mcp-server-hosting",
+    "kind": "Техническая статья поставщика",
+    "supports": "Kubernetes, VPC/on-prem/air-gap; OTEL; tool-level control",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S43",
+    "title": "Enterprise MCP governance",
+    "publisher": "TrueFoundry",
+    "url": "https://www.truefoundry.com/blog/enterprise-mcp-governance-control-audit-secure-mcp-server-access",
+    "kind": "Техническая статья поставщика",
+    "supports": "Inbound identity vs outbound 3LO; lifecycle credentials и IdP integration",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S44",
+    "title": "Microsoft MCP Gateway repository",
+    "publisher": "Microsoft",
+    "url": "https://github.com/microsoft/mcp-gateway",
+    "kind": "Код / README",
+    "supports": "Отдельный от Azure APIM проект; требует revision 2026-07-28 без protocol downgrade",
+    "published": null,
+    "accessed": "2026-11-10"
+  },
+  {
+    "id": "S45",
+    "title": "Gateway egress · MCP Security Testing Guide",
+    "publisher": "OWASP project",
+    "url": "https://github.com/OWASP/MCP-Security-Testing-Guide/blob/main/03.%20MCP%20Threats%20and%20Attack%20Patterns/3.16-gateway-egress.md",
+    "kind": "Руководство проекта",
+    "supports": "Trust zones и gateway enforcement по identity/client/server/tool/action/data; evolving guide",
+    "published": null,
+    "accessed": "2026-11-10"
+  }
+]

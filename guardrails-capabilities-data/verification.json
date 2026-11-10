@@ -1,0 +1,27 @@
+{
+  "baseline": {
+    "rows": 17,
+    "cards": 17,
+    "sources": 51,
+    "brokenAnchors": [],
+    "unresolved": null,
+    "overflow": false,
+    "prices": [
+      "1 250 $",
+      "124,8 $",
+      "3 620 $"
+    ]
+  },
+  "oss": 8,
+  "paid": 9,
+  "empty": true,
+  "hashOpen": true,
+  "expanded": 8,
+  "threeCalls": "3 750 $",
+  "checklist": "Отмечено 1 из 10 проверок. Это план пилота.",
+  "exportedSolutions": 17,
+  "exportedModels": 3,
+  "mobileOverflow": false,
+  "errors": [],
+  "externalRequests": []
+}

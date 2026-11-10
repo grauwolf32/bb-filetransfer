@@ -1,0 +1,146 @@
+{
+  "completeness": "partial",
+  "deferred": [],
+  "documentType": "codex-security.coverage",
+  "excludePaths": [],
+  "explicitExclusions": [
+    {
+      "pattern": "internal/binding/cpp/**",
+      "reason": "Native implementation not exhaustively reviewed; parser containment and image/native dependency verification remain staging work."
+    },
+    {
+      "pattern": "test/**",
+      "reason": "Tests consulted as supporting material only; no full test corpus audit or application execution."
+    }
+  ],
+  "includePaths": [
+    "."
+  ],
+  "inventoryStrategy": "repository",
+  "mode": "repository",
+  "openQuestions": [
+    {
+      "followUpPrompt": "Validate F01\u2013F07 on a disposable staging deployment built from the selected actual image digest; use two synthetic users and datasets.",
+      "question": "Running binary/image equivalence and actual port, proxy, TLS and ACL behavior were not tested."
+    },
+    {
+      "followUpPrompt": "Review actual pinned Manager/Runner images and verify filesystem, network, credentials, CPU/memory/PID and termination boundaries on a dedicated execution host.",
+      "question": "External Sandbox Manager/Runner isolation is outside repository source; local provider has no isolation by design."
+    },
+    {
+      "followUpPrompt": "Review internal/admin/router.go:39-52 and internal/admin/state.go:39-102; define trusted service identities and limits for management reports.",
+      "question": "Admin heartbeat endpoint accepts unauthenticated state reports; monitoring spoofing/unbounded state warrants bounded authenticated management traffic."
+    },
+    {
+      "question": "Not an exhaustive 5870-file audit: all outbound drivers, native parsers, browser rendering, connector OAuth and end-to-end source ACL were not proven."
+    }
+  ],
+  "scanId": "b25a7472-7c3e-483f-bc74-7eebcb9723ea",
+  "schemaVersion": "1.0",
+  "surfaces": [
+    {
+      "disposition": "reported",
+      "id": "surface-share-beta-mcp",
+      "label": "Public share beta tokens gain the owner's MCP retrieval scope",
+      "notes": "Source validated; web/src/components/embed-dialog/use-show-embed-dialog.ts:44, web/src/components/embed-dialog/index.tsx:184, internal/service/api_token.go:96, internal/handler/auth.go:138, internal/router/router.go:219, internal/handler/mcp_server.go:99, internal/handler/mcp_server.go:67, internal/handler/mcp_retrieval.go:62. Normal resource permission checks execute, but against the owner. Ordinary protected routes do not accept beta tokens. No exploit executed.",
+      "receiptRefs": [],
+      "riskArea": "Authorization scope escalation"
+    },
+    {
+      "disposition": "reported",
+      "id": "surface-disabled-api-keys",
+      "label": "API and beta keys survive account deactivation",
+      "notes": "Source validated; internal/admin/service.go:456, internal/dao/api_token.go:48, internal/service/user.go:776, internal/service/stub.go:74, internal/handler/auth.go:172, internal/handler/common.go:79. New password login checks IsActive and existing session tokens are invalidated. This is not an arbitrary cross-tenant bypass. OSS tenant resolver does not add an active-user check.",
+      "receiptRefs": [],
+      "riskArea": "Account deactivation bypass"
+    },
+    {
+      "disposition": "reported",
+      "id": "surface-password-login-flag",
+      "label": "Disabling password login does not block password authentication",
+      "notes": "Source validated; internal/server/config/api_server_config.go:95, internal/service/system.go:43, internal/router/router.go:167, internal/handler/user.go:236, internal/service/user.go:308. The setting defaults false. Password verification and disabled-user rejection still work; externally enforced gateway restrictions can mitigate reachability.",
+      "receiptRefs": [],
+      "riskArea": "Authentication policy enforcement bypass"
+    },
+    {
+      "disposition": "reported",
+      "id": "surface-admin-reset-session",
+      "label": "Administrative password reset leaves existing sessions valid",
+      "notes": "Source validated; internal/admin/service.go:397, internal/service/user.go:515, internal/service/user.go:680, internal/common/token.go:34. Self-service password updates rotate AccessToken; session signatures and 24-hour expiration still work. API key lifecycle is a separate policy.",
+      "receiptRefs": [],
+      "riskArea": "Insufficient session invalidation"
+    },
+    {
+      "disposition": "reported",
+      "id": "surface-ignored-bind-host",
+      "label": "API and Admin listeners ignore configured bind hosts",
+      "notes": "Source validated; internal/server/config/api_server_config.go:71, internal/server/config/admin_config.go:38, internal/server/api/server.go:376, internal/server/admin/server.go:85, internal/server/admin/server.go:109. Local lab publishes only 127.0.0.1:18080 and no raw 9380/9381 ports. Listener exposure does not itself bypass application authentication.",
+      "receiptRefs": [],
+      "riskArea": "Unintended network exposure"
+    },
+    {
+      "disposition": "reported",
+      "id": "surface-es-tls-verification",
+      "label": "Elasticsearch HTTPS client skips certificate verification",
+      "notes": "Source validated; internal/server/config/doc_engine_config.go:53, internal/engine/elasticsearch/client.go:43. This does not create remote access without network interception. No traffic was intercepted and default HTTP is a separate transport-security limitation.",
+      "receiptRefs": [],
+      "riskArea": "Improper certificate validation"
+    },
+    {
+      "disposition": "reported",
+      "id": "surface-minio-tls-default",
+      "label": "MinIO HTTPS defaults to disabled certificate verification",
+      "notes": "Source validated; docker/service_conf.yaml.template:45, internal/server/config/storage_engine_config.go:77, internal/server/config/storage_engine_config.go:116, internal/storage/minio.go:57. Explicit minio.verify:true enables verification and mitigates this issue. Default secure:false does not perform TLS at all.",
+      "receiptRefs": [],
+      "riskArea": "Unsafe TLS verification default"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "surface-ssrf",
+      "label": "Shared URL fetching and ALLOW_ANY_HOST",
+      "notes": "Inspected guards validate schemes/addresses, pin DNS and constrain redirects; ALLOW_ANY_HOST intentionally broadens private access. Local LLM drivers use scheme-only transport, so no universal SSRF guarantee. internal/common/allow_private_host.go:28-65; internal/utility/ssrf.go:31-80; internal/entity/models/lmstudio.go:35-42.",
+      "receiptRefs": [],
+      "riskArea": "SSRF"
+    },
+    {
+      "disposition": "not_applicable",
+      "id": "surface-edition",
+      "label": "OSS SSO, operation audit and roles",
+      "notes": "OAuth and audit implementations are !ee no-ops, not bypassed implementations. Community ownership/membership remains. internal/common/stub.go:36-60; internal/server/config/stub.go:90-113; internal/permission/stub.go:27-38.",
+      "receiptRefs": [],
+      "riskArea": "Edition-dependent controls"
+    },
+    {
+      "disposition": "needs_follow_up",
+      "id": "surface-sandbox",
+      "label": "Local and external code execution providers",
+      "notes": "Local explicitly executes with host-process privileges, operator-selected behavior; no default RCE claim. External Manager/Runner implementation absent; privileged+Docker socket in docker/docker-compose-base.yml:228-257 requires separate dedicated execution host and deployed-image verification.",
+      "receiptRefs": [],
+      "riskArea": "Execution isolation"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "surface-password-transport",
+      "label": "Committed RSA password transport key and session cryptography",
+      "notes": "RSA key is shared password payload obfuscation, not HMAC signing secret; HTTPS required. Current session HMAC-SHA256 has 86400-second expiry and DB token check. internal/common/password.go:172-240; internal/common/token.go:34-99; internal/server/variable.go:91-106.",
+      "receiptRefs": [],
+      "riskArea": "Cryptography and secrets"
+    },
+    {
+      "disposition": "rejected",
+      "id": "surface-dead-password-method",
+      "label": "Unregistered password-change helper",
+      "notes": "Conditional old-password validation in UserService.ChangePassword is not reached by registered OSS routes. Active PATCH users/me verifies old password. internal/router/router.go:241-255; internal/service/user.go:651-689,721-744.",
+      "receiptRefs": [],
+      "riskArea": "Authentication reachability"
+    },
+    {
+      "disposition": "needs_follow_up",
+      "id": "surface-admin-heartbeat",
+      "label": "Unauthenticated admin service reports",
+      "notes": "/api/v1/admin/reports accepts monitoring heartbeats without auth; spoofing and unbounded names warrant isolation/auth/limits. No SSRF/RCE proved: service control methods unimplemented. internal/admin/router.go:39-52; internal/admin/state.go:39-102.",
+      "receiptRefs": [],
+      "riskArea": "Management-plane integrity and limits"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+[
+  {
+    "company": "Uber",
+    "date": "01 октября 2026",
+    "label": "Внутренний gateway · production по сообщению компании",
+    "metric": "800+ / 5 000+",
+    "metric_label": "MCP-серверов / tools",
+    "text": "Собственный gateway объединяет registry/control plane и runtime/data plane. Он публикует существующие HTTP, gRPC и TChannel сервисы как tools и подключает native MCP. Команды сервисов сохраняют ownership: новые tools выключены до review, изменения описаний требуют согласования и допускают rollback.",
+    "security": "Авторизация по humans/services/agents, tool-level overrides и redaction чувствительных ответов. Для внешних сервисов отдельный компонент обменивает внутреннюю identity на third-party credential.",
+    "takeaway": "Заимствовать модель ownership и controlled enablement; число подключённых tools само по себе не показывает уровень безопасности.",
+    "refs": [
+      "S04"
+    ]
+  },
+  {
+    "company": "Cloudflare",
+    "date": "14 апреля 2026",
+    "label": "Внутренняя практика · поставщик применяет свой стек",
+    "metric": "SSO + DLP",
+    "metric_label": "контроль доступа и потоков данных",
+    "text": "Компания описывает централизованное размещение remote MCP для внутренних источников. Сотрудники подключаются через Access и MCP server portals; администраторы управляют набором доступных tools и DLP.",
+    "security": "Отдельный сетевой контроль обнаруживает remote MCP, к которым обращаются в обход portal: по доменам, путям и JSON-RPC признакам. Это расширяет покрытие за пределы одного endpoint.",
+    "takeaway": "Маршрутизация через gateway становится границей защиты только при контроле обходных путей. Self-report поставщика не является независимым тестом.",
+    "refs": [
+      "S05"
+    ]
+  },
+  {
+    "company": "Bloomberg",
+    "date": "06 января 2026 · японская публикация",
+    "label": "Внутренняя архитектура · identity middleware",
+    "metric": "User + workload",
+    "metric_label": "две identity в цепочке доступа",
+    "text": "Bloomberg описывает remote multi-tenant MCP-инфраструктуру с middleware для identity, access control и observability. Клиентский proxy выполняет SSO/authentication; identity exchange формирует канонические identity пользователя и workload.",
+    "security": "Компания также описывает развитие внутреннего registry с metadata и usage policies. Это показывает переход от интеграции отдельных tools к общему governance.",
+    "takeaway": "Делегация identity — самостоятельная инфраструктурная задача. Внешний Bloomberg Enterprise MCP, анонсированный в сентябре, — отдельный продукт с entitlements и audit.",
+    "refs": [
+      "S06",
+      "S08"
+    ]
+  },
+  {
+    "company": "Block",
+    "date": "22 апреля 2025",
+    "label": "Историческая практика MCP · наличие gateway не подтверждено",
+    "metric": "Curated tools",
+    "metric_label": "одобренные собственные интеграции",
+    "text": "Команда goose сообщает о повседневном использовании MCP тысячами сотрудников. В описанной конфигурации внутренние MCP написаны инженерами Block, одобренный набор предустановлен, OAuth встроен в локальные серверы, tokens хранятся в keychain.",
+    "security": "Корпоративные model endpoints, ограничения на категории данных и в отдельных серверах — LLM allowlists и ограничения передачи результатов между системами.",
+    "takeaway": "Полезный пример governance до централизации. Публикация не доказывает внедрение MCP gateway или текущее состояние Block в ноябре 2026.",
+    "refs": [
+      "S07"
+    ]
+  }
+]

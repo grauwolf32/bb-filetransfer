@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-11-10",
+  "products": 16,
+  "sources": 45,
+  "unique_html_ids": 82,
+  "internal_links_checked": 159,
+  "local_downloads_checked": 7,
+  "external_assets": 0,
+  "visible_word_count_approx": 6720,
+  "html_structure_and_data_integrity": "passed",
+  "javascript_syntax": "passed",
+  "javascript_dom_fixture": {
+    "search": "passed",
+    "class_filter": "passed",
+    "deployment_filter": "passed",
+    "matrix_sync": "passed",
+    "empty_state": "passed",
+    "direct_hash_reveal": "passed",
+    "theme_toggle": "passed",
+    "print_handler": "passed"
+  },
+  "visual_browser_qa": "not_performed: built-in browser policy blocks local file URLs",
+  "print_layout_qa": "not_performed",
+  "product_security_tests": "not_performed: documentary market research"
+}

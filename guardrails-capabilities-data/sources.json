@@ -1,0 +1,515 @@
+{
+  "as_of": "2026-11-10",
+  "sources": [
+    {
+      "id": "R01",
+      "title": "NeMo Guardrails — repository / latest release",
+      "url": "https://github.com/NVIDIA-NeMo/Guardrails",
+      "type": "repo",
+      "note": "README называет 0.24.1 последним релизом; код Apache-2.0.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R02",
+      "title": "NeMo 0.24.1 — Engine Feature Support",
+      "url": "https://docs.nvidia.com/nemo/guardrails/v0.24.1/reference/engine-feature-support",
+      "type": "versioned_docs",
+      "note": "Матрица LLMRails/IORails, tool rails, streaming и ограничения API.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R03",
+      "title": "Guardrails AI — README",
+      "url": "https://raw.githubusercontent.com/guardrails-ai/guardrails/main/README.md",
+      "type": "repo",
+      "note": "Input/output validators, structured outputs, Python/REST; Apache-2.0.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R04",
+      "title": "Guardrails AI — sunset and migration #1560",
+      "url": "https://github.com/guardrails-ai/guardrails/issues/1560",
+      "type": "maintainer_notice",
+      "note": "Объявлен cutoff 25.08.2026 для Hub install/private registry и hosted inference.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R05",
+      "title": "LLM Guard — archived repository",
+      "url": "https://github.com/protectai/llm-guard",
+      "type": "repo",
+      "note": "Архивирован 09.07.2026; README предупреждает о прекращении сопровождения проекта и связанных моделей; MIT.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R06",
+      "title": "LlamaFirewall — architecture",
+      "url": "https://github.com/meta-llama/PurpleLlama/blob/main/LlamaFirewall/website/docs/documentation/llamafirewall-architecture/architecture.md",
+      "type": "repo",
+      "note": "PromptGuard, AlignmentCheck, custom scanners и CodeShield имеют разные задачи.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R07",
+      "title": "LlamaFirewall — AlignmentCheck",
+      "url": "https://meta-llama.github.io/PurpleLlama/LlamaFirewall/docs/documentation/scanners/alignment-check",
+      "type": "docs",
+      "note": "Анализирует execution trace и соответствие действий цели пользователя.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R08",
+      "title": "LlamaFirewall — code license",
+      "url": "https://raw.githubusercontent.com/meta-llama/PurpleLlama/main/LlamaFirewall/LICENSE",
+      "type": "license",
+      "note": "MIT для кода этой библиотеки; лицензии моделей отдельные.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R09",
+      "title": "Presidio — current repository",
+      "url": "https://github.com/data-privacy-stack/presidio",
+      "type": "repo",
+      "note": "Бывший microsoft/presidio перенаправляется сюда; MIT, PII recognition и anonymization.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R10",
+      "title": "Presidio — NLP model configuration",
+      "url": "https://github.com/data-privacy-stack/presidio/blob/main/docs/analyzer/customizing_nlp_models.md",
+      "type": "repo_docs",
+      "note": "Модель NER и языки настраиваются; есть spaCy/Stanza/transformers и custom recognizers.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R11",
+      "title": "LiteLLM — Guardrails hooks",
+      "url": "https://docs.litellm.ai/docs/proxy/guardrails/quick_start",
+      "type": "docs",
+      "note": "pre_call/post_call/during_call/logging_only; stream_scope и интеграции.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R12",
+      "title": "LiteLLM — license split",
+      "url": "https://raw.githubusercontent.com/BerriAI/litellm/main/LICENSE",
+      "type": "license",
+      "note": "MIT вне enterprise/; enterprise/ имеет отдельную лицензию.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R13",
+      "title": "LiteLLM — Guardrail Policies (Beta)",
+      "url": "https://docs.litellm.ai/docs/proxy/guardrails/guardrail_policies",
+      "type": "docs",
+      "note": "Team/key-based policy attachment требует Enterprise license.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R14",
+      "title": "Arthur Engine — repository",
+      "url": "https://github.com/arthur-ai/arthur-engine",
+      "type": "repo",
+      "note": "MIT engine; отдельная коммерческая платформа и enterprise-возможности.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R15",
+      "title": "Arthur Engine — guardrail rules",
+      "url": "https://docs.arthur.ai/docs/guardrail-rules",
+      "type": "docs",
+      "note": "Локальные classifier/PII/regex; hallucination и sensitive-data rules используют LLM evaluator.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R16",
+      "title": "Arthur — guardrails overview",
+      "url": "https://docs.arthur.ai/docs/guardrails-overview",
+      "type": "docs",
+      "note": "Validation API возвращает verdict, решение о блокировке принимает приложение.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R17",
+      "title": "Arthur — self-host setup",
+      "url": "https://docs.arthur.ai/docs/engine-setup-guide",
+      "type": "docs",
+      "note": "Самостоятельный engine; scoped API keys и разные варианты размещения.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R18",
+      "title": "OpenGuardrails — current README",
+      "url": "https://raw.githubusercontent.com/openguardrails/openguardrails/main/README.md",
+      "type": "repo",
+      "note": "Apache-2.0 CLI, local rules/sandbox/gateway; модельный API описан как ещё не публичный.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R19",
+      "title": "OpenGuardrails — CLI limits",
+      "url": "https://github.com/openguardrails/openguardrails/blob/main/cli/README.md",
+      "type": "repo_docs",
+      "note": "Без модели неразрешённые правилами действия идут как unjudged; перечислены ограничения реальных harness-тестов.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R20",
+      "title": "Meta Prompt Guard 2 86M — model page",
+      "url": "https://huggingface.co/meta-llama/Llama-Prompt-Guard-2-86M",
+      "type": "model_card_partial",
+      "note": "На публичной странице видна лицензия Llama 4; полный gated payload не скачивался.",
+      "checked_at": "2026-11-10",
+      "evidence": "partial_public_page",
+      "tested_locally": false
+    },
+    {
+      "id": "R21",
+      "title": "Meta Llama Guard 4 12B — model page",
+      "url": "https://huggingface.co/meta-llama/Llama-Guard-4-12B",
+      "type": "model_card_partial",
+      "note": "Image-text model и Llama 4 Community License; веса не скачивались.",
+      "checked_at": "2026-11-10",
+      "evidence": "partial_public_page",
+      "tested_locally": false
+    },
+    {
+      "id": "R22",
+      "title": "IBM Granite Guardian 4.1 8B — model card",
+      "url": "https://huggingface.co/ibm-granite/granite-guardian-4.1-8b",
+      "type": "model_card",
+      "note": "Apache-2.0; BYOC, thinking/non-thinking, safety, RAG и function-call risks.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R23",
+      "title": "LlamaFirewall — PromptGuard 2 scope",
+      "url": "https://meta-llama.github.io/PurpleLlama/LlamaFirewall/docs/documentation/scanners/prompt-guard-2",
+      "type": "docs",
+      "note": "Классификатор explicit/universal jailbreak; CPU/GPU serving.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R24",
+      "title": "Promptfoo — repository",
+      "url": "https://github.com/promptfoo/promptfoo",
+      "type": "repo",
+      "note": "MIT CLI/library для evaluations и red teaming.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R25",
+      "title": "Promptfoo — enterprise comparison",
+      "url": "https://www.promptfoo.dev/docs/enterprise/",
+      "type": "docs",
+      "note": "Сопоставление Community, SaaS и Enterprise On-Prem с dedicated runner.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R26",
+      "title": "NVIDIA garak — repository",
+      "url": "https://github.com/NVIDIA/garak",
+      "type": "repo",
+      "note": "Apache-2.0; probes/generators/detectors для тестирования LLM-backed приложений.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R27",
+      "title": "AWS — How Guardrails works",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-how.html",
+      "type": "docs",
+      "note": "Проверки входа/выхода; underlying models фильтров автоматически обновляются.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R28",
+      "title": "AWS — organization/account enforcement",
+      "url": "https://docs.aws.amazon.com/us_en/bedrock/latest/userguide/guardrails-enforcements.html",
+      "type": "docs",
+      "note": "Принудительные guardrails в Bedrock на уровне account/org; Automated Reasoning для этого режима не поддерживается.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R29",
+      "title": "AWS — streaming modes",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-streaming.html",
+      "type": "docs",
+      "note": "Sync буферизует перед выдачей; async может выдать контент до verdict и не поддерживает masking.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R30",
+      "title": "AWS — Automated Reasoning scope",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-automated-reasoning-checks.html",
+      "type": "docs",
+      "note": "English US, complete response; VALID ограничен переменными политики и переводом естественного языка.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R31",
+      "title": "AWS — Bedrock pricing",
+      "url": "https://aws.amazon.com/bedrock/pricing/",
+      "type": "pricing",
+      "note": "Основная таблица и отдельные ставки InvokeGuardrailChecks; text units до 1000 символов.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R32",
+      "title": "Microsoft — Foundry guardrails overview",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview",
+      "type": "docs",
+      "note": "Agent interventions Preview; Groundedness/Spotlighting не применяются к agents; особенности наследования.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R33",
+      "title": "Microsoft — Prompt Shields",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/content-filter-prompt-shields",
+      "type": "docs",
+      "note": "Document attack control выключен по умолчанию; API verdict требует application enforcement; English-heavy evaluation.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R34",
+      "title": "Microsoft — Task Adherence",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/guardrails/task-adherence",
+      "type": "docs",
+      "note": "Preview signal на основе user/assistant/tool контекста для блокировки или передачи человеку.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R35",
+      "title": "Google — Model Armor overview",
+      "url": "https://docs.cloud.google.com/model-armor/overview",
+      "type": "docs",
+      "note": "Фильтры, языки, modalities и integration-dependent coverage.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R36",
+      "title": "Google — sanitize / streaming",
+      "url": "https://docs.cloud.google.com/model-armor/sanitize-prompts-responses",
+      "type": "docs",
+      "note": "Real-time/buffered streaming; streaming не поддерживает SDP de-identification.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R37",
+      "title": "Google — quotas and system limits",
+      "url": "https://docs.cloud.google.com/model-armor/quotas",
+      "type": "docs",
+      "note": "4 MB files/images; EXECUTION_SKIPPED при превышении; отдельные лимиты фильтров.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R38",
+      "title": "Google — Model Armor pricing",
+      "url": "https://cloud.google.com/security-command-center/pricing#model-armor",
+      "type": "pricing",
+      "note": "Standalone: первые 2M tokens/month бесплатно, далее $0.10/M; SDP внутри Model Armor без доплаты.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R39",
+      "title": "Google — Model Armor release notes",
+      "url": "https://docs.cloud.google.com/model-armor/release-notes",
+      "type": "release_notes",
+      "note": "Уточняет launch stages, версии/aliases и региональные изменения; важнее старых обзорных статей.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R40",
+      "title": "Prisma AIRS — AI Gateway overview",
+      "url": "https://docs.paloaltonetworks.com/prisma-airs/ai-gateway/ai-gateway-overview",
+      "type": "docs",
+      "note": "Workspace policies, virtual keys, inline controls; Americas availability.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R41",
+      "title": "Prisma AIRS — Gateway deployment models",
+      "url": "https://docs.paloaltonetworks.com/prisma-airs/ai-gateway/ai-gateway-overview/ai-gateway-deployment-models",
+      "type": "docs",
+      "note": "Gateway SaaS/Hybrid; management plane в Strata Cloud Manager.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R42",
+      "title": "Prisma AIRS — platform documentation",
+      "url": "https://docs.paloaltonetworks.com/prisma-airs",
+      "type": "docs_index",
+      "note": "Отдельные runtime, agent, model security, gateway и red-team модули.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R43",
+      "title": "Cisco — AI Defense data sheet",
+      "url": "https://www.cisco.com/c/en/us/products/collateral/security/ai-defense/ai-defense-ds.html",
+      "type": "vendor_datasheet",
+      "note": "Inventory, scanning, red teaming и runtime/MCP; SaaS/VPC/AI POD deployment.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R44",
+      "title": "Cisco — Inspection API",
+      "url": "https://developer.cisco.com/docs/ai-defense-inspection/",
+      "type": "api_docs",
+      "note": "Runtime inspection API для вызова проверок из приложения.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R45",
+      "title": "Check Point — AI Guardrails",
+      "url": "https://docs.lakera.ai/guard",
+      "type": "docs",
+      "note": "Guard API, self-hosted/SaaS, tool controls; custom controls Beta, audio Early Access.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R46",
+      "title": "Check Point — Agent Security overview",
+      "url": "https://docs.lakera.ai/docs/agent-security",
+      "type": "docs",
+      "note": "Posture discovery и Guard API runtime — разные пути; native runtime integrations ещё roadmap.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R47",
+      "title": "SentinelOne — Prompt Security current product",
+      "url": "https://www.sentinelone.com/platform/securing-ai-prompt/",
+      "type": "vendor_product_page",
+      "note": "Официальные продуктовые заявления о homegrown AI, agent governance и runtime; детальная API-матрица здесь не опубликована.",
+      "checked_at": "2026-11-10",
+      "evidence": "product_claim",
+      "tested_locally": false
+    },
+    {
+      "id": "R48",
+      "title": "Cloudflare — Guardrails",
+      "url": "https://developers.cloudflare.com/ai-gateway/features/guardrails/",
+      "type": "docs",
+      "note": "Moderation входа/выхода, flag/block; Beta.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R49",
+      "title": "Cloudflare — AI Gateway DLP",
+      "url": "https://developers.cloudflare.com/ai-gateway/features/dlp/",
+      "type": "docs",
+      "note": "Response streaming буферизуется; cache hits не пересканируются; base64/attachments не декодируются.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R50",
+      "title": "Cloudflare — pricing",
+      "url": "https://developers.cloudflare.com/ai-gateway/reference/pricing/",
+      "type": "pricing",
+      "note": "Core gateway и DLP free в указанном объёме; расширенные profiles/логи/экспорт имеют отдельные условия.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    },
+    {
+      "id": "R51",
+      "title": "Yandex AI Studio — Guardrails",
+      "url": "https://aistudio.yandex.ru/en/docs/ai-studio/concepts/security/guardrails",
+      "type": "docs",
+      "note": "Preview; custom заменяет system guardrail; для open-source моделей system guardrail по умолчанию выключен.",
+      "checked_at": "2026-11-10",
+      "evidence": "primary_documentation",
+      "tested_locally": false
+    }
+  ]
+}

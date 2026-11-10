@@ -1,0 +1,164 @@
+{
+  "as_of": "2026-11-10",
+  "method": "Documentation-based capability analysis, not hands-on product benchmark",
+  "scope": {
+    "oss_families": 8,
+    "managed_commercial_families": 9,
+    "models": 3,
+    "eval_tools": 2,
+    "sources": 51
+  },
+  "capability_matrix_legend": {
+    "Встроено": "Наличие функции описано у разработчика; не измерение эффективности",
+    "Rails/Validator/Scanner": "Доступен механизм, требуются выбранные модели/проверки и интеграция",
+    "Интеграция": "Нужен подключённый detector",
+    "Preview": "Ограниченный launch stage; допуск зависит от сценария",
+    "Уточнить": "Недостаточно проверяемой публичной спецификации",
+    "Не фокус": "Функция за пределами основной подтверждённой роли",
+    "Да*": "Локальный runtime возможен; модели, внешние вызовы и telemetry проверяются отдельно"
+  },
+  "gotchas": [
+    {
+      "id": "01",
+      "name": "Асинхронное обнаружение после выдачи",
+      "fact": "AWS async streaming может отправить фрагмент до verdict; masking не поддерживается.",
+      "action": "Для запрета утечки выбрать путь с проверкой до выдачи и проверить secret на границе chunks.",
+      "sources": [
+        "R29"
+      ]
+    },
+    {
+      "id": "02",
+      "name": "Пропущенная проверка выглядит как отсутствие угроз",
+      "fact": "Model Armor возвращает EXECUTION_SKIPPED при превышении лимита файла/фильтра.",
+      "action": "Трактовать skipped/error отдельно от clean; разбивать/отклонять payload и измерять охват.",
+      "sources": [
+        "R37"
+      ]
+    },
+    {
+      "id": "03",
+      "name": "Новая политика и прежний кэш",
+      "fact": "Cloudflare не пересканирует DLP на cache hit; старый ответ остаётся до TTL.",
+      "action": "Связать версию политики с invalidation/bypass кэша и выполнить upgrade-тест.",
+      "sources": [
+        "R49"
+      ]
+    },
+    {
+      "id": "04",
+      "name": "Назначенная агенту политика меняет наследование",
+      "fact": "Foundry различает model/agent controls; часть рисков и intervention points применима не везде.",
+      "action": "Выгрузить effective policy по каждому intervention и проверить tool responses после переназначения.",
+      "sources": [
+        "R32"
+      ]
+    },
+    {
+      "id": "05",
+      "name": "Runtime не следует из discovery",
+      "fact": "Check Point прямо разделяет portal posture и Guard API runtime; native runtime integrations — roadmap.",
+      "action": "Подтвердить вызов detector и enforcement перед конкретным tool action в production trace.",
+      "sources": [
+        "R46"
+      ]
+    },
+    {
+      "id": "06",
+      "name": "Parallel-check уже допускает данные к LLM",
+      "fact": "LiteLLM during_call проверяет input параллельно model call; logging_only не блокирует.",
+      "action": "Классифицировать цель: запрет отправки, запрет выдачи или наблюдение; выбрать подходящий hook.",
+      "sources": [
+        "R11"
+      ]
+    },
+    {
+      "id": "07",
+      "name": "Judging model отсутствует",
+      "fact": "OpenGuardrails документирует unjudged для неоднозначных действий без модели/при quota.",
+      "action": "Проверить оба состояния и установить приемлемую внешнюю политику отказа до production.",
+      "sources": [
+        "R19"
+      ]
+    },
+    {
+      "id": "08",
+      "name": "Self-hosted engine вызывает внешний evaluator",
+      "fact": "Arthur hallucination/sensitive-data rules используют настроенную LLM; локальные правила устроены иначе.",
+      "action": "Построить egress-карту каждого rule и испытать закрытую сеть.",
+      "sources": [
+        "R15"
+      ]
+    },
+    {
+      "id": "09",
+      "name": "Заменяющая политика теряет baseline",
+      "fact": "Yandex custom guardrail отключает system guardrail; OSS model instance не получает его по умолчанию.",
+      "action": "Проверять полный согласованный набор категорий в replacement policy.",
+      "sources": [
+        "R51"
+      ]
+    },
+    {
+      "id": "10",
+      "name": "Формальный verdict шире трактуется в продукте",
+      "fact": "AWS VALID относится к частям ответа, отражённым в переменных формальной политики.",
+      "action": "Проверить полноту схемы и natural-language translation; отдельно контролировать непокрытые утверждения.",
+      "sources": [
+        "R30"
+      ]
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "G1",
+      "name": "Применение без обходов",
+      "test": "Прямой provider endpoint, alternative API, batch и fallback проходят согласованный путь. Неодобренный маршрут блокируется."
+    },
+    {
+      "id": "G2",
+      "name": "Авторизация tools",
+      "test": "Валидный JSON с чужим tenant/account/суммой не проходит серверные права и бизнес-правила."
+    },
+    {
+      "id": "G3",
+      "name": "Запрет утечки до выдачи",
+      "test": "Секрет, разбитый между streaming chunks, не выходит в клиентский поток при запрещающей политике."
+    },
+    {
+      "id": "G4",
+      "name": "Отказ и пропуск",
+      "test": "Timeout, quota, EXECUTION_SKIPPED и malformed verdict не превращаются в разрешение критического действия."
+    },
+    {
+      "id": "G5",
+      "name": "Эффективная политика и кэш",
+      "test": "После смены политики/ACL проверяется новый режим; cache hit и retries не возвращают запрещённый результат."
+    },
+    {
+      "id": "G6",
+      "name": "Граница данных",
+      "test": "Egress-тест охватывает detector, judge, telemetry, tracing и поддержку. Self-hosted функции реально работают в нужном контуре."
+    },
+    {
+      "id": "Q1",
+      "name": "Качество на русском",
+      "test": "Атаки, benign-примеры, смешение языков, длинный контекст и корпоративные сущности размечены отдельно."
+    },
+    {
+      "id": "Q2",
+      "name": "ASR и полезная задача",
+      "test": "Сравниваются успешные запрещённые исходы и успешные легитимные задачи; выводятся размеры наборов и интервалы."
+    },
+    {
+      "id": "Q3",
+      "name": "Задержка и нагрузка",
+      "test": "p95/p99 под реальным concurrency; cold start, long RAG, несколько agent hops и detector timeout."
+    },
+    {
+      "id": "Q4",
+      "name": "Сопровождение",
+      "test": "Версии, regression suite, обновления моделей/validators, исключения с владельцем, rollback и incident trace."
+    }
+  ]
+}

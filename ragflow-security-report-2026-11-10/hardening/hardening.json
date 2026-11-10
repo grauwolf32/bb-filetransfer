@@ -1,0 +1,369 @@
+{
+  "documentType": "codex-security.hardening-analysis",
+  "schemaVersion": "1.0",
+  "analysisId": "hardening_final",
+  "sourceScan": {
+    "scanId": "b25a7472-7c3e-483f-bc74-7eebcb9723ea",
+    "targetRevision": "8cab68a9a3b083da95abb2ea0789b0a5623defaf",
+    "sourceDrift": "none"
+  },
+  "assessment": {
+    "outcome": "opportunities_identified",
+    "summary": "Одна возможность: сохранять вид и scope полномочий до операции и централизовать жизненный цикл credentials. Изменения только предложены."
+  },
+  "constraints": {
+    "profile": "balanced",
+    "changeHorizons": [
+      "incremental",
+      "medium_term"
+    ],
+    "nonNegotiables": [
+      "Сначала тактические защиты; отзыв не откатывается.",
+      "Без нового сервиса авторизации."
+    ],
+    "assumptions": [
+      "Бюджеты задержки/памяти не заданы; измерений нет.",
+      "Незапечатанный scan; статический анализ Go OSS."
+    ]
+  },
+  "opportunities": [
+    {
+      "opportunityId": "identity-capabilities",
+      "title": "Личность, ограниченные полномочия и отзыв",
+      "summary": "Не сводить public/API/session к одному userID.",
+      "diagnosis": "Вид credentials теряется, а состояние и отзыв проверяются разными владельцами кода.",
+      "evidence": [
+        {
+          "evidenceId": "e-share",
+          "title": "Публичный beta получает область MCP владельца",
+          "claimType": "observed",
+          "sourceKind": "source",
+          "path": "internal/handler/auth.go",
+          "lines": "138-149",
+          "claim": "Embed публикует beta; MCP получает userID владельца без ограничения опубликованным приложением.",
+          "sources": [
+            "web/src/components/embed-dialog/index.tsx:184-187",
+            "web/src/components/embed-dialog/use-show-embed-dialog.ts:44-52",
+            "internal/service/api_token.go:96-107",
+            "internal/router/router.go:219-222",
+            "internal/handler/mcp_server.go:99-106",
+            "internal/handler/mcp_retrieval.go:62-80"
+          ]
+        },
+        {
+          "evidenceId": "e-disable",
+          "title": "Отключение пользователя сохраняет API/beta",
+          "claimType": "observed",
+          "sourceKind": "source",
+          "path": "internal/service/user.go",
+          "lines": "776-795",
+          "claim": "Отключение пишет непустой INVALID_ AccessToken; резолвер API не проверяет IsActive.",
+          "sources": [
+            "internal/admin/service.go:460-463",
+            "internal/service/stub.go:78-80"
+          ]
+        },
+        {
+          "evidenceId": "e-login",
+          "title": "Запрет парольного входа не применяется",
+          "claimType": "observed",
+          "sourceKind": "source",
+          "path": "internal/service/user.go",
+          "lines": "308-341",
+          "claim": "Конфигурация запрета существует, но прочитанный путь LoginByEmail её не проверяет.",
+          "sources": [
+            "internal/server/config/api_server_config.go:95-121",
+            "internal/handler/user.go:244"
+          ]
+        },
+        {
+          "evidenceId": "e-reset",
+          "title": "Admin reset сохраняет текущие сессии",
+          "claimType": "observed",
+          "sourceKind": "source",
+          "path": "internal/admin/service.go",
+          "lines": "397-429",
+          "claim": "Admin меняет пароль без ротации AccessToken; резолвер продолжает принимать старую сессию.",
+          "sources": [
+            "internal/service/user.go:515-536",
+            "internal/service/user.go:687-689",
+            "internal/dao/user.go:112-119"
+          ]
+        }
+      ],
+      "desiredInvariants": [
+        "Публичный principal действует только над опубликованным приложением и его разрешёнными ресурсами.",
+        "Отключённый владелец не авторизует новые запросы сессий, API или beta.",
+        "Admin reset инвалидирует существующие сессии; политика API-ключей задана отдельно.",
+        "Запрещённый метод входа не создаёт сессию.",
+        "Каждая привилегированная операция проверяет тип credentials, действие и конечный ресурс."
+      ],
+      "proposalPath": "proposals/identity-capabilities.md",
+      "options": [
+        {
+          "optionId": "local-guards",
+          "title": "Option 1: Локальные защиты",
+          "kind": "baseline",
+          "summary": "Запретить beta-MCP; проверять active; применять запрет login и ротацию сессий.",
+          "diagramPaths": {
+            "before": "diagrams/identity-capabilities-before.mmd",
+            "after": "diagrams/identity-capabilities-local-guards-after.mmd"
+          },
+          "evidenceCoverage": [
+            {
+              "evidenceId": "e-share",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Прямую защиту сохраняем до реализации и повторной проверки; предложение не закрывает находку."
+            },
+            {
+              "evidenceId": "e-disable",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Прямую защиту сохраняем до реализации и повторной проверки; предложение не закрывает находку."
+            },
+            {
+              "evidenceId": "e-login",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Прямую защиту сохраняем до реализации и повторной проверки; предложение не закрывает находку."
+            },
+            {
+              "evidenceId": "e-reset",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Прямую защиту сохраняем до реализации и повторной проверки; предложение не закрывает находку."
+            }
+          ],
+          "tradeoffs": [
+            {
+              "dimension": "security",
+              "direction": "improves",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "Закрываем известные пути; проверки остаются распределены.",
+              "validationPlan": "Матрица четырёх сценариев и всех классов токенов."
+            },
+            {
+              "dimension": "performance",
+              "direction": "unknown",
+              "confidence": "low",
+              "basis": "hypothetical",
+              "assessment": "Дополнительные проверки состояния; часть чтения уже есть.",
+              "validationPlan": "Сравнить p95/p99 login/MCP при одинаковой нагрузке."
+            },
+            {
+              "dimension": "memory",
+              "direction": "neutral",
+              "confidence": "medium",
+              "basis": "hypothetical",
+              "assessment": "Нет нового процесса или кэша.",
+              "validationPlan": "Сравнить heap/RSS на том же профиле запросов."
+            },
+            {
+              "dimension": "reliability",
+              "direction": "improves",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Отказ до операции; отзыв требует согласованного обновления.",
+              "validationPlan": "Сбой БД и гонка disable/request должны давать отказ."
+            },
+            {
+              "dimension": "operability",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "hypothetical",
+              "assessment": "Нужны причины отказа без секретов.",
+              "validationPlan": "Проверить журналирование и процедуру отзыва."
+            },
+            {
+              "dimension": "migration",
+              "direction": "neutral",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Точечные правки; beta-MCP намеренно перестаёт работать.",
+              "validationPlan": "Проверить embed, обычный MCP и переиздание ключей."
+            },
+            {
+              "dimension": "developer_ergonomics",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Мало новых типов; пропуск guard возможен снова.",
+              "validationPlan": "Проверить добавление тестового нового endpoint."
+            },
+            {
+              "dimension": "rollback",
+              "direction": "neutral",
+              "confidence": "medium",
+              "basis": "hypothetical",
+              "assessment": "Локальный откат возможен лишь с сохранением защит.",
+              "validationPlan": "Репетировать откат без восстановления старых токенов."
+            }
+          ],
+          "residualRisks": [
+            "Новые endpoints могут пропустить guard."
+          ],
+          "implementationReadiness": {
+            "affectedComponents": [
+              "internal/handler",
+              "internal/service/user.go",
+              "internal/admin/service.go"
+            ],
+            "workPackages": [
+              "Защиты и общая матрица отрицательных проверок."
+            ],
+            "acceptanceCriteria": [
+              "Четыре сценария отклоняются на прямом API."
+            ],
+            "migrationNotes": [
+              "Существующие beta больше не дают MCP."
+            ],
+            "rollback": "Сохранять guards и отзыв при откате остальных изменений."
+          }
+        },
+        {
+          "optionId": "typed-principals",
+          "title": "Option 2: Типизированные principal и capabilities",
+          "kind": "structural",
+          "summary": "Единый in-process policy и lifecycle; публичные токены привязаны к приложению.",
+          "diagramPaths": {
+            "before": "diagrams/identity-capabilities-before.mmd",
+            "after": "diagrams/identity-capabilities-typed-principals-after.mmd"
+          },
+          "evidenceCoverage": [
+            {
+              "evidenceId": "e-share",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Прямую защиту сохраняем до реализации и повторной проверки; предложение не закрывает находку."
+            },
+            {
+              "evidenceId": "e-disable",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Прямую защиту сохраняем до реализации и повторной проверки; предложение не закрывает находку."
+            },
+            {
+              "evidenceId": "e-login",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Прямую защиту сохраняем до реализации и повторной проверки; предложение не закрывает находку."
+            },
+            {
+              "evidenceId": "e-reset",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Прямую защиту сохраняем до реализации и повторной проверки; предложение не закрывает находку."
+            }
+          ],
+          "tradeoffs": [
+            {
+              "dimension": "security",
+              "direction": "improves",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Scope и происхождение сохраняются до ресурса; общий policy становится доверенной точкой.",
+              "validationPlan": "Запретить beta-MCP и выход за app scope через прямые вызовы."
+            },
+            {
+              "dimension": "performance",
+              "direction": "unknown",
+              "confidence": "low",
+              "basis": "hypothetical",
+              "assessment": "Проверка в процессе; поколения могут добавить чтение БД.",
+              "validationPlan": "Сравнить p95/p99 и запросы БД с локальным вариантом."
+            },
+            {
+              "dimension": "memory",
+              "direction": "unknown",
+              "confidence": "low",
+              "basis": "hypothetical",
+              "assessment": "Principal и поля поколений увеличивают объекты/записи.",
+              "validationPlan": "Сравнить heap/RSS и объём индексов."
+            },
+            {
+              "dimension": "reliability",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "hypothetical",
+              "assessment": "Одна политика снижает дрейф, её ошибка влияет на все входы.",
+              "validationPlan": "Инъекция ошибок БД/policy; проверить fail closed."
+            },
+            {
+              "dimension": "operability",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "hypothetical",
+              "assessment": "Нужны наблюдаемость причин отказа и управление поколениями.",
+              "validationPlan": "Репетиция инцидента и отзыва без вывода секретов."
+            },
+            {
+              "dimension": "migration",
+              "direction": "regresses",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "Новые principal-контракты, данные scope и переиздание public ключей.",
+              "validationPlan": "Контрактные тесты клиентов и репетиция миграции."
+            },
+            {
+              "dimension": "developer_ergonomics",
+              "direction": "improves",
+              "confidence": "medium",
+              "basis": "hypothetical",
+              "assessment": "Сервисы требуют полномочие; нельзя молча свести actor к userID.",
+              "validationPlan": "Review нового endpoint и проверки обхода policy."
+            },
+            {
+              "dimension": "rollback",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "hypothetical",
+              "assessment": "Отозванные публичные ключи нельзя безопасно восстановить.",
+              "validationPlan": "Проверить откат приложения с сохранением отзыва/guard."
+            }
+          ],
+          "residualRisks": [
+            "Ошибка policy влияет на все callers; инвентаризация scope обязательна."
+          ],
+          "implementationReadiness": {
+            "affectedComponents": [
+              "internal/service/user.go",
+              "internal/handler/auth.go",
+              "internal/handler/mcp_server.go",
+              "internal/permission",
+              "internal/entity",
+              "internal/admin/service.go",
+              "web/src/components/embed-dialog"
+            ],
+            "workPackages": [
+              "Контракт principal/policy.",
+              "Атомарный lifecycle и данные scope.",
+              "Перевести callers, переиздать public credentials."
+            ],
+            "acceptanceCriteria": [
+              "Нет привилегированного входа только с ambient userID.",
+              "Отзыв действует на следующий запрос; гонки проверены."
+            ],
+            "migrationNotes": [
+              "Публичные owner-scoped beta отозвать, широкого fallback не вводить."
+            ],
+            "rollback": "Вернуть локальный вариант, сохранив отзыв и запрет beta-MCP."
+          }
+        }
+      ],
+      "recommendedOptionId": "typed-principals",
+      "recommendation": "Рекомендую Option 2 постепенно после Option 1; при коротком горизонте Option 1 достаточен как контролируемый этап."
+    }
+  ],
+  "openQuestions": [
+    "Какой допустим p99 и дополнительная нагрузка БД?",
+    "Каков точный app-to-dataset scope?",
+    "Какие API-ключи отзывать при admin reset?",
+    "Как обрабатывать уже выполняющийся запрос при отключении?"
+  ],
+  "limitations": [
+    "Нет runtime PoC или benchmark; deployed image parity не проверена.",
+    "Канонические материалы ещё формируются; source evidence IDs не являются canonical finding IDs."
+  ]
+}

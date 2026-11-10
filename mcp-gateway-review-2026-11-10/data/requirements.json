@@ -1,0 +1,139 @@
+[
+  {
+    "priority": "P0",
+    "name": "Identity и delegation",
+    "requirement": "Связать пользователя, workload, tenant и environment. Раздельно проверять входной token и полномочия к backend; поддержать short-lived credentials и отзыв.",
+    "acceptance": "Неверный audience/issuer отклонён; user A не получает credential или данные user B.",
+    "owner": "IAM + Platform",
+    "sources": [
+      "S01",
+      "S02",
+      "S34"
+    ]
+  },
+  {
+    "priority": "P0",
+    "name": "Авторизация при каждом действии",
+    "requirement": "Фильтровать discovery и повторно проверять invocation. Условия должны учитывать tool, аргументы, целевой объект, среду и класс действия.",
+    "acceptance": "Прямой tools/call к скрытому tool запрещён; запрет prod нельзя обойти заменой аргумента.",
+    "owner": "Security + владелец API",
+    "sources": [
+      "S10",
+      "S11",
+      "S24"
+    ]
+  },
+  {
+    "priority": "P0",
+    "name": "Управляемые credentials",
+    "requirement": "Изолировать секреты backend от модели и клиента; хранить отдельно по user/tenant, обеспечивать rotation и минимальные scopes.",
+    "acceptance": "В configs, traces и ошибках нет ключей; увольнение пользователя прекращает доступ в согласованный срок.",
+    "owner": "IAM + SRE",
+    "sources": [
+      "S09",
+      "S30",
+      "S43"
+    ]
+  },
+  {
+    "priority": "P0",
+    "name": "Принудительный маршрут",
+    "requirement": "Контролировать прямые MCP-подключения, доступ к backend, egress и установку локальных stdio серверов.",
+    "acceptance": "Отдельный клиент и ноутбук не обходят политику прямым HTTP или запуском локального MCP.",
+    "owner": "Endpoint + Network",
+    "sources": [
+      "S05",
+      "S45"
+    ]
+  },
+  {
+    "priority": "P0",
+    "name": "Supply chain и изменения tools",
+    "requirement": "Владелец и проверенная версия каждого сервера; pinned artifacts, schema/description diff, approval и rollback. Аннотации readOnly — подсказки, а не права.",
+    "acceptance": "Изменённое описание или образ попадает на review; незнакомый tool не включается автоматически.",
+    "owner": "AppSec + владелец сервиса",
+    "sources": [
+      "S04",
+      "S19",
+      "S29"
+    ]
+  },
+  {
+    "priority": "P0",
+    "name": "Audit без утечки данных",
+    "requirement": "Логировать identity, tool, решение, policy version, target, результат и trace ID. Payload хранить избирательно, с redaction, сроками и разграничением доступа.",
+    "acceptance": "SOC восстанавливает цепочку решения; audit не раскрывает tokens, PII и соседний tenant.",
+    "owner": "SOC + Data governance",
+    "sources": [
+      "S15",
+      "S17",
+      "S26"
+    ]
+  },
+  {
+    "priority": "P0",
+    "name": "Безопасность самого gateway",
+    "requirement": "Разделить admin/control и data plane, ограничить регистрацию upstream URL, защитить metadata fetch, secrets и egress.",
+    "acceptance": "SSRF в registration/OAuth discovery не достигает metadata и внутренних сервисов вне allowlist.",
+    "owner": "AppSec + SRE",
+    "sources": [
+      "S01",
+      "S27"
+    ]
+  },
+  {
+    "priority": "P1",
+    "name": "Inspection контента и DLP",
+    "requirement": "Проверять аргументы, tool output и tool descriptions; разделять блокировку, маскирование и alert. Задать поведение при недоступности scanner.",
+    "acceptance": "Canary secret не покидает границу; injection corpus измеряет и пропуски, и ложные блокировки.",
+    "owner": "AI Security + Data",
+    "sources": [
+      "S16",
+      "S33"
+    ]
+  },
+  {
+    "priority": "P1",
+    "name": "Подтверждение опасных операций",
+    "requirement": "Согласование должно быть связано с точными tool/target/arguments, ограничено сроком и защищено от replay; step-up для high-impact actions.",
+    "acceptance": "Смена суммы или адресата после approval требует нового решения; повторное исполнение заблокировано.",
+    "owner": "Владелец процесса",
+    "sources": [
+      "S45"
+    ]
+  },
+  {
+    "priority": "P1",
+    "name": "Runtime isolation",
+    "requirement": "Для размещаемого MCP-кода — ограниченные filesystem/network, container sandbox, quotas и отсутствие host secrets. Remote proxy сам по себе не изолирует сервер.",
+    "acceptance": "Скомпрометированный tool не читает секреты хоста и не обращается к произвольным адресам.",
+    "owner": "Platform + Runtime security",
+    "sources": [
+      "S28",
+      "S29"
+    ]
+  },
+  {
+    "priority": "P1",
+    "name": "Надёжность и управляемый масштаб",
+    "requirement": "Quotas per caller/tool, timeouts, backpressure, HA, tenant-aware caching; осмысленные retries только для безопасных операций.",
+    "acceptance": "Отказ upstream не останавливает других tenants; timeout не вызывает повторную запись.",
+    "owner": "SRE",
+    "sources": [
+      "S14",
+      "S26"
+    ]
+  },
+  {
+    "priority": "P1",
+    "name": "Протокол и удобство внедрения",
+    "requirement": "Фиксировать MCP revision, transports, tools/resources/prompts, OAuth-клиенты и extension support. Каталог должен облегчать approved path.",
+    "acceptance": "Матрица реальных IDE/agents проходит reconnect, revoke, pagination и несовпадение revisions.",
+    "owner": "Developer platform",
+    "sources": [
+      "S03",
+      "S12",
+      "S44"
+    ]
+  }
+]

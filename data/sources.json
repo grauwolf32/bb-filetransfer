@@ -1,0 +1,320 @@
+{
+  "as_of": "2026-11-10",
+  "sources": [
+    {
+      "id": "S01",
+      "title": "Uber — Solving the Identity Crisis for AI Agents",
+      "url": "https://www.uber.com/us/en/blog/solving-the-agent-identity-crisis/",
+      "type": "Инженерная публикация",
+      "note": "Agent Registry, короткоживущие scoped-токены, MCP Gateway для авторизации, AI Gateway с проверками контента и PII.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S02",
+      "title": "JPMorganChase — Fence framework",
+      "url": "https://www.jpmorganchase.com/about/technology/blog/fence-framework",
+      "type": "Публикация компании · 02.04.2026",
+      "note": "Fence использует синтетические данные и проверки под сценарий; охватывает injection, topic drift и hallucinations.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S03",
+      "title": "BMW Data Interpreter — AWS customer architecture",
+      "url": "https://aws.amazon.com/blogs/industries/bmw-group-fosters-data-driven-culture-with-a-no-code-generative-ai-data-analytics-solution-on-aws/",
+      "type": "Клиентский кейс у поставщика",
+      "note": "В описании BMW Data Interpreter прямо указано применение Bedrock Guardrails.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S04",
+      "title": "Intuit — GenOS enhancements",
+      "url": "https://www.intuit.com/blog/innovative-thinking/accelerating-development-velocity-with-major-enhancements-to-genos/",
+      "type": "Публикация компании",
+      "note": "GenSRF — настраиваемые проверки безопасности и приватности внутри GenRuntime.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S05",
+      "title": "Meta — LlamaFirewall research",
+      "url": "https://ai.meta.com/research/publications/llamafirewall-an-open-source-guardrail-system-for-building-secure-ai-agents",
+      "type": "Исследование разработчика",
+      "note": "Meta сообщает о production-применении LlamaFirewall; PromptGuard 2, AlignmentCheck и CodeShield.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S06",
+      "title": "Salesforce — Agentforce Trust",
+      "url": "https://developer.salesforce.com/docs/ai/agentforce/guide/trust.html",
+      "type": "Документация",
+      "note": "Einstein Trust Layer и соглашения о zero data retention с внешними провайдерами.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S07",
+      "title": "Salesforce — Data Masking Limitations in Agentforce",
+      "url": "https://help.salesforce.com/s/articleView?id=ai.agent_trust_data_masking.htm&language=en_US",
+      "type": "Документация · доступен поисковый фрагмент",
+      "note": "Pattern/field-based masking отключён для агентов; нельзя переносить обещание masking на все сценарии Agentforce.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "search_excerpt"
+    },
+    {
+      "id": "S08",
+      "title": "AWS — How Bedrock Guardrails works",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-how.html",
+      "type": "Документация",
+      "note": "Входные и выходные политики; фильтры контента, тем, слов и чувствительных данных; базовые модели фильтров обновляются автоматически.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S09",
+      "title": "AWS — Automated Reasoning checks",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-automated-reasoning-checks.html",
+      "type": "Документация",
+      "note": "Проверка формальной политики; English (US), без streaming; не защищает от prompt injection сама по себе.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S10",
+      "title": "AWS — Bedrock pricing",
+      "url": "https://aws.amazon.com/bedrock/pricing/",
+      "type": "Публичный тариф",
+      "note": "Раздельные тарифы по фильтрам и API; text unit до 1000 символов, округление вверх.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S11",
+      "title": "Microsoft — Prompt Shields",
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/jailbreak-detection",
+      "type": "Документация",
+      "note": "Проверки прямых и документных атак; Spotlighting обозначен preview.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S12",
+      "title": "Microsoft — Prompt Shields in Foundry",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/content-filter-prompt-shields",
+      "type": "Документация",
+      "note": "Standalone API возвращает результаты; блокировку реализует приложение. Происхождение контента сервис самостоятельно не подтверждает.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S13",
+      "title": "Google Cloud — Model Armor overview",
+      "url": "https://docs.cloud.google.com/model-armor/overview",
+      "type": "Документация",
+      "note": "Injection/jailbreak, safety, sensitive data, URLs и документы. Для файлов указано ограничение 4 MB; русский не входит в приведённый список тестируемых языков RAI/injection.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S14",
+      "title": "Google Cloud — Sanitize prompts and responses",
+      "url": "https://docs.cloud.google.com/model-armor/sanitize-prompts-responses",
+      "type": "Документация",
+      "note": "Региональные endpoints; расширенный Sensitive Data Protection поддерживает de-identification.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S15",
+      "title": "Palo Alto Networks — Prisma AIRS",
+      "url": "https://www.paloaltonetworks.com/ai-security/prisma-airs",
+      "type": "Страница продукта",
+      "note": "Позиционирует защиту моделей, runtime и агентов; API и network intercept.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S16",
+      "title": "Palo Alto Networks — AI Gateway overview",
+      "url": "https://docs.paloaltonetworks.com/prisma-airs/ai-gateway/ai-gateway-overview",
+      "type": "Документация",
+      "note": "SaaS и Hybrid с data plane в Kubernetes клиента; в таблице доступности указан Americas region.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S17",
+      "title": "Palo Alto Networks — Protect AI acquisition completed",
+      "url": "https://investors.paloaltonetworks.com/news-releases/news-release-details/palo-alto-networks-completes-acquisition-protect-ai",
+      "type": "Пресс-релиз · 22.07.2025",
+      "note": "Поглощение Protect AI завершено.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S18",
+      "title": "Palo Alto Networks — Portkey acquisition completed",
+      "url": "https://paloaltonetworks.gcs-web.com/news-releases/news-release-details/palo-alto-networks-completes-acquisition-portkey-secure-ai",
+      "type": "Пресс-релиз · 29.05.2026",
+      "note": "Portkey включён в направление AI Gateway Prisma AIRS; не считать отдельным независимым поставщиком.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S19",
+      "title": "Cisco — AI Defense Data Sheet",
+      "url": "https://www.cisco.com/c/en/us/products/collateral/security/ai-defense/ai-defense-ds.html",
+      "type": "Документация · обновлена 26.10.2026",
+      "note": "Инвентаризация, supply-chain scanning, red teaming, runtime и MCP; варианты облачного и локального data plane.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S20",
+      "title": "Cisco — AI Defense Inspection API",
+      "url": "https://developer.cisco.com/docs/ai-defense-inspection/",
+      "type": "Документация",
+      "note": "Отдельный API runtime inspection для проверок AI-взаимодействий.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S21",
+      "title": "Check Point — AI Agent Security / AI Guardrails",
+      "url": "https://docs.lakera.ai/guard",
+      "type": "Документация",
+      "note": "Бывший Lakera Guard: prompt attacks, утечки, moderation, tool controls; SaaS/self-hosted, русский заявлен, audio Early Access.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S22",
+      "title": "Check Point — Agent Security overview",
+      "url": "https://docs.lakera.ai/docs/agent-security",
+      "type": "Документация",
+      "note": "Discovery/posture и runtime через Guard API; native platform runtime integrations обозначены roadmap.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S23",
+      "title": "Prompt Security — Homegrown AI Apps",
+      "url": "https://prompt.security/solutions/homegrown-genai-apps",
+      "type": "Страница продукта",
+      "note": "Gateway/API; injection, DLP, moderation, logging; заявлены cloud, VPC и on-premise.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S24",
+      "title": "SentinelOne — acquisition filing",
+      "url": "https://www.sec.gov/Archives/edgar/data/1583708/000158370825000159/R11.htm",
+      "type": "Отчётность компании в SEC",
+      "note": "Приобретение Prompt Security завершено 05.09.2025.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S25",
+      "title": "NVIDIA — NeMo Guardrail Types",
+      "url": "https://docs.nvidia.com/nemo/guardrails/latest/about/rail-types.html",
+      "type": "Документация",
+      "note": "Пять точек контроля: input, retrieval, dialog, execution, output.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S26",
+      "title": "Guardrails AI — repository",
+      "url": "https://github.com/guardrails-ai/guardrails",
+      "type": "Репозиторий разработчика",
+      "note": "I/O validators и structured outputs; объявлено прекращение hosted remote inferencing с плановой датой 25.08.2026.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S27",
+      "title": "Meta — LlamaFirewall repository",
+      "url": "https://github.com/meta-llama/PurpleLlama/blob/main/LlamaFirewall/README.md",
+      "type": "Репозиторий разработчика",
+      "note": "Компоненты LlamaFirewall, зависимости и условия доступа к моделям.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S28",
+      "title": "LiteLLM — Guardrails Quick Start",
+      "url": "https://docs.litellm.ai/docs/proxy/guardrails/quick_start",
+      "type": "Документация",
+      "note": "Proxy объединяет встроенные и внешние проверки: Presidio, Bedrock, Lakera, custom API и другие.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S29",
+      "title": "Cloudflare — AI Gateway Guardrails",
+      "url": "https://developers.cloudflare.com/ai-gateway/features/guardrails/",
+      "type": "Документация · Beta",
+      "note": "Проверка входа/выхода на категории вредного контента, flag/block и журналы.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S30",
+      "title": "Arthur — Guardrails overview",
+      "url": "https://docs.arthur.ai/docs/guardrails-overview",
+      "type": "Документация",
+      "note": "Бывший Arthur Shield встроен в GenAI Engine; API возвращает результаты, действие выполняет приложение.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S31",
+      "title": "Yandex AI Studio — Response moderation",
+      "url": "https://aistudio.yandex.ru/en/docs/ai-studio/concepts/security/guardrails",
+      "type": "Документация · Preview",
+      "note": "Системные и пользовательские классификаторы/словари; custom guardrail отключает system guardrail; есть audit events.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S32",
+      "title": "Yandex Cloud — AI security standard 1.0.0",
+      "url": "https://yandex.cloud/ru/docs/security/standard-ai/all",
+      "type": "Стандарт поставщика",
+      "note": "Разделяет платформенные и прикладные обязанности: injection, RAG, API/MCP, аудит и trace.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S33",
+      "title": "OWASP — LLM Top 10 (страница редакции 2025)",
+      "url": "https://genai.owasp.org/llm-top-10/",
+      "type": "Отраслевой справочник",
+      "note": "Риски injection, excessive agency, sensitive information, supply chain и consumption; использована явно редакция 2025.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S34",
+      "title": "Salesforce — Agentic Enterprise Trust",
+      "url": "https://architect.salesforce.com/docs/architect/well-architected/guide/agentic-enterprise-trust.html",
+      "type": "Архитектурное руководство",
+      "note": "Рекомендации по Trust Layer, masking и передаче audit events в SIEM.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    },
+    {
+      "id": "S35",
+      "title": "Prompt Security — AI Red Teaming",
+      "url": "https://prompt.security/solutions/ai-red-teaming",
+      "type": "Страница продукта",
+      "note": "Проверки AI-приложений перед эксплуатацией и непрерывные evaluations.",
+      "checked_at": "2026-11-10",
+      "evidence_status": "primary_source"
+    }
+  ]
+}
