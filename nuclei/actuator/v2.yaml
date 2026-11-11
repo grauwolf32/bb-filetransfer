@@ -1,0 +1,343 @@
+id: spring-boot-actuator-discovery
+
+info:
+  name: Spring Boot Actuator Endpoint Discovery
+  author: custom
+  severity: info
+  description: |
+    Обнаруживает HTTP endpoints Spring Boot Actuator по характерным ответам.
+    Учитываются современный префикс /actuator, legacy endpoints Spring Boot 1.x,
+    документированные альтернативные base path /manage и /management, а также
+    вариант с trailing slash. Дополнительно перебираются WAF-bypass варианты
+    base path: matrix-параметры (/;actuator;, /actuator;), URL-кодирование
+    (%2f, %61, %00, %2e, %5c), двойное кодирование (%2561), обход через точку
+    и точку с запятой (/./actuator, /actuator/..;), двойной слэш (//actuator),
+    смена регистра (/Actuator) и обратный слэш (literal '\' и %5c). Используются
+    только read-only GET/HEAD запросы. Параметризованные идентификаторы,
+    shutdown и изменяющие состояние операции намеренно не вызываются.
+  remediation: |
+    Ограничьте management.endpoints.web.exposure.include только необходимыми
+    endpoints, закройте Actuator аутентификацией и сетевыми правилами, вынесите
+    management server на отдельный внутренний интерфейс/порт. Не полагайтесь
+    только на сокрытие пути или правила WAF.
+  reference:
+    - https://docs.spring.io/spring-boot/reference/actuator/endpoints.html
+    - https://docs.spring.io/spring-boot/api/rest/actuator/index.html
+    - https://docs.spring.io/spring-boot/docs/2.7.18/reference/htmlsingle/#actuator.endpoints
+    - https://docs.spring.io/spring-boot/docs/1.5.22.RELEASE/reference/html/production-ready-endpoints.html
+  classification:
+    cwe-id: CWE-200
+  metadata:
+    max-request: 1400
+  tags: spring,springboot,actuator,exposure,config
+
+http:
+  # Actuator discovery page: /actuator, /manage, /management (+ trailing slash)
+  # and WAF-bypass variants of the base path. Clean bases go first so that a
+  # non-WAF target matches before the obfuscated variants are tried.
+  - method: GET
+    path:
+      - "{{BaseURL}}{{base}}{{slash}}"
+    attack: clusterbomb
+    payloads:
+      # No "" here: the root page is not an actuator discovery page and a HAL
+      # API root with "_links" would be a false positive.
+      base: &actuator_roots
+        - /actuator
+        - /manage
+        - /management
+        # WAF bypass: matrix params, encoding, traversal, case, backslash.
+        - /;actuator;
+        - /%2factuator
+        - /%61ctuator
+        - /actuator%2f
+        - /actuator;
+        - /actuator/..;
+        - /actuator%00
+        - /actuator.
+        - /./actuator
+        - //actuator
+        - /Actuator
+        - /%2561ctuator
+        - /actuator\..\actuator
+        - /%5cactuator
+      slash:
+        - ""
+        - /
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        part: body
+        regex:
+          - '"_links"\s*:\s*\{'
+          - '"href"\s*:\s*"[^"]*/(?:actuator|manage|management)(?:/|")'
+
+  # JSON endpoints: Spring Boot 1.x, 2.x, 3.x/4.x and common static subpaths.
+  # /shutdown исключён: это изменяющая состояние POST-операция.
+  # {name}, {id}, {sessionId}, Quartz group/job names не перебираются.
+  - method: GET
+    path:
+      - "{{BaseURL}}{{base}}/{{endpoint}}{{slash}}"
+    attack: clusterbomb
+    payloads:
+      # "" covers Spring Boot 1.x apps that expose endpoints at the root.
+      base: &actuator_bases
+        - ""
+        - /actuator
+        - /manage
+        - /management
+        # WAF bypass: matrix params, encoding, traversal, case, backslash.
+        - /;actuator;
+        - /%2factuator
+        - /%61ctuator
+        - /actuator%2f
+        - /actuator;
+        - /actuator/..;
+        - /actuator%00
+        - /actuator.
+        - /./actuator
+        - //actuator
+        - /Actuator
+        - /%2561ctuator
+        - /actuator\..\actuator
+        - /%5cactuator
+      endpoint:
+        - auditevents
+        - autoconfig
+        - beans
+        - caches
+        - conditions
+        - configprops
+        - docs
+        - dump
+        - env
+        - flyway
+        - health
+        - health/liveness
+        - health/readiness
+        - httpexchanges
+        - httptrace
+        - integrationgraph
+        - jolokia
+        - jolokia/version
+        - liquibase
+        - loggers
+        - mappings
+        - metrics
+        - quartz
+        - quartz/jobs
+        - quartz/triggers
+        - sbom
+        - sbom/application
+        - scheduledtasks
+        - sessions
+        - startup
+        - threaddump
+        - trace
+      slash:
+        - ""
+        - /
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+          - 503
+      - type: regex
+        part: body
+        regex:
+          # Discovery, health and environment.
+          - '"_links"\s*:\s*\{'
+          - '"status"\s*:\s*"(?:UP|DOWN|OUT_OF_SERVICE|UNKNOWN)"'
+          - '"(?:propertySources|activeProfiles|systemProperties|systemEnvironment)"\s*:'
+          # Beans, conditions/autoconfig and configuration properties.
+          - '"(?:beans|contexts)"\s*:'
+          - '"(?:positiveMatches|negativeMatches|unconditionalClasses)"\s*:'
+          - '"(?:configurationProperties|prefix)"\s*:'
+          # Metrics and request mappings, including Boot 1.x formats.
+          - '"names"\s*:\s*\['
+          - '"(?:mem(?:\.free)?|processors|instance\.uptime|heap\.used|classes\.loaded)"\s*:'
+          - '"(?:mappings|dispatcherServlets|dispatcherHandlers|servletFilters)"\s*:'
+          - '"\{\[[^\r\n]+\}"\s*:\s*\{'
+          # Loggers, audit, caches and migrations.
+          - '"(?:loggers|levels)"\s*:'
+          - '"(?:events|auditEvents)"\s*:\s*\['
+          - '"(?:cacheManagers|caches)"\s*:'
+          - '"(?:flywayBeans|liquibaseBeans|migrations|changeSets)"\s*:'
+          # Thread dumps and HTTP traces/exchanges.
+          - '"(?:threads|threadName|lockedMonitors)"\s*:'
+          - '"(?:exchanges|traces)"\s*:\s*\['
+          - '"info"\s*:\s*\{[^{}]*"(?:method|path)"\s*:'
+          # Scheduled tasks, startup and Spring Integration graph.
+          - '"(?:cron|fixedDelay|fixedRate)"\s*:\s*\['
+          - '"springBootVersion"\s*:'
+          - '"(?:contentDescriptor|integrationPatternType|nodeId)"\s*:'
+          # Quartz root and static jobs/triggers collections.
+          - '"(?:jobs|triggers)"\s*:\s*\{\s*"groups"\s*:'
+          - '"(?:jobs|triggers)"\s*:\s*\['
+          # SBOM and Spring Session.
+          - '"ids"\s*:\s*\['
+          - '"(?:bomFormat|SPDXID)"\s*:'
+          - '"(?:sessions|attributeNames|lastAccessedTime|maxInactiveInterval)"\s*:'
+          # Jolokia version response and legacy Actuator documentation.
+          - '"request"\s*:\s*\{\s*"type"\s*:\s*"version"'
+          - '"(?:protocol|agent)"\s*:'
+          - '(?i)<title>[^<]*actuator'
+
+  # /info заслуживает отдельного matcher: пустое {} является валидным ответом.
+  - method: GET
+    path:
+      - "{{BaseURL}}{{base}}/info{{slash}}"
+    attack: clusterbomb
+    payloads:
+      base: *actuator_bases
+      slash:
+        - ""
+        - /
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        part: header
+        regex:
+          - '(?i)content-type:\s*application/(?:[a-z0-9._-]+\+)?json'
+      - type: regex
+        part: body
+        regex:
+          - '^\s*\{\s*\}\s*$'
+          - '"(?:app|application|build|git|java|os|service)"\s*:'
+          - '"(?:artifact|group|name|version|description|time)"\s*:'
+
+  # Prometheus имеет текстовый, а не JSON, формат ответа.
+  - method: GET
+    path:
+      - "{{BaseURL}}{{base}}/prometheus{{slash}}"
+    attack: clusterbomb
+    payloads:
+      base: *actuator_bases
+      slash:
+        - ""
+        - /
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        part: header
+        regex:
+          - '(?i)content-type:\s*(?:text/plain|application/openmetrics-text)'
+      - type: regex
+        part: body
+        regex:
+          - '(?m)^# (?:HELP|TYPE) [a-zA-Z_:][a-zA-Z0-9_:]*'
+
+  # Range не даёт скачать весь журнал. Сервер может ответить 200 или 206.
+  - method: GET
+    path:
+      - "{{BaseURL}}{{base}}/logfile{{slash}}"
+    attack: clusterbomb
+    payloads:
+      base: *actuator_bases
+      slash:
+        - ""
+        - /
+    headers:
+      Range: bytes=0-4095
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+          - 206
+      - type: regex
+        part: header
+        regex:
+          - '(?i)content-type:\s*(?:text/plain|application/octet-stream)'
+
+  # HEAD позволяет обнаружить heapdump без скачивания дампа памяти.
+  - method: HEAD
+    path:
+      - "{{BaseURL}}{{base}}/heapdump{{slash}}"
+    attack: clusterbomb
+    payloads:
+      base: *actuator_bases
+      slash:
+        - ""
+        - /
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        part: header
+        regex:
+          - '(?i)content-type:\s*(?:application/octet-stream|application/x-hprof|application/gzip)'
+
+  # Literal backslash variants. The path field percent-encodes '\' to %5C, so
+  # these are sent as raw requests with unsafe: true to keep the literal '\'.
+  # heapdump/logfile are excluded: GET would download the whole file.
+  - raw:
+      - |
+        GET {{base}}{{sep}}{{endpoint}} HTTP/1.1
+        Host: {{Hostname}}
+    attack: clusterbomb
+    unsafe: true
+    payloads:
+      base:
+        - /actuator
+        - \actuator
+        - /actuator\..\actuator
+        - \actuator\..\actuator
+      sep:
+        - \
+      endpoint:
+        - ""
+        - env
+        - health
+        - beans
+        - mappings
+        - configprops
+        - loggers
+        - threaddump
+        - prometheus
+        - jolokia
+        - sessions
+        - httpexchanges
+        - sbom
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+          - 503
+      - type: regex
+        part: body
+        regex:
+          - '"_links"\s*:\s*\{'
+          - '"status"\s*:\s*"(?:UP|DOWN|OUT_OF_SERVICE|UNKNOWN)"'
+          - '"(?:propertySources|activeProfiles|systemProperties|systemEnvironment)"\s*:'
+          - '"(?:beans|contexts)"\s*:'
+          - '"(?:configurationProperties|prefix)"\s*:'
+          - '"names"\s*:\s*\['
+          - '"(?:mappings|dispatcherServlets|dispatcherHandlers|servletFilters)"\s*:'
+          - '"(?:loggers|levels)"\s*:'
+          - '"(?:threads|threadName|lockedMonitors)"\s*:'
+          - '"(?:exchanges|traces)"\s*:\s*\['
+          - '"(?:sessions|attributeNames|lastAccessedTime|maxInactiveInterval)"\s*:'
+          - '"(?:bomFormat|SPDXID)"\s*:'
+          - '"request"\s*:\s*\{\s*"type"\s*:\s*"version"'
+          - '(?m)^# (?:HELP|TYPE) [a-zA-Z_:][a-zA-Z0-9_:]*'
