@@ -1,0 +1,14 @@
+flowchart LR
+  U["Mac: UI loopback port"] --> G["Web gateway: static UI + API routes"]
+  G -->|"TCP 9380"| A["RAGFlow API"]
+  O["Operator: separate loopback mgmt port"] --> J["Management gateway"]
+  J -->|"TCP 9381"| D["Admin"]
+  A -->|"POST reports only"| H["Heartbeat HTTP relay"]
+  I["Ingestor: isolated process and credentials"] -->|"POST reports only"| H
+  H -->|"TCP 9381; path allowlist"| D
+  A -->|"per-service client ports"| B["Dependencies: pair networks + stateful policy"]
+  I -->|"verified ingestion ports only"| B
+  D -->|"verified admin ports only"| B
+  A --> E["Controlled model egress"]
+  I --> E
+  P["No direct dependency-to-client connections; new peers denied; policies outside workload namespaces"]

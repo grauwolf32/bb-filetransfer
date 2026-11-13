@@ -1,0 +1,13 @@
+flowchart LR
+  U["Mac: 127.0.0.1:18080"] --> R["RAGFlow: nginx + API + admin + ingestor"]
+  subgraph B["Shared backend network; external default-deny policy"]
+    R -->|"TCP 3306"| M["MySQL"]
+    R -->|"TCP 9200"| E["Elasticsearch"]
+    R -->|"TCP 9000"| S["MinIO"]
+    R -->|"TCP 6379"| K["Kvrocks"]
+    R -->|"TCP 4222"| N["NATS"]
+    R -->|"TCP 9000"| C["ClickHouse"]
+    P["Policy outside workload namespaces: deny new peer-to-peer flows"]
+  end
+  R -->|"only approved destinations"| O["Outbound network with egress policy"]
+  O --> L["Mac model endpoint: TCP 1235"]

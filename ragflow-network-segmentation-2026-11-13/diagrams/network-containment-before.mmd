@@ -1,0 +1,22 @@
+flowchart LR
+  U["Mac: 127.0.0.1:18080"] --> R["RAGFlow: nginx + API + admin + ingestor"]
+  subgraph B["Shared backend network"]
+    R
+    M["MySQL"]
+    E["Elasticsearch"]
+    S["MinIO"]
+    K["Kvrocks"]
+    N["NATS"]
+    C["ClickHouse"]
+    R --> M
+    R --> E
+    R --> S
+    R --> K
+    R --> N
+    R --> C
+    M -. "shared L2 permits peer traffic" .-> E
+    E -. "shared L2 permits peer traffic" .-> S
+    S -. "backend listener reachable in principle" .-> R
+  end
+  R --> O["Outbound network"]
+  O --> L["Mac / model endpoints"]

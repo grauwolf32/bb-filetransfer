@@ -1,0 +1,406 @@
+{
+  "date": "2026-11-13",
+  "source_files": [
+    {
+      "path": "compose.yaml",
+      "sha256": "bc0f88b5b61e987516311ce7ef20c52553d606bb4b55974452add9b3978fafd5"
+    },
+    {
+      "path": "config/ragflow.conf",
+      "sha256": "fe92ae852575203239f16a30bd31e792cc2b906ee00bdff01957f9ee72be00b2"
+    },
+    {
+      "path": "config/service_conf.yaml.template",
+      "sha256": "bbc1681aaa7a9d321d8a09a735368e3b56dc87c20b93f7930ad71d8579f0a22e"
+    },
+    {
+      "path": "upstream/docker/entrypoint.sh",
+      "sha256": "c3f50b90a437f20fa1fec8b44d589de69e52eb0d72172d952ad04050a6b92864"
+    },
+    {
+      "path": "upstream/docker/kvrocks-entrypoint.sh",
+      "sha256": "6920d61f8e1a05d3805866fdc797096a779bffcbce7dd401d6f75140f74f615e"
+    },
+    {
+      "path": "upstream/internal/service/admin_client.go",
+      "sha256": "9bb47c675bdb838e90577523e6f234787251990e3b3c2a593a88600249742b9a"
+    },
+    {
+      "path": "upstream/internal/server/bootstrap/runtime.go",
+      "sha256": "e9dea6da8b3081c7d307b28c78e4a29650a18a9e63b868867f8077d09c2cae8c"
+    }
+  ],
+  "collection_sha256": "649e6855c8476d89f3ac93021911e6d2d2acec8a5be759b67f9aea6758618af2",
+  "podman_client": "6.1.4",
+  "podman_server": "6.1.4",
+  "rootless": true,
+  "network_backend": {
+    "backend": "netavark",
+    "version": "netavark 2.1.0",
+    "package": "netavark-2.1.0-1.fc44.aarch64",
+    "path": "/usr/libexec/podman/netavark",
+    "dns": {
+      "version": "aardvark-dns 2.1.0",
+      "package": "aardvark-dns-2.1.0-1.fc44.aarch64",
+      "path": "/usr/libexec/podman/aardvark-dns"
+    },
+    "defaultNetwork": "podman"
+  },
+  "containers": [
+    {
+      "name": "ragflow-lab-ragflow-1",
+      "networks": {
+        "ragflow-lab_backend": {
+          "ip": "10.89.0.8"
+        },
+        "ragflow-lab_outbound": {
+          "ip": "10.89.1.2"
+        }
+      },
+      "ports": {
+        "80/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "18080"
+          }
+        ]
+      },
+      "privileged": false,
+      "capabilities": [
+        "CAP_CHOWN",
+        "CAP_DAC_OVERRIDE",
+        "CAP_FOWNER",
+        "CAP_FSETID",
+        "CAP_KILL",
+        "CAP_NET_BIND_SERVICE",
+        "CAP_SETFCAP",
+        "CAP_SETGID",
+        "CAP_SETPCAP",
+        "CAP_SETUID",
+        "CAP_SYS_CHROOT"
+      ],
+      "user": "root"
+    },
+    {
+      "name": "ragflow-lab-mysql-1",
+      "networks": {
+        "ragflow-lab_backend": {
+          "ip": "10.89.0.5"
+        }
+      },
+      "ports": {
+        "3306/tcp": null,
+        "33060/tcp": null
+      },
+      "privileged": false,
+      "capabilities": [
+        "CAP_CHOWN",
+        "CAP_DAC_OVERRIDE",
+        "CAP_FOWNER",
+        "CAP_FSETID",
+        "CAP_KILL",
+        "CAP_NET_BIND_SERVICE",
+        "CAP_SETFCAP",
+        "CAP_SETGID",
+        "CAP_SETPCAP",
+        "CAP_SETUID",
+        "CAP_SYS_CHROOT"
+      ],
+      "user": ""
+    },
+    {
+      "name": "ragflow-lab-es01-1",
+      "networks": {
+        "ragflow-lab_backend": {
+          "ip": "10.89.0.7"
+        }
+      },
+      "ports": {
+        "9200/tcp": null,
+        "9300/tcp": null
+      },
+      "privileged": false,
+      "capabilities": null,
+      "user": "1000:0"
+    },
+    {
+      "name": "ragflow-lab-minio-1",
+      "networks": {
+        "ragflow-lab_backend": {
+          "ip": "10.89.0.3"
+        }
+      },
+      "ports": {
+        "9000/tcp": null
+      },
+      "privileged": false,
+      "capabilities": [
+        "CAP_CHOWN",
+        "CAP_DAC_OVERRIDE",
+        "CAP_FOWNER",
+        "CAP_FSETID",
+        "CAP_KILL",
+        "CAP_NET_BIND_SERVICE",
+        "CAP_SETFCAP",
+        "CAP_SETGID",
+        "CAP_SETPCAP",
+        "CAP_SETUID",
+        "CAP_SYS_CHROOT"
+      ],
+      "user": ""
+    },
+    {
+      "name": "ragflow-lab-kvrocks-1",
+      "networks": {
+        "ragflow-lab_backend": {
+          "ip": "10.89.0.2"
+        }
+      },
+      "ports": {
+        "6666/tcp": null
+      },
+      "privileged": false,
+      "capabilities": [
+        "CAP_CHOWN",
+        "CAP_DAC_OVERRIDE",
+        "CAP_FOWNER",
+        "CAP_FSETID",
+        "CAP_KILL",
+        "CAP_NET_BIND_SERVICE",
+        "CAP_SETFCAP",
+        "CAP_SETGID",
+        "CAP_SETPCAP",
+        "CAP_SETUID",
+        "CAP_SYS_CHROOT"
+      ],
+      "user": "0:0"
+    },
+    {
+      "name": "ragflow-lab-nats-1",
+      "networks": {
+        "ragflow-lab_backend": {
+          "ip": "10.89.0.6"
+        }
+      },
+      "ports": {
+        "4222/tcp": null,
+        "6222/tcp": null,
+        "8222/tcp": null
+      },
+      "privileged": false,
+      "capabilities": [
+        "CAP_CHOWN",
+        "CAP_DAC_OVERRIDE",
+        "CAP_FOWNER",
+        "CAP_FSETID",
+        "CAP_KILL",
+        "CAP_NET_BIND_SERVICE",
+        "CAP_SETFCAP",
+        "CAP_SETGID",
+        "CAP_SETPCAP",
+        "CAP_SETUID",
+        "CAP_SYS_CHROOT"
+      ],
+      "user": ""
+    },
+    {
+      "name": "ragflow-lab-clickhouse-1",
+      "networks": {
+        "ragflow-lab_backend": {
+          "ip": "10.89.0.4"
+        }
+      },
+      "ports": {
+        "8123/tcp": null,
+        "9000/tcp": null,
+        "9009/tcp": null
+      },
+      "privileged": false,
+      "capabilities": [
+        "CAP_CHOWN",
+        "CAP_DAC_OVERRIDE",
+        "CAP_FOWNER",
+        "CAP_FSETID",
+        "CAP_KILL",
+        "CAP_NET_BIND_SERVICE",
+        "CAP_SETFCAP",
+        "CAP_SETGID",
+        "CAP_SETPCAP",
+        "CAP_SETUID",
+        "CAP_SYS_CHROOT"
+      ],
+      "user": ""
+    }
+  ],
+  "networks": [
+    {
+      "name": "ragflow-lab_backend",
+      "id": "66641de35cd6a869e850c02bf791d03aa9a08a0d69f940e0f2b5f6cd0378d24a",
+      "driver": "bridge",
+      "network_interface": "podman1",
+      "created": "2026-11-11T08:37:26.948905135Z",
+      "subnets": [
+        {
+          "subnet": "10.89.0.0/24",
+          "gateway": "10.89.0.1"
+        }
+      ],
+      "ipv6_enabled": false,
+      "internal": true,
+      "dns_enabled": true,
+      "labels": {
+        "com.docker.compose.config-hash": "e059b9984cb137ee5a19190b15cea978d37088f9d1f35f803c4bc368d4681c9d",
+        "com.docker.compose.network": "backend",
+        "com.docker.compose.project": "ragflow-lab",
+        "com.docker.compose.version": "5.7.0"
+      },
+      "ipam_options": {
+        "driver": "host-local"
+      },
+      "containers": {
+        "3168f0f5bc163c0f72e74aac5ca1e6cdbf521618dc16005df843fa2c5d23dcfe": {
+          "name": "ragflow-lab-nats-1",
+          "interfaces": {
+            "eth0": {
+              "subnets": [
+                {
+                  "ipnet": "10.89.0.6/24",
+                  "gateway": "10.89.0.1"
+                }
+              ],
+              "mac_address": "6a:b4:91:86:a5:d6"
+            }
+          }
+        },
+        "4b4d909b01f452b44d3654e51322989aee62fc7350f4f30c896cddf4c4243208": {
+          "name": "ragflow-lab-minio-1",
+          "interfaces": {
+            "eth0": {
+              "subnets": [
+                {
+                  "ipnet": "10.89.0.3/24",
+                  "gateway": "10.89.0.1"
+                }
+              ],
+              "mac_address": "5a:ee:9f:57:8a:c4"
+            }
+          }
+        },
+        "5f4ce34b064b4653df3033d834ae55b79a9c526449c555c0ce031435e47d3f03": {
+          "name": "ragflow-lab-clickhouse-1",
+          "interfaces": {
+            "eth0": {
+              "subnets": [
+                {
+                  "ipnet": "10.89.0.4/24",
+                  "gateway": "10.89.0.1"
+                }
+              ],
+              "mac_address": "ee:56:19:b5:c7:a6"
+            }
+          }
+        },
+        "a652cc1c2764768224dd4ccb1ce597c105fd2a2589b724bab34d40e833ea497d": {
+          "name": "ragflow-lab-ragflow-1",
+          "interfaces": {
+            "eth0": {
+              "subnets": [
+                {
+                  "ipnet": "10.89.0.8/24",
+                  "gateway": "10.89.0.1"
+                }
+              ],
+              "mac_address": "76:34:cd:79:5b:68"
+            }
+          }
+        },
+        "bcc9980df56ac3d5d5ec77b079c9ea9dfbcac3e31b9cc6e719de0bda2ed5ad5b": {
+          "name": "ragflow-lab-mysql-1",
+          "interfaces": {
+            "eth0": {
+              "subnets": [
+                {
+                  "ipnet": "10.89.0.5/24",
+                  "gateway": "10.89.0.1"
+                }
+              ],
+              "mac_address": "f6:f5:9c:30:c0:af"
+            }
+          }
+        },
+        "c99850061c1b70749825d806202d64657085f71c1b17ef14bcccec7ed7c2c22c": {
+          "name": "ragflow-lab-es01-1",
+          "interfaces": {
+            "eth0": {
+              "subnets": [
+                {
+                  "ipnet": "10.89.0.7/24",
+                  "gateway": "10.89.0.1"
+                }
+              ],
+              "mac_address": "c6:be:09:13:a3:82"
+            }
+          }
+        },
+        "d9b38117ea4a41572afe2a24dc90c7d90a18019b15b85fadd8539dbca001823e": {
+          "name": "ragflow-lab-kvrocks-1",
+          "interfaces": {
+            "eth0": {
+              "subnets": [
+                {
+                  "ipnet": "10.89.0.2/24",
+                  "gateway": "10.89.0.1"
+                }
+              ],
+              "mac_address": "0e:b0:62:b2:8c:74"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "ragflow-lab_outbound",
+      "id": "0b57e2b7a3febeb0615fa180aa0e4e77470c9e208644c268c4bd332dc76f004d",
+      "driver": "bridge",
+      "network_interface": "podman2",
+      "created": "2026-11-11T08:37:26.949860766Z",
+      "subnets": [
+        {
+          "subnet": "10.89.1.0/24",
+          "gateway": "10.89.1.1"
+        }
+      ],
+      "ipv6_enabled": false,
+      "internal": false,
+      "dns_enabled": true,
+      "labels": {
+        "com.docker.compose.config-hash": "4f1cc4ddc70f84a230b7b129d20efea7b6a562a0886a509ded79933efb41cca1",
+        "com.docker.compose.network": "outbound",
+        "com.docker.compose.project": "ragflow-lab",
+        "com.docker.compose.version": "5.7.0"
+      },
+      "ipam_options": {
+        "driver": "host-local"
+      },
+      "containers": {
+        "a652cc1c2764768224dd4ccb1ce597c105fd2a2589b724bab34d40e833ea497d": {
+          "name": "ragflow-lab-ragflow-1",
+          "interfaces": {
+            "eth1": {
+              "subnets": [
+                {
+                  "ipnet": "10.89.1.2/24",
+                  "gateway": "10.89.1.1"
+                }
+              ],
+              "mac_address": "d6:f6:64:60:5e:1a"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "actual_listeners_and_connections": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                                                   \nLISTEN 0      511          0.0.0.0:80        0.0.0.0:*    users:((\"nginx\",pid=27,fd=6),(\"nginx\",pid=26,fd=6),(\"nginx\",pid=25,fd=6))\nLISTEN 0      4096               *:9381            *:*    users:((\"ragflow_server\",pid=16,fd=13))                                  \nLISTEN 0      4096               *:9380            *:*    users:((\"ragflow_server\",pid=30,fd=11))                                  \nRecv-Q Send-Q      Local Address:Port        Peer Address:Port Process                                 \n0      0               10.89.0.8:59852          10.89.0.7:9200  users:((\"ragflow_server\",pid=30,fd=4)) \n0      0               10.89.0.8:36024          10.89.0.5:3306  users:((\"ragflow_server\",pid=30,fd=8)) \n0      0               10.89.0.8:50048          10.89.0.5:3306  users:((\"ragflow_server\",pid=31,fd=7)) \n0      0               10.89.0.8:56164          10.89.0.5:3306  users:((\"ragflow_server\",pid=31,fd=4)) \n0      0               10.89.0.8:42866          10.89.0.6:4222  users:((\"ragflow_server\",pid=16,fd=10))\n0      0               10.89.0.8:42868          10.89.0.6:4222  users:((\"ragflow_server\",pid=30,fd=10))\n0      0               10.89.0.8:42878          10.89.0.6:4222  users:((\"ragflow_server\",pid=31,fd=10))\n0      0               10.89.0.8:34264          10.89.0.3:9000  users:((\"ragflow_server\",pid=30,fd=7)) \n0      0               10.89.0.8:60632          10.89.0.5:3306  users:((\"ragflow_server\",pid=30,fd=19))\n0      0               10.89.0.8:60634          10.89.0.5:3306  users:((\"ragflow_server\",pid=30,fd=18))\n0      0               10.89.0.8:60648          10.89.0.5:3306  users:((\"ragflow_server\",pid=30,fd=21))\n0      0               127.0.0.1:42220          127.0.0.1:9381  users:((\"ragflow_server\",pid=30,fd=16))\n0      0               10.89.0.8:34284          10.89.0.2:6379  users:((\"ragflow_server\",pid=30,fd=9)) \n0      0               10.89.0.8:35554          10.89.0.2:6379  users:((\"ragflow_server\",pid=31,fd=9)) \n0      0               10.89.0.8:35556          10.89.0.2:6379  users:((\"ragflow_server\",pid=31,fd=8)) \n0      0               127.0.0.1:47400          127.0.0.1:9380  users:((\"ragflow_server\",pid=30,fd=17))\n0      0               10.89.0.8:44846          10.89.0.2:6379  users:((\"ragflow_server\",pid=16,fd=9)) \n0      0               127.0.0.1:60984          127.0.0.1:9381  users:((\"ragflow_server\",pid=30,fd=13))\n0      0               127.0.0.1:60996          127.0.0.1:9381  users:((\"ragflow_server\",pid=31,fd=13))\n0      0      [::ffff:127.0.0.1]:9381  [::ffff:127.0.0.1]:42220 users:((\"ragflow_server\",pid=16,fd=4)) \n0      0      [::ffff:127.0.0.1]:9380  [::ffff:127.0.0.1]:47400 users:((\"ragflow_server\",pid=30,fd=20))\n0      0      [::ffff:127.0.0.1]:9381  [::ffff:127.0.0.1]:60996 users:((\"ragflow_server\",pid=16,fd=14))\n0      0      [::ffff:127.0.0.1]:9381  [::ffff:127.0.0.1]:60984 users:((\"ragflow_server\",pid=16,fd=11))\n",
+  "changes_applied": false
+}
+

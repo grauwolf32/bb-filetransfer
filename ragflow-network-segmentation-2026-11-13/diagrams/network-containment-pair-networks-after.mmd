@@ -1,0 +1,11 @@
+flowchart LR
+  U["Mac: 127.0.0.1:18080"] --> R["RAGFlow: nginx + API + admin + ingestor"]
+  R -->|"rf_mysql: TCP 3306"| M["MySQL"]
+  R -->|"rf_es: TCP 9200"| E["Elasticsearch"]
+  R -->|"rf_minio: TCP 9000"| S["MinIO"]
+  R -->|"rf_kv: TCP 6379"| K["Kvrocks"]
+  R -->|"rf_nats: TCP 4222"| N["NATS"]
+  R -->|"rf_ch: TCP 9000"| C["ClickHouse"]
+  P["Each dependency has only its own internal bridge; external stateful policy restricts ports and direction"]
+  R -->|"approved destination only"| O["Restricted rf_egress"]
+  O --> L["Mac model endpoint: TCP 1235"]

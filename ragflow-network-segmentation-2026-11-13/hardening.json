@@ -1,0 +1,625 @@
+{
+  "documentType": "codex-security.hardening-analysis",
+  "schemaVersion": "1.0",
+  "analysisId": "hardening_20261113_ragflow_networks",
+  "sourceEvidence": {
+    "kind": "document_collection",
+    "label": "Current RAGFlow lab deployment configuration and role bootstrap",
+    "collectionSha256": "649e6855c8476d89f3ac93021911e6d2d2acec8a5be759b67f9aea6758618af2",
+    "artifactCount": 7,
+    "sourceDrift": "unknown",
+    "runtimeImage": "sha256:931307991475344f61c0d2f2af4c10dd5b37a3cdfa5814737688b8bb8f6a7298",
+    "declaredSourceRevision": "03c1246150febe6b204b3799dffb3afe52103fb8",
+    "inventoryPath": "context.md",
+    "runtimeEvidencePath": "evidence/runtime.json"
+  },
+  "assessment": {
+    "outcome": "opportunities_identified",
+    "summary": "Per-dependency networks with external stateful port/direction policy and restricted egress fit the current local lab; separating roles adds a stronger parser/API/admin boundary. Nothing applied."
+  },
+  "constraints": {
+    "profile": "balanced",
+    "changeHorizons": [
+      "incremental",
+      "medium_term"
+    ],
+    "nonNegotiables": [
+      "Preserve named volumes and existing data",
+      "Do not change image/release in the segmentation migration",
+      "Keep loopback-only UI access",
+      "Retain MCP/sandbox/syncer restrictions"
+    ],
+    "assumptions": [
+      "No latency or RSS budget supplied",
+      "Current deployment is rootless Podman6.1.4 / Netavark2.1.0",
+      "Strict isolation and bridge/inet enforcement must be validated in the correct namespace",
+      "No new listener or candidate firewall policy was applied"
+    ]
+  },
+  "opportunities": [
+    {
+      "opportunityId": "network-containment",
+      "title": "Limit inter-service and external network authority",
+      "summary": "Make client source/destination/port relationships explicit and restrict excess, reverse and egress flows.",
+      "diagnosis": "Shared L2 exposes dependency peers and RAGFlow listeners; monolith combines network/secret authority across API, admin and ingestion.",
+      "evidence": [
+        {
+          "evidenceId": "NET",
+          "claimType": "observed",
+          "sourceKind": "experiment",
+          "path": "evidence/runtime.json",
+          "claim": "All seven services share backend; only RAGFlow also has outbound."
+        },
+        {
+          "evidenceId": "PORTS",
+          "claimType": "observed",
+          "sourceKind": "document",
+          "path": "config/service_conf.yaml.template",
+          "claim": "App client ports are configured; active ss confirms MySQL, ES, MinIO, Kvrocks6379 and NATS. CH9000 is configured but not captured as established."
+        },
+        {
+          "evidenceId": "MONOLITH",
+          "claimType": "observed",
+          "sourceKind": "source",
+          "path": "upstream/docker/entrypoint.sh",
+          "claim": "nginx/API/admin/ingestor run together; actual admin9381 listens wildcard."
+        },
+        {
+          "evidenceId": "HEARTBEAT",
+          "claimType": "observed",
+          "sourceKind": "source",
+          "path": "upstream/internal/service/admin_client.go",
+          "claim": "API and ingestor heartbeat uses POST /api/v1/admin/reports at admin9381."
+        },
+        {
+          "evidenceId": "VALIDATED-F01",
+          "claimType": "observed",
+          "sourceKind": "document",
+          "claim": "Previous scoped runtime validation observed beta MCP private metadata disclosure internally; nginx blocks MCP."
+        },
+        {
+          "evidenceId": "VALIDATED-F02",
+          "claimType": "observed",
+          "sourceKind": "document",
+          "claim": "Previous scoped runtime validation observed API original document read after deactivation via nginx."
+        },
+        {
+          "evidenceId": "SHARED-AUTHORITY",
+          "claimType": "inferred",
+          "sourceKind": "document",
+          "path": "evidence/runtime.json",
+          "claim": "RCE of the multihomed RAGFlow monolith retains its legitimate database credentials and client-port access."
+        }
+      ],
+      "desiredInvariants": [
+        "Dependencies accept new flows only from authorized clients on required ports",
+        "Dependencies do not initiate new flows to peers or RAGFlow management listeners",
+        "Established/related replies are allowed without opening all ephemeral ports",
+        "Model/DNS egress has an explicit allowlist and no direct bypass",
+        "Policy owner is outside workload namespaces",
+        "Policy applies before readiness and survives recreate/reboot",
+        "IPv6, DNS and host gateway paths are covered"
+      ],
+      "proposalPath": "proposals/network-containment.md",
+      "options": [
+        {
+          "optionId": "flat-policy",
+          "title": "Option 1: Shared backend with external stateful ACL",
+          "kind": "baseline",
+          "summary": "Keep shared L2, enforce client pairs/ports and restricted egress externally.",
+          "diagramPaths": {
+            "before": "diagrams/network-containment-before.mmd",
+            "after": "diagrams/network-containment-flat-policy-after.mmd"
+          },
+          "evidenceCoverage": [
+            {
+              "evidenceId": "NET",
+              "effect": "mitigates",
+              "tacticalFixRequired": true,
+              "rationale": "Topology and/or port policy narrow peer reachability; lifecycle enforcement tests remain required."
+            },
+            {
+              "evidenceId": "PORTS",
+              "effect": "mitigates",
+              "tacticalFixRequired": true,
+              "rationale": "Exact allowed destination ports and reverse-flow tests required."
+            },
+            {
+              "evidenceId": "MONOLITH",
+              "effect": "unaffected",
+              "tacticalFixRequired": true,
+              "rationale": "Only separate role configs/credentials can reduce same-container authority."
+            },
+            {
+              "evidenceId": "HEARTBEAT",
+              "effect": "unaffected",
+              "tacticalFixRequired": true,
+              "rationale": "Role split needs a reports-only relay or a verified intentional change to telemetry; TCP alone cannot distinguish paths."
+            },
+            {
+              "evidenceId": "VALIDATED-F01",
+              "effect": "unaffected",
+              "tacticalFixRequired": true,
+              "rationale": "Beta authorization scope must be fixed separately; retain current MCP gateway block."
+            },
+            {
+              "evidenceId": "VALIDATED-F02",
+              "effect": "unaffected",
+              "tacticalFixRequired": true,
+              "rationale": "Deactivate-account credential checking/revocation must be fixed separately."
+            }
+          ],
+          "tradeoffs": [
+            {
+              "dimension": "security",
+              "direction": "improves",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Blocks extra paths while enforcement works, but loss of policy restores shared adjacency.",
+              "validationPlan": "Test each denied source/destination/port against a controlled listening fixture, including reverse NEW and lifecycle recreation."
+            },
+            {
+              "dimension": "performance",
+              "direction": "unknown",
+              "confidence": "low",
+              "basis": "hypothetical",
+              "assessment": "Rules and conntrack add packet-processing work; no application proxy hop.",
+              "validationPlan": "Compare p50/p95 retrieval latency, ingestion throughput and CPU with identical corpus/model/hardware; agree budget after baseline."
+            },
+            {
+              "dimension": "memory",
+              "direction": "unknown",
+              "confidence": "low",
+              "basis": "hypothetical",
+              "assessment": "Conntrack and policy entries; total effect not measured.",
+              "validationPlan": "Measure peak cgroup memory/RSS, socket/conntrack counts and restart behavior against baseline."
+            },
+            {
+              "dimension": "reliability",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "One wrong policy can affect the whole segment; filter availability must gate workloads.",
+              "validationPlan": "Exercise policy failure, container/network recreate and VM restart; prove fail-closed readiness and allowed workloads."
+            },
+            {
+              "dimension": "operability",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Namespace-aware L2 policy and lifecycle controller; no new network names.",
+              "validationPlan": "Rehearse diagnostic runbook, identity updates, counters/logs, owned-rule rollback and DNS failures."
+            },
+            {
+              "dimension": "migration",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Keep current memberships; add only owned policy objects, with rollback.",
+              "validationPlan": "Synthetic login/upload/ingest/retrieve/delete and preserved data/volumes; inspect actual memberships and replay rollback."
+            },
+            {
+              "dimension": "developer_ergonomics",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "hypothetical",
+              "assessment": "Versioned connection matrix must accompany new services or ports; role separation adds ownership review.",
+              "validationPlan": "Require explicit new-connection declaration and negative policy tests when adding a dependency."
+            },
+            {
+              "dimension": "reversibility",
+              "direction": "neutral",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Same image and named-volume format permit reverting configuration; previous exposure returns on rollback.",
+              "validationPlan": "Restore original memberships and remove only own policy tables; do not delete data volumes."
+            }
+          ],
+          "residualRisks": [
+            "Shared L2 if rules fail",
+            "RAGFlow monolith retains all allowed data authority",
+            "Same-container admin remains reachable"
+          ],
+          "implementationReadiness": {
+            "affectedComponents": [
+              "compose.yaml",
+              "network/policy lifecycle integration in dedicated Podman VM",
+              "model/DNS routing",
+              "RAGFlow role configs for role-separation option"
+            ],
+            "workPackages": [
+              "Declare versioned connection matrix",
+              "Validate namespace-aware enforcement",
+              "Review topology and secrets scope",
+              "Run positive/negative workload and lifecycle checks"
+            ],
+            "acceptanceCriteria": [
+              "All required flows and synthetic document workflow pass",
+              "All controlled forbidden listeners are unreachable",
+              "Actual inspect has expected memberships",
+              "Policy failure blocks readiness and recreate does not expose traffic"
+            ],
+            "migrationNotes": [
+              "Source-derived topology; candidate enforcement is untested."
+            ],
+            "rollback": "Keep current memberships; add only owned policy objects, with rollback."
+          }
+        },
+        {
+          "optionId": "pair-networks",
+          "title": "Option 2: Per-dependency networks plus stateful ACL and constrained egress",
+          "kind": "isolation",
+          "summary": "Six internal pair networks, exact client-port policy, and approved model/DNS egress.",
+          "diagramPaths": {
+            "before": "diagrams/network-containment-before.mmd",
+            "after": "diagrams/network-containment-pair-networks-after.mmd"
+          },
+          "evidenceCoverage": [
+            {
+              "evidenceId": "NET",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Topology and/or port policy narrow peer reachability; lifecycle enforcement tests remain required."
+            },
+            {
+              "evidenceId": "PORTS",
+              "effect": "mitigates",
+              "tacticalFixRequired": true,
+              "rationale": "Exact allowed destination ports and reverse-flow tests required."
+            },
+            {
+              "evidenceId": "MONOLITH",
+              "effect": "unaffected",
+              "tacticalFixRequired": true,
+              "rationale": "Only separate role configs/credentials can reduce same-container authority."
+            },
+            {
+              "evidenceId": "HEARTBEAT",
+              "effect": "unaffected",
+              "tacticalFixRequired": true,
+              "rationale": "Role split needs a reports-only relay or a verified intentional change to telemetry; TCP alone cannot distinguish paths."
+            },
+            {
+              "evidenceId": "VALIDATED-F01",
+              "effect": "unaffected",
+              "tacticalFixRequired": true,
+              "rationale": "Beta authorization scope must be fixed separately; retain current MCP gateway block."
+            },
+            {
+              "evidenceId": "VALIDATED-F02",
+              "effect": "unaffected",
+              "tacticalFixRequired": true,
+              "rationale": "Deactivate-account credential checking/revocation must be fixed separately."
+            }
+          ],
+          "tradeoffs": [
+            {
+              "dimension": "security",
+              "direction": "improves",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Removes direct dependency adjacency and blocks excess/reverse NEW flows if topology and external enforcement pass validation.",
+              "validationPlan": "Test each denied source/destination/port against a controlled listening fixture, including reverse NEW and lifecycle recreation."
+            },
+            {
+              "dimension": "performance",
+              "direction": "unknown",
+              "confidence": "low",
+              "basis": "hypothetical",
+              "assessment": "More interfaces and rules, no new application proxy hop; latency unknown.",
+              "validationPlan": "Compare p50/p95 retrieval latency, ingestion throughput and CPU with identical corpus/model/hardware; agree budget after baseline."
+            },
+            {
+              "dimension": "memory",
+              "direction": "unknown",
+              "confidence": "low",
+              "basis": "hypothetical",
+              "assessment": "Additional bridge/veth/IPAM and conntrack entries; memory not measured.",
+              "validationPlan": "Measure peak cgroup memory/RSS, socket/conntrack counts and restart behavior against baseline."
+            },
+            {
+              "dimension": "reliability",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Per-service topology improves readability; controller, DNS and stable identity become availability dependencies.",
+              "validationPlan": "Exercise policy failure, container/network recreate and VM restart; prove fail-closed readiness and allowed workloads."
+            },
+            {
+              "dimension": "operability",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Six explicit networks plus IPAM/DNS/policy ownership, readiness gate and recreate handling.",
+              "validationPlan": "Rehearse diagnostic runbook, identity updates, counters/logs, owned-rule rollback and DNS failures."
+            },
+            {
+              "dimension": "migration",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Replace all old backend memberships, preserve aliases/volumes/images, keep rollback to original Compose.",
+              "validationPlan": "Synthetic login/upload/ingest/retrieve/delete and preserved data/volumes; inspect actual memberships and replay rollback."
+            },
+            {
+              "dimension": "developer_ergonomics",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "hypothetical",
+              "assessment": "Versioned connection matrix must accompany new services or ports; role separation adds ownership review.",
+              "validationPlan": "Require explicit new-connection declaration and negative policy tests when adding a dependency."
+            },
+            {
+              "dimension": "reversibility",
+              "direction": "neutral",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Same image and named-volume format permit reverting configuration; previous exposure returns on rollback.",
+              "validationPlan": "Restore original memberships and remove only own policy tables; do not delete data volumes."
+            }
+          ],
+          "residualRisks": [
+            "RAGFlow is multihomed with all permitted client access",
+            "Authorized database operations remain usable after RCE",
+            "Rootless filtering and strict isolation must be proven",
+            "Same-container API/admin/ingestor share secrets and localhost"
+          ],
+          "implementationReadiness": {
+            "affectedComponents": [
+              "compose.yaml",
+              "network/policy lifecycle integration in dedicated Podman VM",
+              "model/DNS routing",
+              "RAGFlow role configs for role-separation option"
+            ],
+            "workPackages": [
+              "Declare versioned connection matrix",
+              "Validate namespace-aware enforcement",
+              "Review topology and secrets scope",
+              "Run positive/negative workload and lifecycle checks"
+            ],
+            "acceptanceCriteria": [
+              "All required flows and synthetic document workflow pass",
+              "All controlled forbidden listeners are unreachable",
+              "Actual inspect has expected memberships",
+              "Policy failure blocks readiness and recreate does not expose traffic"
+            ],
+            "migrationNotes": [
+              "Recommended for current lab; no implementation applied."
+            ],
+            "rollback": "Replace all old backend memberships, preserve aliases/volumes/images, keep rollback to original Compose."
+          }
+        },
+        {
+          "optionId": "role-separation",
+          "title": "Option 3: Separate gateway, API, admin and ingestion roles",
+          "kind": "structural",
+          "summary": "Split roles and credentials with pair networks, data-plane policy, management gateway and reports-only heartbeat relay.",
+          "diagramPaths": {
+            "before": "diagrams/network-containment-before.mmd",
+            "after": "diagrams/network-containment-role-separation-after.mmd"
+          },
+          "evidenceCoverage": [
+            {
+              "evidenceId": "NET",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Topology and/or port policy narrow peer reachability; lifecycle enforcement tests remain required."
+            },
+            {
+              "evidenceId": "PORTS",
+              "effect": "mitigates",
+              "tacticalFixRequired": true,
+              "rationale": "Exact allowed destination ports and reverse-flow tests required."
+            },
+            {
+              "evidenceId": "MONOLITH",
+              "effect": "mitigates",
+              "tacticalFixRequired": true,
+              "rationale": "Only separate role configs/credentials can reduce same-container authority."
+            },
+            {
+              "evidenceId": "HEARTBEAT",
+              "effect": "mitigates",
+              "tacticalFixRequired": true,
+              "rationale": "Role split needs a reports-only relay or a verified intentional change to telemetry; TCP alone cannot distinguish paths."
+            },
+            {
+              "evidenceId": "VALIDATED-F01",
+              "effect": "unaffected",
+              "tacticalFixRequired": true,
+              "rationale": "Beta authorization scope must be fixed separately; retain current MCP gateway block."
+            },
+            {
+              "evidenceId": "VALIDATED-F02",
+              "effect": "unaffected",
+              "tacticalFixRequired": true,
+              "rationale": "Deactivate-account credential checking/revocation must be fixed separately."
+            }
+          ],
+          "tradeoffs": [
+            {
+              "dimension": "security",
+              "direction": "improves",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Separates parser/API/admin authority if actual client/secret sets are narrowed; retains authorization bugs on allowed paths.",
+              "validationPlan": "Test each denied source/destination/port against a controlled listening fixture, including reverse NEW and lifecycle recreation."
+            },
+            {
+              "dimension": "performance",
+              "direction": "unknown",
+              "confidence": "low",
+              "basis": "hypothetical",
+              "assessment": "Gateway and heartbeat relay add hops; role boundaries and connection pools require measurement.",
+              "validationPlan": "Compare p50/p95 retrieval latency, ingestion throughput and CPU with identical corpus/model/hardware; agree budget after baseline."
+            },
+            {
+              "dimension": "memory",
+              "direction": "unknown",
+              "confidence": "low",
+              "basis": "hypothetical",
+              "assessment": "Additional processes, native resources and client pools; cannot multiply existing 6GiB limit as if free.",
+              "validationPlan": "Measure peak cgroup memory/RSS, socket/conntrack counts and restart behavior against baseline."
+            },
+            {
+              "dimension": "reliability",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Independent role restarts and fault boundaries, but more readiness, migration and relay dependencies.",
+              "validationPlan": "Exercise policy failure, container/network recreate and VM restart; prove fail-closed readiness and allowed workloads."
+            },
+            {
+              "dimension": "operability",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Separate configs/keys, one migration owner, role policy, management gateway and heartbeat relay.",
+              "validationPlan": "Rehearse diagnostic runbook, identity updates, counters/logs, owned-rule rollback and DNS failures."
+            },
+            {
+              "dimension": "migration",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Audit role bootstrap/client dependencies; split startup/config without changing image/volume schema; rollback to monolith.",
+              "validationPlan": "Synthetic login/upload/ingest/retrieve/delete and preserved data/volumes; inspect actual memberships and replay rollback."
+            },
+            {
+              "dimension": "developer_ergonomics",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "hypothetical",
+              "assessment": "Versioned connection matrix must accompany new services or ports; role separation adds ownership review.",
+              "validationPlan": "Require explicit new-connection declaration and negative policy tests when adding a dependency."
+            },
+            {
+              "dimension": "reversibility",
+              "direction": "neutral",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Same image and named-volume format permit reverting configuration; previous exposure returns on rollback.",
+              "validationPlan": "Restore original memberships and remove only own policy tables; do not delete data volumes."
+            }
+          ],
+          "residualRisks": [
+            "Allowed DB/service credentials can still be abused",
+            "Shared bootstrap may limit narrowing without code changes",
+            "Heartbeat remains untrusted metadata",
+            "No defense against kernel escape is proven"
+          ],
+          "implementationReadiness": {
+            "affectedComponents": [
+              "compose.yaml",
+              "network/policy lifecycle integration in dedicated Podman VM",
+              "model/DNS routing",
+              "RAGFlow role configs for role-separation option"
+            ],
+            "workPackages": [
+              "Declare versioned connection matrix",
+              "Validate namespace-aware enforcement",
+              "Review topology and secrets scope",
+              "Run positive/negative workload and lifecycle checks"
+            ],
+            "acceptanceCriteria": [
+              "All required flows and synthetic document workflow pass",
+              "All controlled forbidden listeners are unreachable",
+              "Actual inspect has expected memberships",
+              "Policy failure blocks readiness and recreate does not expose traffic"
+            ],
+            "migrationNotes": [
+              "Prefer if parser RCE must be contained separately from API/admin; higher resource/operations cost."
+            ],
+            "rollback": "Audit role bootstrap/client dependencies; split startup/config without changing image/volume schema; rollback to monolith."
+          }
+        }
+      ],
+      "recommendedOptionId": "pair-networks",
+      "recommendation": "Choose Option2 for this local lab under balanced complexity; choose Option3 when parser-RCE isolation from API/admin is a hard requirement."
+    }
+  ],
+  "connectionPolicy": {
+    "basis": "configuration and read-only runtime snapshot; not enforced or exhaustively traffic-profiled",
+    "newFlows": [
+      {
+        "from": "Mac loopback",
+        "to": "ragflow nginx",
+        "protocol": "tcp",
+        "hostPort": 18080,
+        "toPort": 80
+      },
+      {
+        "from": "ragflow",
+        "to": "mysql",
+        "protocol": "tcp",
+        "toPort": 3306
+      },
+      {
+        "from": "ragflow",
+        "to": "es01",
+        "protocol": "tcp",
+        "toPort": 9200
+      },
+      {
+        "from": "ragflow",
+        "to": "minio",
+        "protocol": "tcp",
+        "toPort": 9000
+      },
+      {
+        "from": "ragflow",
+        "to": "kvrocks",
+        "protocol": "tcp",
+        "toPort": 6379
+      },
+      {
+        "from": "ragflow",
+        "to": "nats",
+        "protocol": "tcp",
+        "toPort": 4222
+      },
+      {
+        "from": "ragflow",
+        "to": "clickhouse",
+        "protocol": "tcp",
+        "toPort": 9000
+      },
+      {
+        "from": "ragflow",
+        "to": "approved local model endpoint",
+        "protocol": "tcp",
+        "toPort": 1235
+      },
+      {
+        "from": "workloads",
+        "to": "designated DNS resolver",
+        "protocol": "udp/tcp",
+        "toPort": 53
+      }
+    ],
+    "responses": "established/related for permitted connections",
+    "default": "deny new peer, reverse and unapproved external connections",
+    "roleSplitException": "API/ingestor -> reports-only HTTP relay -> admin9381; not a blanket allow to admin"
+  },
+  "sources": [
+    {
+      "title": "Podman network create",
+      "url": "https://docs.podman.io/en/latest/markdown/podman-network-create.1.html"
+    },
+    {
+      "title": "Podman unshare rootless-netns",
+      "url": "https://docs.podman.io/en/latest/markdown/podman-unshare.1.html"
+    },
+    {
+      "title": "nftables manpage: bridge/inet hooks",
+      "url": "https://netfilter.org/projects/nftables/manpage.html"
+    }
+  ],
+  "openQuestions": [
+    "Prove bridge/inet filter capability and persistence in current rootless namespace",
+    "Profile ClickHouse/DNS and per-role bootstrap under representative load",
+    "Select future model endpoints and egress ownership",
+    "Determine whether role separation resource/operations costs are justified"
+  ],
+  "applied": false
+}

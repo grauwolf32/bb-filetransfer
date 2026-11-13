@@ -1,0 +1,122 @@
+{
+  "date": "2026-11-13",
+  "runtime": "v1.0.0-rc3",
+  "image": "sha256:931307991475344f61c0d2f2af4c10dd5b37a3cdfa5814737688b8bb8f6a7298",
+  "scope": "F01,F02 local HTTP validation only",
+  "findings": [
+    {
+      "candidate_id": "candidate-beta-mcp",
+      "instance_key": "share-beta-mcp",
+      "ledger_row_id": null,
+      "source_reference": "Original completed scan b25a7472-7c3e-483f-bc74-7eebcb9723ea",
+      "seed_anchor": null,
+      "root_control": "internal/handler/mcp_server.go:99–106",
+      "lab_root_control": "upstream/internal/handler/mcp_server.go:98–106",
+      "entrypoint": "beta credential → POST /api/v1/mcp",
+      "sink_control": "owner-scoped MCP dataset list",
+      "disposition": "reportable",
+      "survives": "yes",
+      "confidence": "high",
+      "method": "realistic HTTP reproduction",
+      "evidence": "The same beta key accepted by GET /api/v1/chatbots/<app-A>/info initialized API MCP and returned the private B dataset ID and name from tools/list and ragflow_list_datasets. A was configured with only dataset A. No owner session/API credential was provided to the beta requests. An invalid or absent key returned application code 102; beta on ordinary GET /datasets/<B> returned HTTP 401. The normal Nginx MCP request returned HTTP 404.",
+      "counterevidence_or_proof_gap": "Actual document-text retrieval through MCP was attempted twice and returned isError:true: the configured local embedding endpoint refused the connection. Thus MCP metadata disclosure/scope escalation is dynamically confirmed; successful text retrieval is not. Direct API tests were inside the container and bypassed Nginx; the lab gateway blocks this MCP path."
+    },
+    {
+      "candidate_id": "candidate-disabled-api-keys",
+      "instance_key": "disabled-api-keys",
+      "ledger_row_id": null,
+      "source_reference": "Original completed scan b25a7472-7c3e-483f-bc74-7eebcb9723ea",
+      "seed_anchor": null,
+      "root_control": "internal/service/user.go:776–795",
+      "lab_root_control": "upstream/internal/service/user.go:907–930",
+      "entrypoint": "old API/beta credential after admin account deactivation",
+      "sink_control": "API/beta identity resolver and private document download",
+      "disposition": "reportable",
+      "survives": "yes",
+      "confidence": "high",
+      "method": "realistic HTTP reproduction",
+      "evidence": "After PUT /api/v1/admin/users/<synthetic-user>/activate {activate_status:off}, independent GET admin/users confirmed is_active:0. The preexisting web session returned HTTP 401; a new password login returned HTTP 200/code403 disabled. The unchanged API key still read private dataset B (HTTP 200/code0) and downloaded B's original text, including unique synthetic marker CODEX_PRIVATE_e0b02e8db69767e8ac8d, through Nginx. The unchanged beta key still read shared-app info (HTTP 200/code0) through Nginx and listed both datasets through diagnostic container-loopback MCP. No new key was issued after deactivation.",
+      "counterevidence_or_proof_gap": "The proven scope is the deactivated user's own previously authorized data, not arbitrary other tenants. MCP text retrieval was blocked by the offline embedding dependency. Reactivation/key-reissue policy and a remediated build were not tested; no patch was applied."
+    }
+  ],
+  "mcp_text_retrieval_confirmed": false,
+  "private_original_document_read_after_deactivation": true,
+  "gateway_mcp_blocked": true,
+  "cleanup": "completed; synthetic fixtures and temporary credential state removed",
+  "post_cleanup_health_check": "passed",
+  "patch_applied": false,
+  "beta_http_routes": [
+    {
+      "method": "POST",
+      "path": "/api/v1/mcp"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/searchbots/related-questions"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/searchbots/retrieval"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/searchbots/ask"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/searchbots/mindmap"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/searchbots/detail?search_id=…"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/chatbots/:id/completions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/chatbots/:id/info"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/agentbots/:id/completions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agentbots/:id/inputs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agentbots/:id/logs/:message_id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/:id/preview"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/:id/thumbnail"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/:id/images/:image_id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/images/:image_id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/thumbnails"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/agents/:id/upload"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agents/attachments/:id/download"
+    }
+  ]
+}
