@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-13",
+  "application_version": "v1.0.0-rc3",
+  "base": {
+    "reference": "docker.io/infiniflow/ragflow@sha256:931307991475344f61c0d2f2af4c10dd5b37a3cdfa5814737688b8bb8f6a7298",
+    "id": "5b38c06c0877c2508e39bda0db015a87f12ee592a712131069adc5500d4078a3",
+    "digest": "sha256:931307991475344f61c0d2f2af4c10dd5b37a3cdfa5814737688b8bb8f6a7298",
+    "size_bytes": 777475550,
+    "layers": 23
+  },
+  "runtime": {
+    "reference": "localhost/ragflow-lab-minimal@sha256:8803ecb0a91edef2a44b731cc7249adcde080a19b9ec60eedf98b700d7026459",
+    "id": "5525f66d84f07475b4a34631a753641fef1588af64a98e50e55fdf60f976520c",
+    "digest": "sha256:8803ecb0a91edef2a44b731cc7249adcde080a19b9ec60eedf98b700d7026459",
+    "size_bytes": 705804234,
+    "layers": 1
+  },
+  "build_tag": "localhost/ragflow-lab-minimal:v1.0.0-rc3-20261113",
+  "go_binary_sha256": "69a35469bf70ccd2a78733c86c51aba9e8fc510f3e51a367e5bf0a0512f62ece",
+  "removed_packages": [
+    "vim",
+    "vim-common",
+    "vim-runtime",
+    "unzip",
+    "iproute2",
+    "libpython3.12-minimal",
+    "libpython3.12-stdlib",
+    "libpython3.12t64"
+  ],
+  "base_installed_packages": 141,
+  "runtime_installed_packages": 133,
+  "saved_image_bytes": 71671316,
+  "files": {
+    "config/minimal-image/Containerfile": "bd1a8937b338a65d56fd519342d848cd4c3b4c5f285e9c4d952843337243a5a4",
+    "bin/build-minimal-image.sh": "eea1ec8ff6f54f3a646904fadd84ab188533926186e468b2048e9a88be8fb4a8",
+    "bin/verify-minimal-runtime.py": "ef03c4efacecf6e7da28e4cee86f7b73c1f97962d0755460baec4bf29d2a94bb"
+  }
+}

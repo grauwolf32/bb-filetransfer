@@ -1,0 +1,75 @@
+{
+  "documentType": "codex-security.hardening-analysis",
+  "schemaVersion": "1.0",
+  "analysisId": "hardening_20261113_ragflow_runtime_minimal",
+  "sourceEvidence": {
+    "kind": "document_collection",
+    "label": "Verified RAGFlow lab runtime and package state",
+    "collectionSha256": "8545a600891cebf6bb65932050b3ce54f48337530dc6837c8359bcab33017338",
+    "artifactCount": 1,
+    "sourceDrift": "present",
+    "sourceDriftNote": "Intentional packaging/configuration change applied; Go application binary unchanged.",
+    "verificationPath": "evidence/verification.json"
+  },
+  "assessment": {
+    "outcome": "local_remediation_preferred",
+    "summary": "Applied targeted removal of eight unnecessary runtime packages to the existing pinned application image; verified native parsing/full-text retrieval and retained rollback."
+  },
+  "constraints": {
+    "profile": "balanced",
+    "changeHorizons": [
+      "incremental"
+    ],
+    "nonNegotiables": [
+      "Preserve startup shells and healthcheck",
+      "Preserve application binary, model assets, data and other six services",
+      "Retain old image and database/config backup"
+    ],
+    "assumptions": [
+      "No claim of shell-less runtime",
+      "Perl Essential and package-management tooling retained",
+      "Only TXT/DOCX/PDF parsing and full-text search retested; model service offline"
+    ]
+  },
+  "opportunities": [],
+  "implementation": {
+    "status": "applied",
+    "planPath": "implementation/minimal-runtime.md",
+    "runtimeImage": "localhost/ragflow-lab-minimal@sha256:8803ecb0a91edef2a44b731cc7249adcde080a19b9ec60eedf98b700d7026459",
+    "baseImage": "docker.io/infiniflow/ragflow@sha256:931307991475344f61c0d2f2af4c10dd5b37a3cdfa5814737688b8bb8f6a7298",
+    "goBinaryUnchanged": true,
+    "removedPackages": [
+      "vim",
+      "vim-common",
+      "vim-runtime",
+      "unzip",
+      "iproute2",
+      "libpython3.12-minimal",
+      "libpython3.12-stdlib",
+      "libpython3.12t64"
+    ],
+    "metrics": {
+      "basis": "measured",
+      "imageBytesBefore": 777475550,
+      "imageBytesAfter": 705804234,
+      "removedImageBytes": 71671316,
+      "installedPackagesBefore": 141,
+      "installedPackagesAfter": 133
+    },
+    "validationPaths": [
+      "evidence/verification.json",
+      "evidence/smoke-results.json",
+      "evidence/lab-results.json"
+    ],
+    "rollback": "Restore lab backup compose configuration and recreate only ragflow; original base image retained. Do not delete data volumes.",
+    "retainedInterpreters": [
+      "bash",
+      "dash",
+      "Debian Essential perl-base"
+    ]
+  },
+  "openQuestions": [
+    "Full removal of shell/Essential interpreter runtime requires a separate startup/role architecture change",
+    "Vector-model path not retested while existing embedding endpoint was offline"
+  ]
+}

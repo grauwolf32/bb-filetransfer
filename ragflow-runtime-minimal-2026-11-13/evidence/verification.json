@@ -1,0 +1,90 @@
+{
+  "date": "2026-11-13",
+  "lock": {
+    "date": "2026-11-13",
+    "application_version": "v1.0.0-rc3",
+    "base": {
+      "reference": "docker.io/infiniflow/ragflow@sha256:931307991475344f61c0d2f2af4c10dd5b37a3cdfa5814737688b8bb8f6a7298",
+      "id": "5b38c06c0877c2508e39bda0db015a87f12ee592a712131069adc5500d4078a3",
+      "digest": "sha256:931307991475344f61c0d2f2af4c10dd5b37a3cdfa5814737688b8bb8f6a7298",
+      "size_bytes": 777475550,
+      "layers": 23
+    },
+    "runtime": {
+      "reference": "localhost/ragflow-lab-minimal@sha256:8803ecb0a91edef2a44b731cc7249adcde080a19b9ec60eedf98b700d7026459",
+      "id": "5525f66d84f07475b4a34631a753641fef1588af64a98e50e55fdf60f976520c",
+      "digest": "sha256:8803ecb0a91edef2a44b731cc7249adcde080a19b9ec60eedf98b700d7026459",
+      "size_bytes": 705804234,
+      "layers": 1
+    },
+    "build_tag": "localhost/ragflow-lab-minimal:v1.0.0-rc3-20261113",
+    "go_binary_sha256": "69a35469bf70ccd2a78733c86c51aba9e8fc510f3e51a367e5bf0a0512f62ece",
+    "removed_packages": [
+      "vim",
+      "vim-common",
+      "vim-runtime",
+      "unzip",
+      "iproute2",
+      "libpython3.12-minimal",
+      "libpython3.12-stdlib",
+      "libpython3.12t64"
+    ],
+    "base_installed_packages": 141,
+    "runtime_installed_packages": 133,
+    "saved_image_bytes": 71671316,
+    "files": {
+      "config/minimal-image/Containerfile": "bd1a8937b338a65d56fd519342d848cd4c3b4c5f285e9c4d952843337243a5a4",
+      "bin/build-minimal-image.sh": "eea1ec8ff6f54f3a646904fadd84ab188533926186e468b2048e9a88be8fb4a8",
+      "bin/verify-minimal-runtime.py": "ef03c4efacecf6e7da28e4cee86f7b73c1f97962d0755460baec4bf29d2a94bb"
+    }
+  },
+  "before_counts": {
+    "knowledgebase": "3",
+    "document": "1356",
+    "user": "2"
+  },
+  "after_counts": {
+    "knowledgebase": "3",
+    "document": "1356",
+    "user": "2"
+  },
+  "counts_unchanged": true,
+  "actual_runtime_image": "5525f66d84f07475b4a34631a753641fef1588af64a98e50e55fdf60f976520c",
+  "health": {
+    "ragflow-lab-ragflow-1": "healthy",
+    "ragflow-lab-mysql-1": "healthy",
+    "ragflow-lab-es01-1": "healthy",
+    "ragflow-lab-minio-1": "healthy",
+    "ragflow-lab-kvrocks-1": "healthy",
+    "ragflow-lab-nats-1": "no-healthcheck",
+    "ragflow-lab-clickhouse-1": "healthy"
+  },
+  "negative_tool_and_libpython_checks": "passed",
+  "binary_sha256_unchanged": true,
+  "only_published_port": {
+    "80/tcp": [
+      {
+        "HostIp": "127.0.0.1",
+        "HostPort": "18080"
+      }
+    ]
+  },
+  "temporary_stack_removed": true,
+  "database_backup_exists": true,
+  "database_backup_exported": false,
+  "remaining_interpreters": [
+    "bash",
+    "dash",
+    "Debian Essential perl-base"
+  ],
+  "embedding_vector_regression_test": "not run: existing model service offline; actual full-text retrieval and native parsing tested in isolated and real lab",
+  "files": {
+    "compose.yaml": "9612cb9d0e0d0e0e70cdc690830469ebed8f8e90493f1dc83cae9502a371a1ab",
+    "README.md": "e283186f461ac3f0002fe10cf9ec73e1811cd8eaa8090aeb856a951875fb0f65",
+    "config/minimal-image/Containerfile": "bd1a8937b338a65d56fd519342d848cd4c3b4c5f285e9c4d952843337243a5a4",
+    "config/minimal-image.lock.json": "39fa0dd8311e49cb5f7499ab0dbd4f98232f1da084cbd1500337a5d4d6eae845",
+    "bin/build-minimal-image.sh": "eea1ec8ff6f54f3a646904fadd84ab188533926186e468b2048e9a88be8fb4a8",
+    "bin/verify-minimal-runtime.py": "ef03c4efacecf6e7da28e4cee86f7b73c1f97962d0755460baec4bf29d2a94bb"
+  }
+}
+

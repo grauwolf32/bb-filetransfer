@@ -1,0 +1,26 @@
+ARG RAGFLOW_BASE=docker.io/infiniflow/ragflow@sha256:931307991475344f61c0d2f2af4c10dd5b37a3cdfa5814737688b8bb8f6a7298
+FROM ${RAGFLOW_BASE}
+
+LABEL org.opencontainers.image.title="RAGFlow lab minimal runtime" \
+      org.opencontainers.image.base.name="docker.io/infiniflow/ragflow@sha256:931307991475344f61c0d2f2af4c10dd5b37a3cdfa5814737688b8bb8f6a7298"
+
+# Keep bash/dash for the existing entrypoint and curl for the healthcheck.
+# Purge an explicit set; blanket autoremove could remove libraries used by
+# the native Go parsers but not represented by a Debian application package.
+RUN apt-get -y --no-auto-remove purge \
+        vim vim-common vim-runtime unzip iproute2 \
+        libpython3.12-minimal libpython3.12-stdlib libpython3.12t64 \
+    && rm -rf /usr/share/vim /usr/lib/python3.12 \
+        /var/lib/apt/lists/* /var/cache/apt/archives/* \
+    && for tool in vim vi view ex python python3 pip pip3 uv node nodejs npm npx unzip ip ss; do \
+        if command -v "$tool" >/dev/null 2>&1; then \
+            echo "Unexpected runtime tool remains: $tool" >&2; exit 1; \
+        fi; \
+    done \
+    && test -z "$(find /usr/lib -name 'libpython*.so*' -print -quit)" \
+    && for tool in bash sh curl nginx sed cat rm sleep; do \
+        command -v "$tool" >/dev/null 2>&1 || exit 1; \
+    done \
+    && test -x /ragflow/bin/ragflow_server
+
+ENV PYTHONPATH=""

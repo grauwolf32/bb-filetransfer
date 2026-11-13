@@ -1,0 +1,150 @@
+{
+  "base": "http://127.0.0.1:18081",
+  "checks": [
+    {
+      "label": "registration-disabled",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.018
+    },
+    {
+      "label": "health",
+      "http": 200,
+      "code": null,
+      "duration_seconds": 0.006
+    },
+    {
+      "label": "MCP-blocked",
+      "http": 404,
+      "code": null,
+      "duration_seconds": 0.001
+    },
+    {
+      "label": "admin-login",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.055
+    },
+    {
+      "label": "create-disposable-user",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.053
+    },
+    {
+      "label": "ordinary-login",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.053
+    },
+    {
+      "label": "create-fulltext-dataset",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.005
+    },
+    {
+      "label": "upload-sample.txt",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.013
+    },
+    {
+      "label": "upload-sample.docx",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.007
+    },
+    {
+      "label": "upload-sample.pdf",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.007
+    },
+    {
+      "label": "parse-native-documents",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.052
+    },
+    {
+      "label": "document-status",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.01
+    },
+    {
+      "label": "document-status",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.01
+    },
+    {
+      "label": "document-status",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.022
+    },
+    {
+      "label": "fulltext-retrieval",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.049
+    },
+    {
+      "label": "download-original-docx",
+      "http": 200,
+      "code": null,
+      "duration_seconds": 0.004
+    },
+    {
+      "label": "cleanup-dataset",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.064
+    },
+    {
+      "label": "deactivate-disposable-user",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.005
+    },
+    {
+      "label": "delete-disposable-user",
+      "http": 200,
+      "code": 0,
+      "duration_seconds": 0.041
+    }
+  ],
+  "documents": [
+    {
+      "name": "sample.pdf",
+      "id": "e626907ed1984e068c8e5ef09e14035b",
+      "status": "COMPLETED",
+      "chunks": 1
+    },
+    {
+      "name": "sample.docx",
+      "id": "02ed78bcbbfa42a189b2db07db8bb403",
+      "status": "COMPLETED",
+      "chunks": 1
+    },
+    {
+      "name": "sample.txt",
+      "id": "ec77f670ec744437b1d4ea6d392318a0",
+      "status": "COMPLETED",
+      "chunks": 1
+    }
+  ],
+  "retrieval_mode": "BM25/full-text; no embedding service required",
+  "synthetic_user": "runtime-smoke-e52d91a6fa4c@ragflow.local",
+  "retrieval": {
+    "chunks": 3,
+    "all_formats_found": true
+  },
+  "passed": true,
+  "cleanup": [
+    "dataset-and-documents",
+    "user"
+  ]
+}
